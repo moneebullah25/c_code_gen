@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "c_code_gen"
+  site-url: "https://moneebullah25.github.io/c_code_gen/"
+  description: "Leveraging GPT for Embedded C Code Generation"
+  repo-branch: main
+  repo-url: "https://github.com/moneebullah25/c_code_gen/"
