@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="Implementation of the Transformers Architecture and some basic documentation">
+
+<title>c_code_gen - Transformers</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="styles.css">
+<meta property="og:title" content="c_code_gen - Transformers">
+<meta property="og:description" content="Implementation of the Transformers Architecture and some basic documentation">
+<meta property="og:image" content="https://www.researchgate.net/publication/344197785/figure/fig2/AS:934416989843456@1599793779015/Transformer-model-architecture-described-in-Attention-Is-All-You-Need-6.ppm">
+<meta property="og:site-name" content="c_code_gen">
+<meta name="twitter:title" content="c_code_gen - Transformers">
+<meta name="twitter:description" content="Implementation of the Transformers Architecture and some basic documentation">
+<meta name="twitter:image" content="https://www.researchgate.net/publication/344197785/figure/fig2/AS:934416989843456@1599793779015/Transformer-model-architecture-described-in-Attention-Is-All-You-Need-6.ppm">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">c_code_gen</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools ms-auto">
+</div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./transformers.html">Transformers</a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">c_code_gen</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./langmodels.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Language Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./transformers.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Transformers</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#the-transformer-network" id="toc-the-transformer-network" class="nav-link active" data-scroll-target="#the-transformer-network">The Transformer Network</a></li>
+  <li><a href="#transformers-explained-step-by-step" id="toc-transformers-explained-step-by-step" class="nav-link" data-scroll-target="#transformers-explained-step-by-step">Transformers Explained Step by Step</a>
+  <ul class="collapse">
+  <li><a href="#tokenization" id="toc-tokenization" class="nav-link" data-scroll-target="#tokenization">Tokenization</a></li>
+  <li><a href="#embedding" id="toc-embedding" class="nav-link" data-scroll-target="#embedding">Embedding</a></li>
+  <li><a href="#context" id="toc-context" class="nav-link" data-scroll-target="#context">Context</a></li>
+  <li><a href="#self-attention-mechanism" id="toc-self-attention-mechanism" class="nav-link" data-scroll-target="#self-attention-mechanism">Self Attention Mechanism</a></li>
+  <li><a href="#keys-queries-and-values" id="toc-keys-queries-and-values" class="nav-link" data-scroll-target="#keys-queries-and-values">Keys, Queries and Values</a></li>
+  <li><a href="#multi-head-attention" id="toc-multi-head-attention" class="nav-link" data-scroll-target="#multi-head-attention">Multi-head Attention</a></li>
+  <li><a href="#positional-encoding" id="toc-positional-encoding" class="nav-link" data-scroll-target="#positional-encoding">Positional Encoding</a></li>
+  <li><a href="#bert" id="toc-bert" class="nav-link" data-scroll-target="#bert">BERT</a></li>
+  </ul></li>
+  <li><a href="#importing-libraries" id="toc-importing-libraries" class="nav-link" data-scroll-target="#importing-libraries">Importing Libraries</a></li>
+  <li><a href="#multi-head-attention-1" id="toc-multi-head-attention-1" class="nav-link" data-scroll-target="#multi-head-attention-1">Multi Head Attention</a>
+  <ul class="collapse">
+  <li><a href="#multiheadattention" id="toc-multiheadattention" class="nav-link" data-scroll-target="#multiheadattention">MultiHeadAttention</a></li>
+  </ul></li>
+  <li><a href="#encoder-layer" id="toc-encoder-layer" class="nav-link" data-scroll-target="#encoder-layer">Encoder Layer</a>
+  <ul class="collapse">
+  <li><a href="#transformerlayer" id="toc-transformerlayer" class="nav-link" data-scroll-target="#transformerlayer">TransformerLayer</a></li>
+  </ul></li>
+  <li><a href="#encoder" id="toc-encoder" class="nav-link" data-scroll-target="#encoder">Encoder</a>
+  <ul class="collapse">
+  <li><a href="#encoder-1" id="toc-encoder-1" class="nav-link" data-scroll-target="#encoder-1">Encoder</a></li>
+  </ul></li>
+  <li><a href="#decoder-layer" id="toc-decoder-layer" class="nav-link" data-scroll-target="#decoder-layer">Decoder Layer</a>
+  <ul class="collapse">
+  <li><a href="#decoderlayer" id="toc-decoderlayer" class="nav-link" data-scroll-target="#decoderlayer">DecoderLayer</a></li>
+  </ul></li>
+  <li><a href="#decoder" id="toc-decoder" class="nav-link" data-scroll-target="#decoder">Decoder</a>
+  <ul class="collapse">
+  <li><a href="#decoder-1" id="toc-decoder-1" class="nav-link" data-scroll-target="#decoder-1">Decoder</a></li>
+  </ul></li>
+  <li><a href="#transformer" id="toc-transformer" class="nav-link" data-scroll-target="#transformer">Transformer</a>
+  <ul class="collapse">
+  <li><a href="#transformer-1" id="toc-transformer-1" class="nav-link" data-scroll-target="#transformer-1">Transformer</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/moneebullah25/c_code_gen/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Transformers</h1>
+</div>
+
+<div>
+  <div class="description">
+    Implementation of the Transformers Architecture and some basic documentation
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<section id="the-transformer-network" class="level3">
+<h3 class="anchored" data-anchor-id="the-transformer-network">The Transformer Network</h3>
+<p>This is the diagram of the Transformer network presented in the <em>Attention is All You Need</em> paper. We will go through all the different pieces of this network throughout this notebook.</p>
+<center>
+<img src="https://www.researchgate.net/publication/344197785/figure/fig2/AS:934416989843456@1599793779015/Transformer-model-architecture-described-in-Attention-Is-All-You-Need-6.ppm" width="350">
+</center>
+</section>
+<section id="transformers-explained-step-by-step" class="level2">
+<h2 class="anchored" data-anchor-id="transformers-explained-step-by-step">Transformers Explained Step by Step</h2>
+<section id="tokenization" class="level3">
+<h3 class="anchored" data-anchor-id="tokenization">Tokenization</h3>
+The first step in processing text is to cut it into pieces called <strong>tokens</strong>. There are many variations of how to do it, and we won’t go into details, but <code>BERT</code> uses <code>WordPiece</code> tokenization. This means that tokens correspond roughly to words and punctuation, although a word can also be split into several tokens if it contains a common prefix or suffix. These are called sub-word tokens and usually contain <code>##</code> characters. Words can even be spelled out if they have never been seen before. <br>
+<center>
+<img src="https://i.imgur.com/kCoLZuG.png" width="750">
+</center>
+</section>
+<section id="embedding" class="level3">
+<h3 class="anchored" data-anchor-id="embedding">Embedding</h3>
+The second step is to associate each token with an <strong>embedding</strong>, which is nothing more than a vector of real numbers. Again, there are many ways to create embedding vectors. Fortunately, already trained embeddings are often provided by research groups, and we can just use an existing dictionary to convert the WordPiece tokens into embedding vectors. <br>
+<center>
+<img src="https://i.imgur.com/NulRCFU.png" width="750">
+</center>
+<p><br> The embedding of tokens into vectors is an achievement in itself. The values inside an embedding carry information about the meaning of the token, but they are also arranged in such a way that one can perform mathematical operations on them, which correspond to semantic changes, like changing the gender of a noun, or the tense of a verb, or even the homeland of a city.<br></p>
+<center>
+<img src="https://i.imgur.com/6LtQ1Pd.png" width="750">
+</center>
+</section>
+<section id="context" class="level3">
+<h3 class="anchored" data-anchor-id="context">Context</h3>
+<p>However, embeddings are associated with tokens by a straight dictionary look-up, which means that the same token always gets the same embedding, regardless of its context. This is where the attention mechanism comes in, and specifically for BERT, the scaled dot-product self-attention. Attention transforms the default embeddings by analyzing the whole sequence of tokens, so that the values are more representative of the token they represent in the context of the sentence.</p>
+<center>
+<img src="https://i.imgur.com/oPfudSt.png" width="750">
+</center>
+</section>
+<section id="self-attention-mechanism" class="level3">
+<h3 class="anchored" data-anchor-id="self-attention-mechanism">Self Attention Mechanism</h3>
+Let’s have a look at this process with the sequence of tokens <code>walk</code>, <code>by</code>, <code>river</code>, <code>bank</code>. Each token is initially replaced by its default embedding, which in this case is a vector with 768 components. <br>
+<center>
+<img src="https://i.imgur.com/HHZDysd.png" width="450">
+</center>
+<p><br></p>
+<p>Let’s color the embedding of the first token to follow what happens to it. We start by calculating the scalar product between pairs of embeddings. Here we have the first embedding with itself. When the two vectors are more correlated, or aligned, meaning that they are generally more similar, the scalar product is higher (darker in image), and we consider that they have a strong relationship. If they had less similar content, the scalar product would be lower (brighter in the image) and we would consider that they don’t relate to each other.</p>
+<br>
+<center>
+<img src="https://i.imgur.com/z3s8TPe.png" width="450">
+</center>
+<p><br></p>
+We go on and calculate the scalar product for every possible pair of embedding vectors in the input sequence. The values obtained are usually scaled down to avoid getting large values, which improves the numerical behavior. That’s done here by dividing by the square root of 768, which is the size of the vectors. <br>
+<center>
+<img src="https://i.imgur.com/ngHnOUc.png" width="450">
+</center>
+<p><br></p>
+<p>Then comes the only non-linear operation in the attention mechanism: The scaled values are passed through a softmax activation function, by groups corresponding to each input token. So in this illustration, we apply the softmax column by column. What the softmax does is to exponentially amplify large values, while crushing low and negative values towards zero. It also does normalization, so that each column sums up to 1.</p>
+<br>
+<center>
+<img src="https://i.imgur.com/pLl50D7.png" width="450">
+</center>
+<p><br></p>
+<p>Finally, we create a new embedding vector for each token by linear combination of the input embeddings, in proportions given by the softmax results. We can say that the new embedding vectors are contextualized, since they contain a fraction of every input embedding for this particular sequence of tokens. In particular, if a token has a strong relationship with another one, a large fraction of its new contextualized embedding will be made of the related embedding. If a token doesn’t relate much to any other, as measured by the scalar product between their input embeddings, its contextualized embedding will be nearly identical to the input embedding.</p>
+<br>
+<center>
+<img src="https://i.imgur.com/UPZy2nm.png" width="450">
+</center>
+<p><br></p>
+<p>For instance, one can imagine that the vector space has a direction that corresponds to the idea of <em>nature</em>. The input embeddings of the tokens <code>river</code> and <code>bank</code> should both have large values in that direction, so that they are more similar and have a strong relationship. As a result, the new contextualized embeddings of the <code>river</code> and <code>bank</code> tokens would combine both input embeddings in roughly equal parts. On the other hand, the preposition <code>by</code> sounds quite neutral, so that its embedding should have a weak relationship with every other one and little modification of its embedding vector would occur. So there we have the mechanism that lets the scaled dot-product attention utilize context.</p>
+To recap: 1. First, it determines how much the input embedding vectors relate to each other using the scalar product. 2. The results are then scaled down, and the softmax activation function is applied, which normalizes these results in a non-linear way. 3. New contextualized embeddings are finally created for every token by linear combination of all the input embeddings, using the softmax proportions as coefficients <br>
+<center>
+<img src="https://i.imgur.com/qfFLyND.gif" width="950">
+</center>
+<p><br></p>
+</section>
+<section id="keys-queries-and-values" class="level3">
+<h3 class="anchored" data-anchor-id="keys-queries-and-values">Keys, Queries and Values</h3>
+However, that’s not the whole story. Most importantly, we don’t have to use the input embedding vectors as is. We can first project them using 3 linear projections to create the so-called <em>Key</em>, <em>Query</em>, and <em>Value</em> vectors. Typically, the projections are also mapping the input embeddings onto a space of lower dimension. In the case of BERT, the Key, Query, and Value vectors all have 64 components. <br>
+<center>
+<img src="https://i.imgur.com/lIhueb8.png" width="450">
+</center>
+<p><br></p>
+<p>Each projection can be thought of as focusing on different directions of the vector space, which would represent different semantic aspects. One can imagine that a Key is the projection of an embedding onto the direction of “prepositions”, and a Query is the projection of an embedding along the direction of “locations”. In this case, the Key of the token <code>by</code> should have a strong relationship with every other Query, since <code>by</code> should have strong components in the direction of “prepositions”, and every other token should have strong components in the direction of “locations”. The Values can come from yet another projection that is relevant, for example the direction of physical places. It’s these values that are combined to create the contextualized embeddings In practice, the meaning of each projection may not be so clear, and the model is free to learn whatever projections allow it to solve language tasks the most efficiently.</p>
+</section>
+<section id="multi-head-attention" class="level3">
+<h3 class="anchored" data-anchor-id="multi-head-attention">Multi-head Attention</h3>
+In addition, the same process can be repeated many times with different Key, Query, and Value projections, forming what is called a <strong>multi-head attention</strong>. Each head can focus on different projections of the input embeddings. For instance, one head could calculate the preposition/location relationships, while another head could calculate subject/verb relationships, simply by using different projections to create the Key, Query, and Value vectors. The outputs from each head are concatenated back in a large vector. BERT uses 12 such heads, which means that the final output contains one 768-component contextualized embedding vector per token, equally long with the input. <br>
+<center>
+<img src="https://i.imgur.com/pH4NcnC.png" width="450">
+</center>
+<p><br></p>
+</section>
+<section id="positional-encoding" class="level3">
+<h3 class="anchored" data-anchor-id="positional-encoding">Positional Encoding</h3>
+<p>We can also kickstart the process by adding the input embeddings to <strong>positional embeddings</strong>. Positional embeddings are vectors that contain information about a position in the sequence, rather than about the meaning of a token. This adds information about the sequence even before attention is applied, and it allows attention to calculate relationships knowing the relative order of the tokens.</p>
+<br>
+<center>
+<img src="https://i.imgur.com/vbCEp1G.png" width="450">
+</center>
+<p><br></p>
+<p>A detailed explanation of how it works can be found <a href="https://kazemnejad.com/blog/transformer_architecture_positional_encoding/">here</a>, but a quick explanation is that we create a vector for each element representing its position with regard to every other element in the sequence. Positional encoding follows this very complicated-looking formula which, in practice, we won’t really need to understand:</p>
+<p><span class="math display">\[\begin{equation}
+  p_{i,j} = \left\{
+  \begin{array}{@{}ll@{}}
+    \sin \left(\frac{1}{10000^{\frac{j}{dim\:embed}}} \right), &amp; \text{if}\ j=even \\
+    \cos \left(\frac{1}{10000^{\frac{j}{dim\:embed}}} \right), &amp; \text{if}\ j=odd \\
+  \end{array}\right.
+\end{equation}
+\]</span></p>
+</section>
+<section id="bert" class="level3">
+<h3 class="anchored" data-anchor-id="bert">BERT</h3>
+Finally, thanks to the non-linearity introduced by the softmax function, we can achieve even more complex transformations of the embeddings by applying attention again and again, with a couple of helpful steps between each application. A complete model like BERT uses 12 layers of attention, each with its own set of projections So when you search for suggestions for a “walk by the river bank”, the computer doesn’t only get a chance to recognize the keyword “river”, but even the numerical values given to “bank” indicate that you’re interested in enjoying the waterside, and not in need of the nearest cash machine. <br>
+<center>
+<img src="https://i.imgur.com/Tn0ddHY.png" width="650">
+</center>
+<p><br></p>
+</section>
+</section>
+<section id="importing-libraries" class="level2">
+<h2 class="anchored" data-anchor-id="importing-libraries">Importing Libraries</h2>
+</section>
+<section id="multi-head-attention-1" class="level2">
+<h2 class="anchored" data-anchor-id="multi-head-attention-1">Multi Head Attention</h2>
+<p>Attention is a mechanism that allows neural networks to assign a different amount of weight or <strong>attention</strong> to each element in a sequence. For text sequences, the elements are token embeddings, where each token is mapped to a vector of some fixed dimension. For example, in BERT each token is represented as a 768-dimensional vector. The “self” part of self-attention refers to the fact that these weights are computed for all hidden states in the same set—for example, all the hidden states of the encoder. By contrast, the attention mechanism associated with recurrent models involves computing the relevance of each encoder hidden state to the decoder hidden state at a given decoding timestep.</p>
+<p>The main idea behind self-attention is that instead of using a fixed embedding for each token, we can use the whole sequence to compute a weighted average of each embedding. Another way to formulate this is to say that given a sequence of token embeddings <span class="math inline">\(x_{1}, x_{2}, ..., x_{n}\)</span>, self-attention produces a sequence of new embeddings <span class="math inline">\(x^{'}_{1}, x^{'}_{2}, ..., x^{'}_{n}\)</span> where each <span class="math inline">\(x^{'}_{i}\)</span> is a linear combination of all the <span class="math inline">\(x_{j}\)</span>:</p>
+<p><span class="math display">\[x^{'}_{i} = \sum^{n}_{j=1} w_{ji} . x_{j}\]</span></p>
+<hr>
+<section id="multiheadattention" class="level3">
+<h3 class="anchored" data-anchor-id="multiheadattention">MultiHeadAttention</h3>
+<blockquote class="blockquote">
+<pre><code> MultiHeadAttention (embed_size, heads)</code></pre>
+</blockquote>
+<p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>.. note:: As per the example above, an <code>__init__()</code> call to the parent class must be made before assignment on the child.</p>
+<p>:ivar training: Boolean represents whether this module is in training or evaluation mode. :vartype training: bool</p>
+</section>
+</section>
+<section id="encoder-layer" class="level2">
+<h2 class="anchored" data-anchor-id="encoder-layer">Encoder Layer</h2>
+<br>
+<center>
+<img style="float:left; margin:20px; padding:20px; max-height:250px" src="https://i.imgur.com/vUOhpoC.png">
+</center>
+<p><br></p>
+<p>We will be referring to the encoder layer. The encoder layer/block consists of: 1. <em>Multi-Head Attention</em> 2. <em>Add &amp; Norm</em> 3. <em>Feed Forward</em> 4. <em>Add &amp; Norm</em> again.</p>
+<ul>
+<li><a href="https://pytorch.org/docs/stable/generated/torch.nn.LayerNorm.html">nn.LayerNorm()</a></li>
+<li>The <code>forward_expansion</code> is a parameter in the “Attention is All You Need” paper which simply adds nodes to the Linear Layer. Since it’s used in two different layers in the end it doesn’t affect the shape of the output (same as input) it just add some extra computation. Its default value is 4.</li>
+</ul>
+<hr>
+<section id="transformerlayer" class="level3">
+<h3 class="anchored" data-anchor-id="transformerlayer">TransformerLayer</h3>
+<blockquote class="blockquote">
+<pre><code> TransformerLayer (embed_size, heads, dropout, forward_expansion=4)</code></pre>
+</blockquote>
+<p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>.. note:: As per the example above, an <code>__init__()</code> call to the parent class must be made before assignment on the child.</p>
+<p>:ivar training: Boolean represents whether this module is in training or evaluation mode. :vartype training: bool</p>
+</section>
+</section>
+<section id="encoder" class="level2">
+<h2 class="anchored" data-anchor-id="encoder">Encoder</h2>
+<br>
+<center>
+<img style="float:left; margin:20px; padding:20px; max-height:250px" src="https://i.imgur.com/rbEe0lW.png">
+</center>
+<p><br></p>
+<p>We will be referring to the transformer block. The transformer block consists of: 1. <em>Embedding</em> 2. <em>Positional Encoding</em> 3. <em>Transformer Block</em></p>
+<hr>
+<section id="encoder-1" class="level3">
+<h3 class="anchored" data-anchor-id="encoder-1">Encoder</h3>
+<blockquote class="blockquote">
+<pre><code> Encoder (src_vocab_size, embed_size, num_layers, heads, device,
+          forward_expansion, dropout, max_length)</code></pre>
+</blockquote>
+<p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>.. note:: As per the example above, an <code>__init__()</code> call to the parent class must be made before assignment on the child.</p>
+<p>:ivar training: Boolean represents whether this module is in training or evaluation mode. :vartype training: bool</p>
+</section>
+</section>
+<section id="decoder-layer" class="level1">
+<h1>Decoder Layer</h1>
+<center>
+<img style="float:left; margin:20px; padding:20px; max-height:250px" src="https://i.imgur.com/yV18zvn.png">
+</center>
+<p>We will be referring to the decoder layer. The decoder layer/block consists of: 1. <em>Masked Multi-Head Attention</em> 2. <em>Add &amp; Norm</em> 3. <em>Masked Multi-Head Attention</em> 4. <em>Add &amp; Norm</em> 5. <em>Feed Forward</em> 6. <em>Add &amp; Norm</em></p>
+<hr>
+<section id="decoderlayer" class="level3">
+<h3 class="anchored" data-anchor-id="decoderlayer">DecoderLayer</h3>
+<blockquote class="blockquote">
+<pre><code> DecoderLayer (embed_size, heads, forward_expansion, dropout, device)</code></pre>
+</blockquote>
+<p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>.. note:: As per the example above, an <code>__init__()</code> call to the parent class must be made before assignment on the child.</p>
+<p>:ivar training: Boolean represents whether this module is in training or evaluation mode. :vartype training: bool</p>
+</section>
+</section>
+<section id="decoder" class="level1">
+<h1>Decoder</h1>
+<center>
+<img style="float:left; margin:20px; padding:20px; max-height:350px" src="https://i.imgur.com/jPMFhIK.png">
+</center>
+<p><br></p>
+<p>We will be referring to the decoder. The decoder consists of: 1. <em>Output Embedding</em> 2. <em>Decoder Block</em> 3. <em>Linear</em> 4. <em>Softmax</em></p>
+<p><strong>Notes:</strong></p>
+<ul>
+<li>In this implementation the Token Embeddings are learned. Normally, we would use the output of the model’s tokenizer.</li>
+<li>In this implementation the Positional Embedding are learned. We don’t use the formula.</li>
+</ul>
+<hr>
+<section id="decoder-1" class="level3">
+<h3 class="anchored" data-anchor-id="decoder-1">Decoder</h3>
+<blockquote class="blockquote">
+<pre><code> Decoder (trg_vocab_size, embed_size, num_layers, heads,
+          forward_expansion, dropout, device, max_length)</code></pre>
+</blockquote>
+<p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>.. note:: As per the example above, an <code>__init__()</code> call to the parent class must be made before assignment on the child.</p>
+<p>:ivar training: Boolean represents whether this module is in training or evaluation mode. :vartype training: bool</p>
+</section>
+</section>
+<section id="transformer" class="level1">
+<h1>Transformer</h1>
+<center>
+<img src="https://production-media.paperswithcode.com/methods/new_ModalNet-21.jpg" width="350">
+</center>
+<p><br></p>
+<hr>
+<section id="transformer-1" class="level3">
+<h3 class="anchored" data-anchor-id="transformer-1">Transformer</h3>
+<blockquote class="blockquote">
+<pre><code> Transformer (src_vocab_size, trg_vocab_size, src_pad_idx, trg_pad_idx,
+              embed_size=512, num_layers=6, forward_expansion=4, heads=8,
+              dropout=0, device='cpu', max_length=100)</code></pre>
+</blockquote>
+<p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>.. note:: As per the example above, an <code>__init__()</code> call to the parent class must be made before assignment on the child.</p>
+<p>:ivar training: Boolean represents whether this module is in training or evaluation mode. :vartype training: bool</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
