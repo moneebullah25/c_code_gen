@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="Basic working of our proposed project and its UML diagrams">
+
+<title>c_code_gen - UML Diagrams</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+<link rel="stylesheet" href="styles.css">
+<meta property="og:title" content="c_code_gen - UML Diagrams">
+<meta property="og:description" content="Basic working of our proposed project and its UML diagrams">
+<meta property="og:image" content="https://mermaid.ink/img/CnNlcXVlbmNlRGlhZ3JhbQogICAgcGFydGljaXBhbnQgRGV2ZWxvcGVyCiAgICBwYXJ0aWNpcGFudCBJREUKICAgIHBhcnRpY2lwYW50IE1vZGVsCiAgICBwYXJ0aWNpcGFudCBEYXRhc2V0CiAgICBwYXJ0aWNpcGFudCBNTFRyYWluaW5nCgogICAgRGV2ZWxvcGVyLT4+SURFOiBTdGFydHMgY29kaW5nIGluIElERQogICAgSURFLT4+TW9kZWw6IERldmVsb3BlcidzIGN1cnJlbnQgY29kZSBzbmlwcGV0CiAgICBNb2RlbC0+Pk1MVHJhaW5pbmc6IFJldHJpZXZlIGNvbnRleHQgZnJvbSBtb2RlbAogICAgTUxUcmFpbmluZy0tPj5Nb2RlbDogVHJhaW5zIG1hY2hpbmUgbGVhcm5pbmcgbW9kZWwKICAgIE1vZGVsLS0+PklERTogVHJhaW5lZCBtb2RlbAoKICAgIGFsdCBDb2RlIENvbXBsZXRpb24gQWN0aXZhdGVkCiAgICAgICAgRGV2ZWxvcGVyLT4+SURFOiBDb250aW51ZXMgdHlwaW5nCiAgICAgICAgSURFLT4+TW9kZWw6IEN1cnJlbnQgY29kZSBzbmlwcGV0CiAgICAgICAgTW9kZWwtPj5Nb2RlbDogR2VuZXJhdGUgY29kZSBzdWdnZXN0aW9ucwogICAgICAgIE1vZGVsLS0+PklERTogTGlzdCBvZiBzdWdnZXN0aW9ucwogICAgZWxzZSBVc2VyIEludGVyYWN0aW9uCiAgICAgICAgRGV2ZWxvcGVyLT4+SURFOiBSZXZpZXdzIGFuZCBzZWxlY3RzIHN1Z2dlc3Rpb25zCiAgICAgICAgSURFLT4+TW9kZWw6IFVzZXIgZmVlZGJhY2sKICAgICAgICBNb2RlbC0tPj5NTFRyYWluaW5nOiBVcGRhdGUgbW9kZWwgd2l0aCBmZWVkYmFjawogICAgICAgIE1MVHJhaW5pbmctLT4+TW9kZWw6IFJldHJhaW4gbW9kZWwKICAgIGVuZAoKICAgIERldmVsb3Blci0tPj5JREU6IENvbnRpbnVlcyBjb2Rpbmcgd2l0aCBzdWdnZXN0aW9ucwo=">
+<meta property="og:site-name" content="c_code_gen">
+<meta name="twitter:title" content="c_code_gen - UML Diagrams">
+<meta name="twitter:description" content="Basic working of our proposed project and its UML diagrams">
+<meta name="twitter:image" content="https://mermaid.ink/img/CnNlcXVlbmNlRGlhZ3JhbQogICAgcGFydGljaXBhbnQgRGV2ZWxvcGVyCiAgICBwYXJ0aWNpcGFudCBJREUKICAgIHBhcnRpY2lwYW50IE1vZGVsCiAgICBwYXJ0aWNpcGFudCBEYXRhc2V0CiAgICBwYXJ0aWNpcGFudCBNTFRyYWluaW5nCgogICAgRGV2ZWxvcGVyLT4+SURFOiBTdGFydHMgY29kaW5nIGluIElERQogICAgSURFLT4+TW9kZWw6IERldmVsb3BlcidzIGN1cnJlbnQgY29kZSBzbmlwcGV0CiAgICBNb2RlbC0+Pk1MVHJhaW5pbmc6IFJldHJpZXZlIGNvbnRleHQgZnJvbSBtb2RlbAogICAgTUxUcmFpbmluZy0tPj5Nb2RlbDogVHJhaW5zIG1hY2hpbmUgbGVhcm5pbmcgbW9kZWwKICAgIE1vZGVsLS0+PklERTogVHJhaW5lZCBtb2RlbAoKICAgIGFsdCBDb2RlIENvbXBsZXRpb24gQWN0aXZhdGVkCiAgICAgICAgRGV2ZWxvcGVyLT4+SURFOiBDb250aW51ZXMgdHlwaW5nCiAgICAgICAgSURFLT4+TW9kZWw6IEN1cnJlbnQgY29kZSBzbmlwcGV0CiAgICAgICAgTW9kZWwtPj5Nb2RlbDogR2VuZXJhdGUgY29kZSBzdWdnZXN0aW9ucwogICAgICAgIE1vZGVsLS0+PklERTogTGlzdCBvZiBzdWdnZXN0aW9ucwogICAgZWxzZSBVc2VyIEludGVyYWN0aW9uCiAgICAgICAgRGV2ZWxvcGVyLT4+SURFOiBSZXZpZXdzIGFuZCBzZWxlY3RzIHN1Z2dlc3Rpb25zCiAgICAgICAgSURFLT4+TW9kZWw6IFVzZXIgZmVlZGJhY2sKICAgICAgICBNb2RlbC0tPj5NTFRyYWluaW5nOiBVcGRhdGUgbW9kZWwgd2l0aCBmZWVkYmFjawogICAgICAgIE1MVHJhaW5pbmctLT4+TW9kZWw6IFJldHJhaW4gbW9kZWwKICAgIGVuZAoKICAgIERldmVsb3Blci0tPj5JREU6IENvbnRpbnVlcyBjb2Rpbmcgd2l0aCBzdWdnZXN0aW9ucwo=">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">c_code_gen</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools ms-auto">
+</div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./uml_diagrams.html">UML Diagrams</a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">c_code_gen</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./langmodels.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Language Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./transformers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./uml_diagrams.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">UML Diagrams</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#sequence-diagram" id="toc-sequence-diagram" class="nav-link active" data-scroll-target="#sequence-diagram">Sequence Diagram</a></li>
+  <li><a href="#class-diagram" id="toc-class-diagram" class="nav-link" data-scroll-target="#class-diagram">Class Diagram</a></li>
+  <li><a href="#state-machine-diagram" id="toc-state-machine-diagram" class="nav-link" data-scroll-target="#state-machine-diagram">State Machine Diagram</a></li>
+  <li><a href="#user-journey-diagram" id="toc-user-journey-diagram" class="nav-link" data-scroll-target="#user-journey-diagram">User Journey Diagram</a></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/moneebullah25/c_code_gen/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">UML Diagrams</h1>
+</div>
+
+<div>
+  <div class="description">
+    Basic working of our proposed project and its UML diagrams
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> base64</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> IPython.display <span class="im">import</span> Image, display</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> mm(graph):</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    graphbytes <span class="op">=</span> graph.encode(<span class="st">"utf8"</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    base64_bytes <span class="op">=</span> base64.b64encode(graphbytes)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    base64_string <span class="op">=</span> base64_bytes.decode(<span class="st">"ascii"</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    display(Image(url<span class="op">=</span><span class="st">"https://mermaid.ink/img/"</span> <span class="op">+</span> base64_string))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="sequence-diagram" class="level2">
+<h2 class="anchored" data-anchor-id="sequence-diagram">Sequence Diagram</h2>
+<p>The sequence diagram that follows shows how the developer, IDE, model, and training process interact with one another. The process begins with the developer writing code in the IDE, the IDE sending the model the current code snippet, and the model using the machine learning model it has been trained to produce recommendations. After that, the developer can engage with the recommendations and offer input that helps the model get better over time by periodically retraining it. As the developer integrates the recommendations into their code, the process proceeds.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>mm(<span class="st">"""</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="st">sequenceDiagram</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="st">    participant Developer</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="st">    participant IDE</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="st">    participant Model</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="st">    participant Dataset</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="st">    participant MLTraining</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="st">    Developer-&gt;&gt;IDE: Starts coding in IDE</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="st">    IDE-&gt;&gt;Model: Developer's current code snippet</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="st">    Model-&gt;&gt;MLTraining: Retrieve context from model</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="st">    MLTraining--&gt;&gt;Model: Trains machine learning model</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="st">    Model--&gt;&gt;IDE: Trained model</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="st">    alt Code Completion Activated</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="st">        Developer-&gt;&gt;IDE: Continues typing</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="st">        IDE-&gt;&gt;Model: Current code snippet</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a><span class="st">        Model-&gt;&gt;Model: Generate code suggestions</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="st">        Model--&gt;&gt;IDE: List of suggestions</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="st">    else User Interaction</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a><span class="st">        Developer-&gt;&gt;IDE: Reviews and selects suggestions</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="st">        IDE-&gt;&gt;Model: User feedback</span></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a><span class="st">        Model--&gt;&gt;MLTraining: Update model with feedback</span></span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a><span class="st">        MLTraining--&gt;&gt;Model: Retrain model</span></span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a><span class="st">    end</span></span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a><span class="st">    Developer--&gt;&gt;IDE: Continues coding with suggestions</span></span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<img src="https://mermaid.ink/img/CnNlcXVlbmNlRGlhZ3JhbQogICAgcGFydGljaXBhbnQgRGV2ZWxvcGVyCiAgICBwYXJ0aWNpcGFudCBJREUKICAgIHBhcnRpY2lwYW50IE1vZGVsCiAgICBwYXJ0aWNpcGFudCBEYXRhc2V0CiAgICBwYXJ0aWNpcGFudCBNTFRyYWluaW5nCgogICAgRGV2ZWxvcGVyLT4+SURFOiBTdGFydHMgY29kaW5nIGluIElERQogICAgSURFLT4+TW9kZWw6IERldmVsb3BlcidzIGN1cnJlbnQgY29kZSBzbmlwcGV0CiAgICBNb2RlbC0+Pk1MVHJhaW5pbmc6IFJldHJpZXZlIGNvbnRleHQgZnJvbSBtb2RlbAogICAgTUxUcmFpbmluZy0tPj5Nb2RlbDogVHJhaW5zIG1hY2hpbmUgbGVhcm5pbmcgbW9kZWwKICAgIE1vZGVsLS0+PklERTogVHJhaW5lZCBtb2RlbAoKICAgIGFsdCBDb2RlIENvbXBsZXRpb24gQWN0aXZhdGVkCiAgICAgICAgRGV2ZWxvcGVyLT4+SURFOiBDb250aW51ZXMgdHlwaW5nCiAgICAgICAgSURFLT4+TW9kZWw6IEN1cnJlbnQgY29kZSBzbmlwcGV0CiAgICAgICAgTW9kZWwtPj5Nb2RlbDogR2VuZXJhdGUgY29kZSBzdWdnZXN0aW9ucwogICAgICAgIE1vZGVsLS0+PklERTogTGlzdCBvZiBzdWdnZXN0aW9ucwogICAgZWxzZSBVc2VyIEludGVyYWN0aW9uCiAgICAgICAgRGV2ZWxvcGVyLT4+SURFOiBSZXZpZXdzIGFuZCBzZWxlY3RzIHN1Z2dlc3Rpb25zCiAgICAgICAgSURFLT4+TW9kZWw6IFVzZXIgZmVlZGJhY2sKICAgICAgICBNb2RlbC0tPj5NTFRyYWluaW5nOiBVcGRhdGUgbW9kZWwgd2l0aCBmZWVkYmFjawogICAgICAgIE1MVHJhaW5pbmctLT4+TW9kZWw6IFJldHJhaW4gbW9kZWwKICAgIGVuZAoKICAgIERldmVsb3Blci0tPj5JREU6IENvbnRpbnVlcyBjb2Rpbmcgd2l0aCBzdWdnZXN0aW9ucwo=">
+</div>
+</div>
+</section>
+<section id="class-diagram" class="level2">
+<h2 class="anchored" data-anchor-id="class-diagram">Class Diagram</h2>
+<p>The primary components and their interactions in an intelligent code completion system are depicted in this class diagram, which also emphasizes the information flow between the training component, the machine learning model, the integrated development environment, and the developer. However they might now reflect same in the code as we might change them according to the need.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>mm(<span class="st">"""</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="st">classDiagram</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="st">  class Developer {</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="st">    +writeCode()</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="st">  }</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="st">  class IDE {</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="st">    +sendCodeSnippet()</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="st">  }</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="st">  class Model {</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="st">    +generateCodeSuggestions()</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="st">    +receiveUserFeedback()</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="st">  }</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="st">  class MLTraining {</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="st">    +trainModel()</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="st">    +updateModel()</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="st">  }</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="st">  Developer --&gt; IDE: Uses</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="st">  IDE --&gt; Model: Sends code snippet</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="st">  Model --&gt; MLTraining: Trains on dataset</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="st">  Model --&gt; IDE: Sends suggestions</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="st">  Model --&gt; MLTraining: Receives user feedback</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a><span class="st">  MLTraining --&gt; Model: Updates model</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<img src="https://mermaid.ink/img/CmNsYXNzRGlhZ3JhbQogIGNsYXNzIERldmVsb3BlciB7CiAgICArd3JpdGVDb2RlKCkKICB9CgogIGNsYXNzIElERSB7CiAgICArc2VuZENvZGVTbmlwcGV0KCkKICB9CgogIGNsYXNzIE1vZGVsIHsKICAgICtnZW5lcmF0ZUNvZGVTdWdnZXN0aW9ucygpCiAgICArcmVjZWl2ZVVzZXJGZWVkYmFjaygpCiAgfQoKICBjbGFzcyBNTFRyYWluaW5nIHsKICAgICt0cmFpbk1vZGVsKCkKICAgICt1cGRhdGVNb2RlbCgpCiAgfQoKICBEZXZlbG9wZXIgLS0+IElERTogVXNlcwogIElERSAtLT4gTW9kZWw6IFNlbmRzIGNvZGUgc25pcHBldAogIE1vZGVsIC0tPiBNTFRyYWluaW5nOiBUcmFpbnMgb24gZGF0YXNldAogIE1vZGVsIC0tPiBJREU6IFNlbmRzIHN1Z2dlc3Rpb25zCiAgTW9kZWwgLS0+IE1MVHJhaW5pbmc6IFJlY2VpdmVzIHVzZXIgZmVlZGJhY2sKICBNTFRyYWluaW5nIC0tPiBNb2RlbDogVXBkYXRlcyBtb2RlbAo=">
+</div>
+</div>
+</section>
+<section id="state-machine-diagram" class="level2">
+<h2 class="anchored" data-anchor-id="state-machine-diagram">State Machine Diagram</h2>
+<p>The system is shown in the state machine diagram as “Coding” upon startup. It changes to the “Code Suggestions” state when code completion is enabled. In the event that the user interacts with the suggestions, the system can either move to the “User Interaction” stage or revert to the “Coding” state. The “User Interaction” state permits the developer to type further or approve/disapprove recommendations.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>mm(<span class="st">"""</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="st">stateDiagram</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="st">  state "Coding" as Coding</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="st">  state "Code Suggestions" as Suggestions</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="st">  state "User Interaction" as Interaction</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="st">  [*] --&gt; Coding</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="st">  Coding --&gt; Suggestions: Code Completion Activated</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="st">  Suggestions --&gt; Coding: Suggestions Rejected</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="st">  Suggestions --&gt; Interaction: User Interaction</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="st">  Interaction --&gt; Suggestions: Continue Typing</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a><span class="st">  Interaction --&gt; Coding: Suggestions Accepted</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<img src="https://mermaid.ink/img/CnN0YXRlRGlhZ3JhbQogIHN0YXRlICJDb2RpbmciIGFzIENvZGluZwogIHN0YXRlICJDb2RlIFN1Z2dlc3Rpb25zIiBhcyBTdWdnZXN0aW9ucwogIHN0YXRlICJVc2VyIEludGVyYWN0aW9uIiBhcyBJbnRlcmFjdGlvbgoKICBbKl0gLS0+IENvZGluZwoKICBDb2RpbmcgLS0+IFN1Z2dlc3Rpb25zOiBDb2RlIENvbXBsZXRpb24gQWN0aXZhdGVkCiAgU3VnZ2VzdGlvbnMgLS0+IENvZGluZzogU3VnZ2VzdGlvbnMgUmVqZWN0ZWQKICBTdWdnZXN0aW9ucyAtLT4gSW50ZXJhY3Rpb246IFVzZXIgSW50ZXJhY3Rpb24KCiAgSW50ZXJhY3Rpb24gLS0+IFN1Z2dlc3Rpb25zOiBDb250aW51ZSBUeXBpbmcKICBJbnRlcmFjdGlvbiAtLT4gQ29kaW5nOiBTdWdnZXN0aW9ucyBBY2NlcHRlZAoK">
+</div>
+</div>
+</section>
+<section id="user-journey-diagram" class="level2">
+<h2 class="anchored" data-anchor-id="user-journey-diagram">User Journey Diagram</h2>
+<p>The steps a developer takes to use the intelligent code completion system and get started with coding in the IDE are shown in this user journey diagram. Code completion, suggestion creation, user interaction, and the loop of continual improvement via user feedback and model retraining are all included.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>mm(<span class="st">"""</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="st">journey</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="st">  title Developer's Journey with Intelligent Code Completion</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="st">  section Getting Started</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="st">    Developer --&gt; IDE: Starts coding in IDE</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="st">  section Code Completion Activated</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="st">    IDE --&gt; Model: Developer's current code snippet</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="st">    Model --&gt; MLTraining: Retrieve context from 70GB C code dataset</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="st">    MLTraining --&gt;&gt; Model: Train machine learning model</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="st">    Model --&gt;&gt; IDE: Trained model</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="st">    Developer --&gt; IDE: Continues typing</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="st">  section Suggestions</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="st">    IDE --&gt; Model: Current code snippet</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="st">    Model --&gt; Model: Generate code suggestions</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a><span class="st">    Model --&gt;&gt; IDE: List of suggestions</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a><span class="st">    Developer --&gt; IDE: Reviews and selects suggestions</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="st">  section User Interaction</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="st">    IDE --&gt; Model: User feedback</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="st">    Model --&gt;&gt; MLTraining: Update model with feedback</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="st">    MLTraining --&gt;&gt; Model: Retrain model</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a><span class="st">    Model --&gt;&gt; IDE: Updated model</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a><span class="st">    Developer --&gt; IDE: Continues coding with suggestions</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a><span class="st">  section Conclusion</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a><span class="st">    Developer --&gt; IDE: Finishes coding</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a><span class="st">"""</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<img src="https://mermaid.ink/img/CmpvdXJuZXkKICB0aXRsZSBEZXZlbG9wZXIncyBKb3VybmV5IHdpdGggSW50ZWxsaWdlbnQgQ29kZSBDb21wbGV0aW9uCgogIHNlY3Rpb24gR2V0dGluZyBTdGFydGVkCiAgICBEZXZlbG9wZXIgLS0+IElERTogU3RhcnRzIGNvZGluZyBpbiBJREUKCiAgc2VjdGlvbiBDb2RlIENvbXBsZXRpb24gQWN0aXZhdGVkCiAgICBJREUgLS0+IE1vZGVsOiBEZXZlbG9wZXIncyBjdXJyZW50IGNvZGUgc25pcHBldAogICAgTW9kZWwgLS0+IE1MVHJhaW5pbmc6IFJldHJpZXZlIGNvbnRleHQgZnJvbSA3MEdCIEMgY29kZSBkYXRhc2V0CiAgICBNTFRyYWluaW5nIC0tPj4gTW9kZWw6IFRyYWluIG1hY2hpbmUgbGVhcm5pbmcgbW9kZWwKICAgIE1vZGVsIC0tPj4gSURFOiBUcmFpbmVkIG1vZGVsCiAgICBEZXZlbG9wZXIgLS0+IElERTogQ29udGludWVzIHR5cGluZwoKICBzZWN0aW9uIFN1Z2dlc3Rpb25zCiAgICBJREUgLS0+IE1vZGVsOiBDdXJyZW50IGNvZGUgc25pcHBldAogICAgTW9kZWwgLS0+IE1vZGVsOiBHZW5lcmF0ZSBjb2RlIHN1Z2dlc3Rpb25zCiAgICBNb2RlbCAtLT4+IElERTogTGlzdCBvZiBzdWdnZXN0aW9ucwogICAgRGV2ZWxvcGVyIC0tPiBJREU6IFJldmlld3MgYW5kIHNlbGVjdHMgc3VnZ2VzdGlvbnMKCiAgc2VjdGlvbiBVc2VyIEludGVyYWN0aW9uCiAgICBJREUgLS0+IE1vZGVsOiBVc2VyIGZlZWRiYWNrCiAgICBNb2RlbCAtLT4+IE1MVHJhaW5pbmc6IFVwZGF0ZSBtb2RlbCB3aXRoIGZlZWRiYWNrCiAgICBNTFRyYWluaW5nIC0tPj4gTW9kZWw6IFJldHJhaW4gbW9kZWwKICAgIE1vZGVsIC0tPj4gSURFOiBVcGRhdGVkIG1vZGVsCiAgICBEZXZlbG9wZXIgLS0+IElERTogQ29udGludWVzIGNvZGluZyB3aXRoIHN1Z2dlc3Rpb25zCgogIHNlY3Rpb24gQ29uY2x1c2lvbgogICAgRGV2ZWxvcGVyIC0tPiBJREU6IEZpbmlzaGVzIGNvZGluZwoK">
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
