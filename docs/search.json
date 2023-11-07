@@ -65,14 +65,14 @@
   {
     "objectID": "mlp.html",
     "href": "mlp.html",
-    "title": "Language Models",
+    "title": "Multilayer Perceptron",
     "section": "",
     "text": "import string\nimport torch\nimport torch.nn.functional as F\nimport matplotlib.pyplot as plt\nwith open('./names.txt') as f:\n    names = f.read().splitlines()\nTotal number of names\nlen(names)\n\n32033\nProblem with bigrams is that we were only looking the previous character to predict the next character, the more characters we look back, the bigger the matrix gets, with 2 characters then 27**2 sized matrix.\nInstead we use this:"
   },
   {
     "objectID": "mlp.html#a-neural-probabilistic-language-model-paper",
     "href": "mlp.html#a-neural-probabilistic-language-model-paper",
-    "title": "Language Models",
+    "title": "Multilayer Perceptron",
     "section": "A Neural Probabilistic Language Model: paper",
     "text": "A Neural Probabilistic Language Model: paper\nIn the paper, they’ve 17000 words in the vocabulary and for each word they assign a feature vector of dimension (30,). So all the 17000 words are embedded into a 30-dimensional space.\nInitially the feature vectors are random and on training the feature vectors are updated…words with similar meanings are closer to each other in the vector space and converse is true.\nModelling approach: maximize log likelihood.\n\nModel Generalization: example (from the paper):\nIn the training set we might have a sentence like “the cat is walking in the bedroom”, “the dog is running in a room”.\nDue to the feature vectors, (a,the), (cat,dog), (room,bedroom), (is,was), (running,walking) might be closer together in the embedding space.\nThis allows the model to predict stuff like “the dog is walking in a ________” -&gt; bedroom, “a cat is running the the _______” -&gt; room\n\n\nDiagram\ninput: 3 previous words, output: 4th word. For each word there’s a one-hot index vector, and then there’s the embedding vector 17000X30. So a dot product will result in the feature vector of that word.\n# with 10 words vocab and 3-dimensional embedding feature vector\nx = torch.tensor([0,0,1,0,0,0,0,0,0,0]) # word index vector\ny = torch.randn(10,3) # embedding vector\ny[2,:], x.float() @ y\n\n&gt;&gt;&gt; (tensor([1.2606, 0.1792, 0.1153]), tensor([1.2606, 0.1792, 0.1153]))\nso for the 3 words, 90 neurons: 30 from each word\nhidden layer: size is the hyperparameter, fully connected to the 90 input neurons with tanh activation.\noutput layer: (17000,) layer with softmax which will give probability distribution for the next word in sequence. with argmax(output), we can get the index of the next word.\n\n\n\nmodel"
   },
