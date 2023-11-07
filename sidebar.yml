@@ -2,6 +2,8 @@ website:
   sidebar:
     contents:
       - index.ipynb
-      - 00_langmodels.ipynb
-      - 01_transformers.ipynb
-      - 02_uml_diagrams.ipynb
+      - 00_bigram.ipynb
+      - 01_mlp.ipynb
+      - 02_wavenet.ipynb
+      - 03_transformers.ipynb
+      - 04_uml_diagrams.ipynb

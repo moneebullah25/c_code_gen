@@ -2,18 +2,26 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://moneebullah25.github.io/c_code_gen/index.html</loc>
-    <lastmod>2023-11-05T07:25:55.874Z</lastmod>
+    <lastmod>2023-11-07T06:16:23.987Z</lastmod>
   </url>
   <url>
     <loc>https://moneebullah25.github.io/c_code_gen/transformers.html</loc>
-    <lastmod>2023-11-05T07:25:53.530Z</lastmod>
+    <lastmod>2023-11-07T06:16:22.072Z</lastmod>
   </url>
   <url>
-    <loc>https://moneebullah25.github.io/c_code_gen/langmodels.html</loc>
-    <lastmod>2023-11-05T07:25:52.097Z</lastmod>
+    <loc>https://moneebullah25.github.io/c_code_gen/mlp.html</loc>
+    <lastmod>2023-11-07T06:16:18.043Z</lastmod>
+  </url>
+  <url>
+    <loc>https://moneebullah25.github.io/c_code_gen/bigram.html</loc>
+    <lastmod>2023-11-07T06:16:16.611Z</lastmod>
+  </url>
+  <url>
+    <loc>https://moneebullah25.github.io/c_code_gen/wavenet.html</loc>
+    <lastmod>2023-11-07T06:16:20.767Z</lastmod>
   </url>
   <url>
     <loc>https://moneebullah25.github.io/c_code_gen/uml_diagrams.html</loc>
-    <lastmod>2023-11-05T07:25:54.697Z</lastmod>
+    <lastmod>2023-11-07T06:16:23.087Z</lastmod>
   </url>
 </urlset>

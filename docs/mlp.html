@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="description" content="Basic Introduction of Language Models">
+<meta name="description" content="Multilayer perceptron (MLP) character-level language model">
 
 <title>c_code_gen - Language Models</title>
 <style>
@@ -98,11 +98,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <link rel="stylesheet" href="styles.css">
 <meta property="og:title" content="c_code_gen - Language Models">
-<meta property="og:description" content="Basic Introduction of Language Models">
+<meta property="og:description" content="Multilayer perceptron (MLP) character-level language model">
 <meta property="og:image" content="https://i.imgur.com/Yjag5Ud.png">
 <meta property="og:site-name" content="c_code_gen">
 <meta name="twitter:title" content="c_code_gen - Language Models">
-<meta name="twitter:description" content="Basic Introduction of Language Models">
+<meta name="twitter:description" content="Multilayer perceptron (MLP) character-level language model">
 <meta name="twitter:image" content="https://i.imgur.com/Yjag5Ud.png">
 <meta name="twitter:card" content="summary_large_image">
 </head>
@@ -128,7 +128,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./langmodels.html">Language Models</a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./mlp.html">Language Models</a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
     </div>
@@ -148,8 +148,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./langmodels.html" class="sidebar-item-text sidebar-link active">
+  <a href="./bigram.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bigram Character Level Language Model</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./mlp.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text">Language Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./wavenet.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Wavenet Documentation</span></a>
   </div>
 </li>
         <li class="sidebar-item">
@@ -201,7 +213,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <div>
   <div class="description">
-    Basic Introduction of Language Models
+    Multilayer perceptron (MLP) character-level language model
   </div>
 </div>
 
@@ -732,7 +744,7 @@ Total Loss: 3.74735426902771</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb62"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>plt.plot(losses)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="00_langmodels_files/figure-html/cell-34-output-1.png" class="img-fluid"></p>
+<p><img src="01_mlp_files/figure-html/cell-34-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>Since now we have been using 0.1 as our learning rate but there is way to determine the best learning rate for our problem</p>
@@ -812,13 +824,13 @@ Total Loss: 7.572385787963867</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb66"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>plt.plot(lrs, losses)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="00_langmodels_files/figure-html/cell-37-output-1.png" class="img-fluid"></p>
+<p><img src="01_mlp_files/figure-html/cell-37-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb67"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>plt.plot(lr_exp, losses)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="00_langmodels_files/figure-html/cell-38-output-1.png" class="img-fluid"></p>
+<p><img src="01_mlp_files/figure-html/cell-38-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 <p>From the above graphs, we notice that the losses explode at some LR value after 10**-1, hence lr=0.1 is pretty decent</p>
@@ -899,7 +911,7 @@ Total Loss: 2.3456742763519287</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb70"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>plt.plot(losses)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="00_langmodels_files/figure-html/cell-40-output-1.png" class="img-fluid"></p>
+<p><img src="01_mlp_files/figure-html/cell-40-output-1.png" class="img-fluid"></p>
 </div>
 </div>
 

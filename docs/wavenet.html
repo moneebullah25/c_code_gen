@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="Understanding and implemenatation of the Wavenet Model">
+
+<title>c_code_gen - Wavenet Documentation</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="styles.css">
+<meta property="og:title" content="c_code_gen - Wavenet Documentation">
+<meta property="og:description" content="Understanding and implemenatation of the Wavenet Model">
+<meta property="og:image" content="https://moneebullah25.github.io/c_code_gen/02_wavenet_files/figure-html/cell-12-output-1.png">
+<meta property="og:site-name" content="c_code_gen">
+<meta property="og:image:height" content="413">
+<meta property="og:image:width" content="551">
+<meta name="twitter:title" content="c_code_gen - Wavenet Documentation">
+<meta name="twitter:description" content="Understanding and implemenatation of the Wavenet Model">
+<meta name="twitter:image" content="https://moneebullah25.github.io/c_code_gen/02_wavenet_files/figure-html/cell-12-output-1.png">
+<meta name="twitter:image-height" content="413">
+<meta name="twitter:image-width" content="551">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">c_code_gen</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools ms-auto">
+</div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./wavenet.html">Wavenet Documentation</a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">c_code_gen</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./bigram.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bigram Character Level Language Model</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./mlp.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Language Models</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./wavenet.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Wavenet Documentation</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./transformers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./uml_diagrams.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">UML Diagrams</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction">Introduction</a>
+  <ul class="collapse">
+  <li><a href="#wavenet-implementation-based-on-andrej-karpathys-lecture" id="toc-wavenet-implementation-based-on-andrej-karpathys-lecture" class="nav-link" data-scroll-target="#wavenet-implementation-based-on-andrej-karpathys-lecture">WaveNet Implementation: Based on Andrej Karpathy’s Lecture</a></li>
+  <li><a href="#wavenet" id="toc-wavenet" class="nav-link" data-scroll-target="#wavenet">WaveNet</a>
+  <ul class="collapse">
+  <li><a href="#wavenet-overview" id="toc-wavenet-overview" class="nav-link" data-scroll-target="#wavenet-overview">WaveNet Overview:</a></li>
+  <li><a href="#technical-insights" id="toc-technical-insights" class="nav-link" data-scroll-target="#technical-insights">Technical Insights:</a></li>
+  <li><a href="#applications" id="toc-applications" class="nav-link" data-scroll-target="#applications">Applications:</a></li>
+  </ul></li>
+  <li><a href="#our-model-gets-improved-using-ideas-from-wavenet" id="toc-our-model-gets-improved-using-ideas-from-wavenet" class="nav-link" data-scroll-target="#our-model-gets-improved-using-ideas-from-wavenet">Our model gets improved using ideas from Wavenet</a></li>
+  </ul></li>
+  <li><a href="#summary-of-transcript" id="toc-summary-of-transcript" class="nav-link" data-scroll-target="#summary-of-transcript">Summary of transcript</a>
+  <ul class="collapse">
+  <li><a href="#wavenet-implementation-and-tensor-management" id="toc-wavenet-implementation-and-tensor-management" class="nav-link" data-scroll-target="#wavenet-implementation-and-tensor-management">WaveNet Implementation and Tensor Management</a>
+  <ul class="collapse">
+  <li><a href="#forward-pass-visualization" id="toc-forward-pass-visualization" class="nav-link" data-scroll-target="#forward-pass-visualization">Forward Pass Visualization</a></li>
+  <li><a href="#input-batch-and-shape" id="toc-input-batch-and-shape" class="nav-link" data-scroll-target="#input-batch-and-shape">Input Batch and Shape</a></li>
+  <li><a href="#embedding-layer" id="toc-embedding-layer" class="nav-link" data-scroll-target="#embedding-layer">Embedding Layer</a></li>
+  <li><a href="#flattening-and-concatenation" id="toc-flattening-and-concatenation" class="nav-link" data-scroll-target="#flattening-and-concatenation">Flattening and Concatenation</a></li>
+  <li><a href="#linear-layer-and-matrix-multiplication" id="toc-linear-layer-and-matrix-multiplication" class="nav-link" data-scroll-target="#linear-layer-and-matrix-multiplication">Linear Layer and Matrix Multiplication</a></li>
+  <li><a href="#restructuring-input" id="toc-restructuring-input" class="nav-link" data-scroll-target="#restructuring-input">Restructuring Input</a></li>
+  <li><a href="#flattening-consecutively" id="toc-flattening-consecutively" class="nav-link" data-scroll-target="#flattening-consecutively">Flattening Consecutively</a></li>
+  <li><a href="#model-layers-and-parameter-count" id="toc-model-layers-and-parameter-count" class="nav-link" data-scroll-target="#model-layers-and-parameter-count">Model Layers and Parameter Count</a></li>
+  <li><a href="#wavenets-performance" id="toc-wavenets-performance" class="nav-link" data-scroll-target="#wavenets-performance">WaveNet’s Performance</a></li>
+  <li><a href="#potential-issues-with-batchnorm1d" id="toc-potential-issues-with-batchnorm1d" class="nav-link" data-scroll-target="#potential-issues-with-batchnorm1d">Potential Issues with BatchNorm1D</a></li>
+  </ul></li>
+  <li><a href="#fixing-batchnorm1d-bug" id="toc-fixing-batchnorm1d-bug" class="nav-link" data-scroll-target="#fixing-batchnorm1d-bug">Fixing BatchNorm1D Bug</a></li>
+  <li><a href="#deviation-from-pytorch-api" id="toc-deviation-from-pytorch-api" class="nav-link" data-scroll-target="#deviation-from-pytorch-api">Deviation from PyTorch API</a></li>
+  <li><a href="#development-process-of-building-deep-neural-nets" id="toc-development-process-of-building-deep-neural-nets" class="nav-link" data-scroll-target="#development-process-of-building-deep-neural-nets">Development Process of Building Deep Neural Nets</a></li>
+  <li><a href="#improving-wavenets-performance" id="toc-improving-wavenets-performance" class="nav-link" data-scroll-target="#improving-wavenets-performance">Improving WaveNet’s Performance</a></li>
+  <li><a href="#call-to-action" id="toc-call-to-action" class="nav-link" data-scroll-target="#call-to-action">Call to Action</a></li>
+  </ul></li>
+  <li><a href="#dataset-processing" id="toc-dataset-processing" class="nav-link" data-scroll-target="#dataset-processing">Dataset processing</a></li>
+  <li><a href="#layers" id="toc-layers" class="nav-link" data-scroll-target="#layers">Layers</a></li>
+  <li><a href="#original-network" id="toc-original-network" class="nav-link" data-scroll-target="#original-network">Original Network</a></li>
+  <li><a href="#full-training-block-size-8" id="toc-full-training-block-size-8" class="nav-link" data-scroll-target="#full-training-block-size-8">Full Training (block size 8)</a></li>
+  <li><a href="#aside-fix-our-noisy-graph" id="toc-aside-fix-our-noisy-graph" class="nav-link" data-scroll-target="#aside-fix-our-noisy-graph">Aside: Fix our noisy graph</a></li>
+  <li><a href="#evaluate-the-loss" id="toc-evaluate-the-loss" class="nav-link" data-scroll-target="#evaluate-the-loss">Evaluate the loss</a></li>
+  <li><a href="#sample-from-the-model" id="toc-sample-from-the-model" class="nav-link" data-scroll-target="#sample-from-the-model">Sample from the model</a></li>
+  <li><a href="#expanding-the-model" id="toc-expanding-the-model" class="nav-link" data-scroll-target="#expanding-the-model">Expanding the model</a>
+  <ul class="collapse">
+  <li><a href="#update-embedding-layer" id="toc-update-embedding-layer" class="nav-link" data-scroll-target="#update-embedding-layer">Update Embedding Layer</a>
+  <ul class="collapse">
+  <li><a href="#current-model-state" id="toc-current-model-state" class="nav-link" data-scroll-target="#current-model-state">1. <strong>Current Model State</strong>:</a></li>
+  <li><a href="#problem-with-current-architecture" id="toc-problem-with-current-architecture" class="nav-link" data-scroll-target="#problem-with-current-architecture">2. <strong>Problem with Current Architecture</strong>:</a></li>
+  <li><a href="#inspiration-from-wavenet" id="toc-inspiration-from-wavenet" class="nav-link" data-scroll-target="#inspiration-from-wavenet">3. <strong>Inspiration from WaveNet</strong>:</a></li>
+  <li><a href="#progressive-fusion" id="toc-progressive-fusion" class="nav-link" data-scroll-target="#progressive-fusion">4. <strong>Progressive Fusion</strong>:</a></li>
+  <li><a href="#dilated-causal-convolutions" id="toc-dilated-causal-convolutions" class="nav-link" data-scroll-target="#dilated-causal-convolutions">5. <strong>Dilated Causal Convolutions</strong>:</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion:</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#full-training-with-block-size-8" id="toc-full-training-with-block-size-8" class="nav-link" data-scroll-target="#full-training-with-block-size-8">Full Training with block size 8</a></li>
+  <li><a href="#glossary" id="toc-glossary" class="nav-link" data-scroll-target="#glossary">Glossary</a>
+  <ul class="collapse">
+  <li><a href="#random-seeding-in-the-context-of-pytorch-and-neural-network-training." id="toc-random-seeding-in-the-context-of-pytorch-and-neural-network-training." class="nav-link" data-scroll-target="#random-seeding-in-the-context-of-pytorch-and-neural-network-training.">Random seeding in the context of PyTorch and neural network training.</a>
+  <ul class="collapse">
+  <li><a href="#purpose-of-seeding" id="toc-purpose-of-seeding" class="nav-link" data-scroll-target="#purpose-of-seeding">1. <strong>Purpose of Seeding</strong>:</a></li>
+  <li><a href="#torch.manual_seed-vs.-torch.generator" id="toc-torch.manual_seed-vs.-torch.generator" class="nav-link" data-scroll-target="#torch.manual_seed-vs.-torch.generator">2. <strong>torch.manual_seed() vs.&nbsp;torch.Generator()</strong>:</a></li>
+  <li><a href="#why-not-always-use-torch.manual_seed" id="toc-why-not-always-use-torch.manual_seed" class="nav-link" data-scroll-target="#why-not-always-use-torch.manual_seed">3. <strong>Why not always use torch.manual_seed()?</strong>:</a></li>
+  <li><a href="#conclusion-1" id="toc-conclusion-1" class="nav-link" data-scroll-target="#conclusion-1">Conclusion:</a></li>
+  </ul></li>
+  <li><a href="#high-level-hierarchical-view-of-pytorch-api" id="toc-high-level-hierarchical-view-of-pytorch-api" class="nav-link" data-scroll-target="#high-level-hierarchical-view-of-pytorch-api">High-level hierarchical view of PyTorch API</a></li>
+  <li><a href="#torch.nn.embedding." id="toc-torch.nn.embedding." class="nav-link" data-scroll-target="#torch.nn.embedding."><code>torch.nn.Embedding</code>.</a>
+  <ul class="collapse">
+  <li><a href="#the-concept-of-embeddings" id="toc-the-concept-of-embeddings" class="nav-link" data-scroll-target="#the-concept-of-embeddings">1. <strong>The Concept of Embeddings</strong>:</a></li>
+  <li><a href="#torch.nn.embedding" id="toc-torch.nn.embedding" class="nav-link" data-scroll-target="#torch.nn.embedding">2. <strong>torch.nn.Embedding</strong>:</a></li>
+  <li><a href="#parameters" id="toc-parameters" class="nav-link" data-scroll-target="#parameters">3. <strong>Parameters</strong>:</a></li>
+  <li><a href="#why-use-embeddings" id="toc-why-use-embeddings" class="nav-link" data-scroll-target="#why-use-embeddings">4. <strong>Why Use Embeddings?</strong>:</a></li>
+  <li><a href="#usage" id="toc-usage" class="nav-link" data-scroll-target="#usage">5. <strong>Usage</strong>:</a></li>
+  <li><a href="#under-the-hood" id="toc-under-the-hood" class="nav-link" data-scroll-target="#under-the-hood">6. <strong>Under the Hood</strong>:</a></li>
+  <li><a href="#conclusion-2" id="toc-conclusion-2" class="nav-link" data-scroll-target="#conclusion-2">Conclusion:</a></li>
+  </ul></li>
+  <li><a href="#torch.nn.flatten." id="toc-torch.nn.flatten." class="nav-link" data-scroll-target="#torch.nn.flatten."><code>torch.nn.Flatten</code>.</a>
+  <ul class="collapse">
+  <li><a href="#the-basic-idea" id="toc-the-basic-idea" class="nav-link" data-scroll-target="#the-basic-idea">1. <strong>The Basic Idea</strong>:</a></li>
+  <li><a href="#torch.nn.flatten" id="toc-torch.nn.flatten" class="nav-link" data-scroll-target="#torch.nn.flatten">2. <strong>torch.nn.Flatten</strong>:</a></li>
+  <li><a href="#parameters-1" id="toc-parameters-1" class="nav-link" data-scroll-target="#parameters-1">3. <strong>Parameters</strong>:</a></li>
+  <li><a href="#why-use-flatten" id="toc-why-use-flatten" class="nav-link" data-scroll-target="#why-use-flatten">4. <strong>Why Use Flatten?</strong>:</a></li>
+  <li><a href="#usage-1" id="toc-usage-1" class="nav-link" data-scroll-target="#usage-1">5. <strong>Usage</strong>:</a></li>
+  <li><a href="#in-context" id="toc-in-context" class="nav-link" data-scroll-target="#in-context">6. <strong>In Context</strong>:</a></li>
+  <li><a href="#conclusion-3" id="toc-conclusion-3" class="nav-link" data-scroll-target="#conclusion-3">Conclusion:</a></li>
+  </ul></li>
+  <li><a href="#torch.nn.sequential." id="toc-torch.nn.sequential." class="nav-link" data-scroll-target="#torch.nn.sequential."><code>torch.nn.Sequential</code>.</a>
+  <ul class="collapse">
+  <li><a href="#the-basic-idea-1" id="toc-the-basic-idea-1" class="nav-link" data-scroll-target="#the-basic-idea-1">1. <strong>The Basic Idea</strong>:</a></li>
+  <li><a href="#torch.nn.sequential" id="toc-torch.nn.sequential" class="nav-link" data-scroll-target="#torch.nn.sequential">2. <strong>torch.nn.Sequential</strong>:</a></li>
+  <li><a href="#advantages" id="toc-advantages" class="nav-link" data-scroll-target="#advantages">3. <strong>Advantages</strong>:</a></li>
+  <li><a href="#usage-2" id="toc-usage-2" class="nav-link" data-scroll-target="#usage-2">4. <strong>Usage</strong>:</a></li>
+  <li><a href="#points-to-remember" id="toc-points-to-remember" class="nav-link" data-scroll-target="#points-to-remember">5. <strong>Points to Remember</strong>:</a></li>
+  <li><a href="#in-context-1" id="toc-in-context-1" class="nav-link" data-scroll-target="#in-context-1">6. <strong>In Context</strong>:</a></li>
+  <li><a href="#conclusion-4" id="toc-conclusion-4" class="nav-link" data-scroll-target="#conclusion-4">Conclusion:</a></li>
+  <li><a href="#examples" id="toc-examples" class="nav-link" data-scroll-target="#examples"><strong>Examples</strong>:</a></li>
+  <li><a href="#note" id="toc-note" class="nav-link" data-scroll-target="#note"><strong>Note</strong>:</a></li>
+  <li><a href="#torch.randint" id="toc-torch.randint" class="nav-link" data-scroll-target="#torch.randint">1. <strong>torch.randint</strong>:</a></li>
+  <li><a href="#given-line" id="toc-given-line" class="nav-link" data-scroll-target="#given-line">2. <strong>Given Line</strong>:</a></li>
+  </ul></li>
+  <li><a href="#convolutional-neural-network-cnn-in-simple-terms" id="toc-convolutional-neural-network-cnn-in-simple-terms" class="nav-link" data-scroll-target="#convolutional-neural-network-cnn-in-simple-terms">Convolutional Neural Network (CNN) in simple terms</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/moneebullah25/c_code_gen/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Wavenet Documentation</h1>
+</div>
+
+<div>
+  <div class="description">
+    Understanding and implemenatation of the Wavenet Model
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<hr>
+<section id="wavenet-implementation-based-on-andrej-karpathys-lecture" class="level2">
+<h2 class="anchored" data-anchor-id="wavenet-implementation-based-on-andrej-karpathys-lecture">WaveNet Implementation: Based on Andrej Karpathy’s Lecture</h2>
+<p>This notebook is a practical follow-up to Andrej Karpathy’s “Building makemore Part 5: Building a WaveNet” lecture. Check out the full lecture <a href="https://www.youtube.com/watch?v=t3YJ5hKiMQ0">here</a>.</p>
+<p>Here’s what we’ll cover:</p>
+<ol type="1">
+<li><strong>Model Basics</strong>: Introduction to a multi-layer perceptron character-level language model.</li>
+<li><strong>Model Enhancement</strong>: Expanding the architecture and input characters for better results.</li>
+<li><strong>WaveNet Overview</strong>: Understand WaveNet’s hierarchical structure and its predictions.</li>
+<li><strong>Batch Normalization</strong>: Dive into the BatchNorm layer and its challenges.</li>
+<li><strong>PyTorch Containers</strong>: A look at how PyTorch structures its layers.</li>
+<li><strong>Dataset Expansion</strong>: Increase the context length for performance improvement.</li>
+<li><strong>Forward Pass</strong>: Visualization of tensor transformations in the network.</li>
+<li><strong>BatchNorm1D Bug</strong>: Addressing an implementation bug.</li>
+<li><strong>Development Insights</strong>: Best practices in deep neural network development.</li>
+<li><strong>Optimizing WaveNet</strong>: Suggestions and strategies for better performance.</li>
+</ol>
+<p>This notebook aims to provide a clear understanding of WaveNet’s development and optimization process.</p>
+<hr>
+</section>
+<section id="wavenet" class="level2">
+<h2 class="anchored" data-anchor-id="wavenet">WaveNet</h2>
+<section id="wavenet-overview" class="level3">
+<h3 class="anchored" data-anchor-id="wavenet-overview">WaveNet Overview:</h3>
+<ul>
+<li><strong>Nature of the Model</strong>: WaveNet is a fully probabilistic and autoregressive model. This means that when predicting any given audio sample, it considers all the previous samples.</li>
+<li><strong>Efficiency</strong>: It can be trained efficiently on very high-resolution audio data (e.g., data with tens of thousands of samples per second).</li>
+<li><strong>Performance</strong>: For text-to-speech tasks, human listeners rated the outputs of WaveNet as more natural sounding than other leading methods. Additionally, it can switch between different speakers by conditioning on the speaker’s identity. WaveNet can also generate musical fragments that sound realistic.</li>
+</ul>
+</section>
+<section id="technical-insights" class="level3">
+<h3 class="anchored" data-anchor-id="technical-insights">Technical Insights:</h3>
+<ol type="1">
+<li><p><strong>Generative Model for Audio</strong>: WaveNet operates directly on raw audio, predicting the probability of each audio sample based on the previous ones. The model’s structure is inspired by PixelCNN, which was designed for images.</p></li>
+<li><p><strong>Dilated Causal Convolutions</strong>: To ensure that predictions for any timestep don’t depend on future timesteps, the model uses causal convolutions. “Dilated” convolutions are introduced to effectively increase the receptive field (the portion of the input data the model “sees”) without significantly increasing computational cost.</p></li>
+<li><p><strong>Softmax Distributions</strong>: Instead of using a mixture model, the paper employs a softmax distribution for modeling audio samples. To manage the high-resolution of raw audio, a µ-law companding transformation is applied to the data before quantizing it.</p></li>
+<li><p><strong>Gated Activation Units</strong>: The paper uses a specific type of activation function for the neural network, which was found to work particularly well for audio signals.</p></li>
+<li><p><strong>Residual and Skip Connections</strong>: These are techniques to help train deeper neural networks more effectively. They help in faster convergence and enable deeper model architectures.</p></li>
+<li><p><strong>Conditional WaveNets</strong>: WaveNet can be conditioned on additional inputs, which allows it to generate audio with specific characteristics. For example, by conditioning on a speaker’s identity, WaveNet can produce audio in that speaker’s voice. The paper distinguishes between global conditioning (affecting the whole audio) and local conditioning (affecting specific parts of the audio).</p></li>
+<li><p><strong>Context Stacks</strong>: To increase the receptive field size, the paper introduces the concept of context stacks. These are separate smaller networks that process longer parts of the audio signal and condition the primary WaveNet model.</p></li>
+</ol>
+</section>
+<section id="applications" class="level3">
+<h3 class="anchored" data-anchor-id="applications">Applications:</h3>
+<ul>
+<li><strong>Text-to-Speech (TTS)</strong>: WaveNet can produce very natural-sounding speech, surpassing other state-of-the-art systems.</li>
+<li><strong>Voice Modulation</strong>: A single WaveNet model can mimic many different speakers.</li>
+<li><strong>Music Generation</strong>: WaveNet can generate realistic musical fragments.</li>
+<li><strong>Other Audio Tasks</strong>: The model is also promising for tasks like speech enhancement, voice conversion, and source separation.</li>
+</ul>
+<p>In essence, WaveNet is a breakthrough in audio generation, offering a versatile and powerful model for a range of audio-related tasks.</p>
+</section>
+</section>
+<section id="our-model-gets-improved-using-ideas-from-wavenet" class="level2">
+<h2 class="anchored" data-anchor-id="our-model-gets-improved-using-ideas-from-wavenet">Our model gets improved using ideas from Wavenet</h2>
+<p>The finished model is inspired by WaveNet, which is a deep learning architecture designed for generating raw audio waveforms.</p>
+<p><strong>Innovation</strong>: 1. <strong>Hierarchical Fusion of Information</strong>: Instead of squashing all the character information into a single layer right at the beginning, the new model aims for a more hierarchical approach. This is akin to WaveNet’s methodology where information from previous contexts gets fused progressively as the network gets deeper. It’s a departure from the original network that was more linear in its approach. 2. <strong>FlattenConsecutive Layer</strong>: This new layer is essentially reshaping the data by grouping consecutive embeddings, which helps in retaining more granularity of information for longer sequences. 3. <strong>Increased Depth with Batch Normalization</strong>: The model has added depth, with multiple hidden layers interspersed with BatchNorm layers. Batch Normalization helps in stabilizing and accelerating the training of deeper networks.</p>
+<p><strong>Intuition</strong>: 1. <strong>Preserving Contextual Information</strong>: By not immediately squashing all characters into a single layer, the network retains more of the raw, granular information from the input. This is crucial when predicting the next character based on a sequence of prior characters. The more original context the model has, the better its predictive capability. 2. <strong>Progressive Fusion of Information</strong>: Just as our human cognition processes information hierarchically (from letters to words to sentences to paragraphs), the model is designed to gradually combine information. It first understands pairs of characters, then bigger chunks, and so on. This allows the model to capture both short-term and long-term dependencies in the data. 3. <strong>Stability with Batch Normalization</strong>: Deep networks can suffer from internal covariate shift where the distribution of layer inputs changes during training. Batch normalization standardizes the inputs of a layer, making training more stable and faster. 4. <strong>Embedding Layer</strong>: It’s a look-up table that maps from integer indices (representing specific words or characters) to dense vectors (their embeddings). These vectors are trainable and can capture the semantic relationship between words or characters. By using embeddings, the model can capture richer representations of the input data.</p>
+<p>In summary, the hierarchical approach is inspired by WaveNet’s methodology of processing audio signals, where the prediction for the next audio sample depends on a gradually fused context of previous samples. By applying a similar approach to character prediction, the model aims to capture richer contextual information, leading to better predictions.</p>
+</section>
+</section>
+<section id="summary-of-transcript" class="level1">
+<h1>Summary of transcript</h1>
+<p><strong>Overview</strong> The lecture centers around the implementation and enhancement of a character-level language model using neural networks. The instructor emphasizes the evolution from a simple multi-layer perceptron to a more complex, hierarchically structured network resembling the WaveNet model.</p>
+<p><strong>Location Change</strong> The instructor notes a change in their background as they are currently in Kyoto.</p>
+<p><strong>Model Introduction</strong> - The initial model is a multi-layer perceptron character-level language model. - It takes three previous characters as input to predict the fourth character. - It uses a single hidden layer of neurons.</p>
+<p><strong>Desire for Model Enhancement</strong> - The instructor expresses the need to complexify the architecture. - Increase the number of input characters. - Avoid compressing information too quickly into a single hidden layer. - Instead, aim for a deeper model that fuses information progressively.</p>
+<p><strong>Introduction to WaveNet</strong> - WaveNet is a model published in 2016. - It is primarily a language model that predicts audio sequences instead of character sequences. - It adopts an auto-regressive model approach, predicting the next character in a sequence. - WaveNet uses a hierarchical tree-like structure, progressively combining character information.</p>
+<p><strong>Code Overview</strong> - The code begins with imports and data processing. - The dataset consists of 182,000 examples where three characters predict the fourth one. - The instructor introduces the concept of “layers” which act as building blocks for neural networks. - These layers have similar APIs and signatures to those in PyTorch.</p>
+<p><strong>Batch Normalization (BatchNorm) Layer</strong> - The BatchNorm layer plays a significant role in the neural network. - It has unique characteristics: - Trains running mean and variance outside of backpropagation. - Has different behaviors during training and evaluation. - Controls the activation statistics. - BatchNorm can introduce potential bugs due to its complexity and behavior changes between training and evaluation modes.</p>
+<p><strong>PyTorch Containers</strong> - PyTorch has a concept called containers to organize layers. - <code>Sequential</code> is a module in PyTorch that maintains a list of layers and processes input through all the layers sequentially.</p>
+<p><strong>Expanding the Dataset</strong> - The instructor then increases the block size from 3 to 8, meaning the model now considers eight characters of context to predict the ninth character. - Just by increasing the context length, there’s a notable improvement in model performance.</p>
+<p><strong>Takeaways</strong> The lecture provides a deep dive into building and refining a character-level language model. It touches upon the importance of model architecture, the challenges and intricacies of certain layers like BatchNorm, and the benefits of using tools and structures provided by libraries like PyTorch. The overarching theme is the continual iteration and refinement of the model to achieve better performance.</p>
+<hr>
+<section id="wavenet-implementation-and-tensor-management" class="level2">
+<h2 class="anchored" data-anchor-id="wavenet-implementation-and-tensor-management">WaveNet Implementation and Tensor Management</h2>
+<section id="forward-pass-visualization" class="level3">
+<h3 class="anchored" data-anchor-id="forward-pass-visualization">Forward Pass Visualization</h3>
+<p>The lecturer is working on a neural network implementation of WaveNet. To ensure understanding and correct functioning, they visualize the forward pass by observing tensor shapes at each stage. This helps in understanding data transformations as it progresses through the network.</p>
+</section>
+<section id="input-batch-and-shape" class="level3">
+<h3 class="anchored" data-anchor-id="input-batch-and-shape">Input Batch and Shape</h3>
+<p>A batch of 4 random examples is created for debugging. The shape of the batch (referred to as ( xB )) is ($ 4 $) due to having 4 examples and a block size of 8.</p>
+</section>
+<section id="embedding-layer" class="level3">
+<h3 class="anchored" data-anchor-id="embedding-layer">Embedding Layer</h3>
+<p>The first layer is the embedding layer. When the integer tensor ( xB ) is passed through this layer, the output shape becomes ( $4 $). Here, each character has a 10-dimensional vector representation. The embedding layer takes the integers and converts them into these 10-dimensional vectors.</p>
+</section>
+<section id="flattening-and-concatenation" class="level3">
+<h3 class="anchored" data-anchor-id="flattening-and-concatenation">Flattening and Concatenation</h3>
+<p>The flattened layer views the ( $4 $) tensor as a ( $4 $) tensor. The effect is that the 10-dimensional embeddings for the 8 characters are lined up in a row, appearing as if they’ve been concatenated.</p>
+</section>
+<section id="linear-layer-and-matrix-multiplication" class="level3">
+<h3 class="anchored" data-anchor-id="linear-layer-and-matrix-multiplication">Linear Layer and Matrix Multiplication</h3>
+<p>The linear layer is responsible for transforming the shape from ( $4 <span class="math inline">\(\) to \(\)</span> 4 $ ). This is achieved through matrix multiplication. The lecturer emphasizes that in PyTorch, the matrix multiplication operator is versatile and can handle higher-dimensional tensors, treating earlier dimensions as batch dimensions.</p>
+</section>
+<section id="restructuring-input" class="level3">
+<h3 class="anchored" data-anchor-id="restructuring-input">Restructuring Input</h3>
+<p>A key insight is that instead of flattening the entire input, we can group and process parts of it. For instance, the lecturer suggests grouping every two consecutive elements for processing in parallel. This results in a tensor shape of ($ 4 $).</p>
+</section>
+<section id="flattening-consecutively" class="level3">
+<h3 class="anchored" data-anchor-id="flattening-consecutively">Flattening Consecutively</h3>
+<p>To achieve the desired restructuring, the lecturer introduces a new method called “Flatten Consecutive”. This method differs from the regular flattening by allowing for flattening only a specified number of consecutive elements, leading to multi-dimensional outputs rather than fully flattened ones.</p>
+</section>
+<section id="model-layers-and-parameter-count" class="level3">
+<h3 class="anchored" data-anchor-id="model-layers-and-parameter-count">Model Layers and Parameter Count</h3>
+<p>The lecturer moves on to demonstrate how the neural network layers are organized. They ensure that the number of parameters remains consistent as the model architecture evolves, emphasizing the importance of maintaining model capacity.</p>
+</section>
+<section id="wavenets-performance" class="level3">
+<h3 class="anchored" data-anchor-id="wavenets-performance">WaveNet’s Performance</h3>
+<p>After restructuring the neural network, the lecturer observes that the validation loss remains nearly identical to the original, simpler model. This suggests that, at least in this instance, the added complexity doesn’t yield performance benefits.</p>
+</section>
+<section id="potential-issues-with-batchnorm1d" class="level3">
+<h3 class="anchored" data-anchor-id="potential-issues-with-batchnorm1d">Potential Issues with BatchNorm1D</h3>
+<p>The lecturer points out that while the model runs, there might still be issues, specifically with the BatchNorm1D layer. A thorough review of this layer is necessary to ensure it’s functioning correctly.</p>
+<hr>
+<p><strong>Key Takeaways</strong>: 1. <strong>Visualizing the forward pass</strong>: This helps in understanding data transformations in a neural network. 2. <strong>Embeddings</strong>: Convert categorical data (like characters) into continuous vectors. 3. <strong>Flattening and Reshaping</strong>: Managing tensor shapes is crucial, especially when designing custom architectures. 4. <strong>Matrix Multiplication in Neural Networks</strong>: PyTorch’s matrix multiplication can handle multi-dimensional tensors, treating earlier dimensions as batch dimensions. 5. <strong>Model Capacity</strong>: When altering a neural network architecture, it’s essential to keep an eye on the number of parameters to ensure model capacity remains consistent. 6. <strong>Debugging and Validation</strong>: Always ensure that each layer of the neural network is functioning as expected, especially when introducing custom layers or functions.</p>
+<hr>
+</section>
+</section>
+<section id="fixing-batchnorm1d-bug" class="level2">
+<h2 class="anchored" data-anchor-id="fixing-batchnorm1d-bug">Fixing BatchNorm1D Bug</h2>
+<p>The lecturer begins by discussing a bug related to the BatchNorm1D implementation.</p>
+<ul>
+<li><strong>Issue</strong>: The current BatchNorm1D implementation assumes a two-dimensional input, but the actual input is three-dimensional. This discrepancy leads to improper calculations.</li>
+<li><strong>Current Behavior</strong>: The BatchNorm receives an input with dimensions 32x4x68. Although this shape allows the code to run without errors due to broadcasting, it doesn’t work as intended.</li>
+<li><strong>Desired Behavior</strong>: The BatchNorm should be modified to consider both the zeroth and first dimensions as batch dimensions. Instead of averaging over 32 numbers, the average should be over (<span class="math inline">\(32 \times 4\)</span>) numbers for each of the 68 channels.</li>
+<li><strong>Solution</strong>: The lecturer suggests using the <code>torch.mean</code> function, which can reduce over multiple dimensions at the same time. By passing in a tuple (0,1) as dimensions, the mean is calculated over both the zeroth and first dimensions, leading to a 1x1x68 shape.</li>
+</ul>
+</section>
+<section id="deviation-from-pytorch-api" class="level2">
+<h2 class="anchored" data-anchor-id="deviation-from-pytorch-api">Deviation from PyTorch API</h2>
+<p>There’s a highlighted difference between the lecturer’s implementation and PyTorch’s BatchNorm1D:</p>
+<ul>
+<li><strong>PyTorch’s BatchNorm1D</strong>: Assumes that when input is three-dimensional, it should be in the form of nxCxL (with C being the number of features or channels).</li>
+<li><strong>Lecturer’s Implementation</strong>: Assumes the input to be in the form of nxLxC.</li>
+</ul>
+</section>
+<section id="development-process-of-building-deep-neural-nets" class="level2">
+<h2 class="anchored" data-anchor-id="development-process-of-building-deep-neural-nets">Development Process of Building Deep Neural Nets</h2>
+<p>The lecturer provides insights into the typical process of building and refining deep neural networks:</p>
+<ol type="1">
+<li><strong>Reference to Documentation</strong>: It’s essential to frequently refer to the documentation to understand the various layers, their expected input shapes, and functionalities. However, the lecturer notes that PyTorch documentation can sometimes be misleading or incomplete.</li>
+<li><strong>Shape Management</strong>: A significant amount of time is spent ensuring tensor shapes are compatible. This involves reshaping tensors, understanding expected input and output shapes, and sometimes prototyping to ensure shapes align.</li>
+<li><strong>Prototyping</strong>: The lecturer emphasizes the utility of Jupyter notebooks for prototyping. Once satisfied with the prototype, the code is transferred to a more permanent codebase.</li>
+<li><strong>Use of Convolutions</strong>: Convolutions are introduced as a means for efficiency. Instead of processing inputs individually, convolutions allow the model to process multiple inputs simultaneously by sliding filters over the input sequence. This concept connects with future topics, like Convolutional Neural Networks (CNNs).</li>
+</ol>
+</section>
+<section id="improving-wavenets-performance" class="level2">
+<h2 class="anchored" data-anchor-id="improving-wavenets-performance">Improving WaveNet’s Performance</h2>
+<p>The lecturer emphasizes the potential for improving the performance of WaveNet:</p>
+<ul>
+<li><strong>Current Performance</strong>: The model’s performance has improved from a loss of 2.1 to 1.993.</li>
+<li><strong>Challenges</strong>: The lecturer points out that the current approach lacks an experimental harness, meaning they’re mostly making educated guesses without a systematic way to evaluate changes.</li>
+<li><strong>Potential Improvements</strong>: Suggestions include re-allocating channels, tweaking the number of dimensions for embeddings, or even reverting to a simpler network structure. The WaveNet paper itself might also have additional strategies or layers worth implementing.</li>
+</ul>
+</section>
+<section id="call-to-action" class="level2">
+<h2 class="anchored" data-anchor-id="call-to-action">Call to Action</h2>
+<p>Lastly, the lecturer encourages listeners to try and improve upon the WaveNet’s loss of 1.993, pointing out that there’s a lot of potential to optimize the network further.</p>
+</section>
+</section>
+<section id="dataset-processing" class="level1">
+<h1>Dataset processing</h1>
+<div class="cell" data-execution_count="1">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn.functional <span class="im">as</span> F</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt <span class="co"># for making figures</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Reading data from the <code>names.txt</code> and just print out the relevant information to get more about data</p>
+<div class="cell" data-outputid="be6c30e4-1961-441b-c1ea-010a498b7e01" data-execution_count="2">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># read in all the words</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>words <span class="op">=</span> <span class="bu">open</span>(<span class="st">'names.txt'</span>, <span class="st">'r'</span>).read().splitlines()</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">len</span>(words))</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">max</span>(<span class="bu">len</span>(w) <span class="cf">for</span> w <span class="kw">in</span> words))</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">min</span>(<span class="bu">len</span>(w) <span class="cf">for</span> w <span class="kw">in</span> words))</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(words[:<span class="dv">8</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>32033
+15
+2
+['emma', 'olivia', 'ava', 'isabella', 'sophia', 'charlotte', 'mia', 'amelia']</code></pre>
+</div>
+</div>
+<div class="cell" data-outputid="7a936d42-85a7-4e57-8b19-daf3396a7894" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># build the vocabulary of characters and mappings to/from integers</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>chars <span class="op">=</span> <span class="bu">sorted</span>(<span class="bu">list</span>(<span class="bu">set</span>(<span class="st">''</span>.join(words))))</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>stoi <span class="op">=</span> {s:i<span class="op">+</span><span class="dv">1</span> <span class="cf">for</span> i,s <span class="kw">in</span> <span class="bu">enumerate</span>(chars)}</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>stoi[<span class="st">'.'</span>] <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>itos <span class="op">=</span> {i:s <span class="cf">for</span> s,i <span class="kw">in</span> stoi.items()}</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>vocab_size <span class="op">=</span> <span class="bu">len</span>(itos)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(itos)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(vocab_size)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>{1: 'a', 2: 'b', 3: 'c', 4: 'd', 5: 'e', 6: 'f', 7: 'g', 8: 'h', 9: 'i', 10: 'j', 11: 'k', 12: 'l', 13: 'm', 14: 'n', 15: 'o', 16: 'p', 17: 'q', 18: 'r', 19: 's', 20: 't', 21: 'u', 22: 'v', 23: 'w', 24: 'x', 25: 'y', 26: 'z', 0: '.'}
+27</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># shuffle up the words</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> random</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>random.seed(<span class="dv">42</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>random.shuffle(words)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We are creating 3 splits for our dataset; 80% for training, 10% for validation and 10% for testing</p>
+<div class="cell" data-outputid="32679520-875d-45b3-e027-2597e73302f0" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># build the dataset</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>block_size <span class="op">=</span> <span class="dv">8</span> <span class="co"># context length: how many characters do we take to predict the next one?</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> build_dataset(words):</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  X, Y <span class="op">=</span> [], []</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> w <span class="kw">in</span> words:</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    context <span class="op">=</span> [<span class="dv">0</span>] <span class="op">*</span> block_size</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> ch <span class="kw">in</span> w <span class="op">+</span> <span class="st">'.'</span>:</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>      ix <span class="op">=</span> stoi[ch]</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>      X.append(context)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>      Y.append(ix)</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>      context <span class="op">=</span> context[<span class="dv">1</span>:] <span class="op">+</span> [ix] <span class="co"># crop and append</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  X <span class="op">=</span> torch.tensor(X)</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  Y <span class="op">=</span> torch.tensor(Y)</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="bu">print</span>(X.shape, Y.shape)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> X, Y</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>n1 <span class="op">=</span> <span class="bu">int</span>(<span class="fl">0.8</span><span class="op">*</span><span class="bu">len</span>(words))</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>n2 <span class="op">=</span> <span class="bu">int</span>(<span class="fl">0.9</span><span class="op">*</span><span class="bu">len</span>(words))</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>Xtr,  Ytr  <span class="op">=</span> build_dataset(words[:n1])     <span class="co"># 80%</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>Xdev, Ydev <span class="op">=</span> build_dataset(words[n1:n2])   <span class="co"># 10%</span></span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>Xte,  Yte  <span class="op">=</span> build_dataset(words[n2:])     <span class="co"># 10%</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>torch.Size([182625, 8]) torch.Size([182625])
+torch.Size([22655, 8]) torch.Size([22655])
+torch.Size([22866, 8]) torch.Size([22866])</code></pre>
+</div>
+</div>
+<div class="cell" data-outputid="028ab013-9951-4a8a-daeb-e58daf34dc9b" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> x,y <span class="kw">in</span> <span class="bu">zip</span>(Xtr[:<span class="dv">20</span>], Ytr[:<span class="dv">20</span>]):</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">print</span>(<span class="st">''</span>.join(itos[ix.item()] <span class="cf">for</span> ix <span class="kw">in</span> x), <span class="st">'--&gt;'</span>, itos[y.item()])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>........ --&gt; y
+.......y --&gt; u
+......yu --&gt; h
+.....yuh --&gt; e
+....yuhe --&gt; n
+...yuhen --&gt; g
+..yuheng --&gt; .
+........ --&gt; d
+.......d --&gt; i
+......di --&gt; o
+.....dio --&gt; n
+....dion --&gt; d
+...diond --&gt; r
+..diondr --&gt; e
+.diondre --&gt; .
+........ --&gt; x
+.......x --&gt; a
+......xa --&gt; v
+.....xav --&gt; i
+....xavi --&gt; e</code></pre>
+</div>
+</div>
+</section>
+<section id="layers" class="level1">
+<h1>Layers</h1>
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># -----------------------------------------------------------------------------------------------</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Linear:</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, fan_in, fan_out, bias<span class="op">=</span><span class="va">True</span>):</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.weight <span class="op">=</span> torch.randn((fan_in, fan_out)) <span class="op">/</span> fan_in<span class="op">**</span><span class="fl">0.5</span> <span class="co"># note: kaiming init</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.bias <span class="op">=</span> torch.zeros(fan_out) <span class="cf">if</span> bias <span class="cf">else</span> <span class="va">None</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__call__</span>(<span class="va">self</span>, x):</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.out <span class="op">=</span> x <span class="op">@</span> <span class="va">self</span>.weight</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="va">self</span>.bias <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>      <span class="va">self</span>.out <span class="op">+=</span> <span class="va">self</span>.bias</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">self</span>.out</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="kw">def</span> parameters(<span class="va">self</span>):</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [<span class="va">self</span>.weight] <span class="op">+</span> ([] <span class="cf">if</span> <span class="va">self</span>.bias <span class="kw">is</span> <span class="va">None</span> <span class="cf">else</span> [<span class="va">self</span>.bias])</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="co"># -----------------------------------------------------------------------------------------------</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BatchNorm1d:</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, dim, eps<span class="op">=</span><span class="fl">1e-5</span>, momentum<span class="op">=</span><span class="fl">0.1</span>):</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.eps <span class="op">=</span> eps</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.momentum <span class="op">=</span> momentum</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.training <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># parameters (trained with backprop)</span></span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.gamma <span class="op">=</span> torch.ones(dim)</span>
+<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.beta <span class="op">=</span> torch.zeros(dim)</span>
+<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>    <span class="co"># buffers (trained with a running 'momentum update')</span></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.running_mean <span class="op">=</span> torch.zeros(dim)</span>
+<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.running_var <span class="op">=</span> torch.ones(dim)</span>
+<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__call__</span>(<span class="va">self</span>, x):</span>
+<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>    <span class="co"># calculate the forward pass</span></span>
+<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="va">self</span>.training:</span>
+<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> x.ndim <span class="op">==</span> <span class="dv">2</span>:</span>
+<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>        dim <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>      <span class="cf">elif</span> x.ndim <span class="op">==</span> <span class="dv">3</span>:</span>
+<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>        dim <span class="op">=</span> (<span class="dv">0</span>,<span class="dv">1</span>)</span>
+<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>      xmean <span class="op">=</span> x.mean(dim, keepdim<span class="op">=</span><span class="va">True</span>) <span class="co"># batch mean</span></span>
+<span id="cb11-39"><a href="#cb11-39" aria-hidden="true" tabindex="-1"></a>      xvar <span class="op">=</span> x.var(dim, keepdim<span class="op">=</span><span class="va">True</span>) <span class="co"># batch variance</span></span>
+<span id="cb11-40"><a href="#cb11-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">else</span>:</span>
+<span id="cb11-41"><a href="#cb11-41" aria-hidden="true" tabindex="-1"></a>      xmean <span class="op">=</span> <span class="va">self</span>.running_mean</span>
+<span id="cb11-42"><a href="#cb11-42" aria-hidden="true" tabindex="-1"></a>      xvar <span class="op">=</span> <span class="va">self</span>.running_var</span>
+<span id="cb11-43"><a href="#cb11-43" aria-hidden="true" tabindex="-1"></a>    xhat <span class="op">=</span> (x <span class="op">-</span> xmean) <span class="op">/</span> torch.sqrt(xvar <span class="op">+</span> <span class="va">self</span>.eps) <span class="co"># normalize to unit variance</span></span>
+<span id="cb11-44"><a href="#cb11-44" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.out <span class="op">=</span> <span class="va">self</span>.gamma <span class="op">*</span> xhat <span class="op">+</span> <span class="va">self</span>.beta</span>
+<span id="cb11-45"><a href="#cb11-45" aria-hidden="true" tabindex="-1"></a>    <span class="co"># update the buffers</span></span>
+<span id="cb11-46"><a href="#cb11-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="va">self</span>.training:</span>
+<span id="cb11-47"><a href="#cb11-47" aria-hidden="true" tabindex="-1"></a>      <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb11-48"><a href="#cb11-48" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.running_mean <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> <span class="va">self</span>.momentum) <span class="op">*</span> <span class="va">self</span>.running_mean <span class="op">+</span> <span class="va">self</span>.momentum <span class="op">*</span> xmean</span>
+<span id="cb11-49"><a href="#cb11-49" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.running_var <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> <span class="va">self</span>.momentum) <span class="op">*</span> <span class="va">self</span>.running_var <span class="op">+</span> <span class="va">self</span>.momentum <span class="op">*</span> xvar</span>
+<span id="cb11-50"><a href="#cb11-50" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">self</span>.out</span>
+<span id="cb11-51"><a href="#cb11-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-52"><a href="#cb11-52" aria-hidden="true" tabindex="-1"></a>  <span class="kw">def</span> parameters(<span class="va">self</span>):</span>
+<span id="cb11-53"><a href="#cb11-53" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [<span class="va">self</span>.gamma, <span class="va">self</span>.beta]</span>
+<span id="cb11-54"><a href="#cb11-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-55"><a href="#cb11-55" aria-hidden="true" tabindex="-1"></a><span class="co"># -----------------------------------------------------------------------------------------------</span></span>
+<span id="cb11-56"><a href="#cb11-56" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Tanh:</span>
+<span id="cb11-57"><a href="#cb11-57" aria-hidden="true" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__call__</span>(<span class="va">self</span>, x):</span>
+<span id="cb11-58"><a href="#cb11-58" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.out <span class="op">=</span> torch.tanh(x)</span>
+<span id="cb11-59"><a href="#cb11-59" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">self</span>.out</span>
+<span id="cb11-60"><a href="#cb11-60" aria-hidden="true" tabindex="-1"></a>  <span class="kw">def</span> parameters(<span class="va">self</span>):</span>
+<span id="cb11-61"><a href="#cb11-61" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> []</span>
+<span id="cb11-62"><a href="#cb11-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-63"><a href="#cb11-63" aria-hidden="true" tabindex="-1"></a><span class="co"># -----------------------------------------------------------------------------------------------</span></span>
+<span id="cb11-64"><a href="#cb11-64" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Embedding:</span>
+<span id="cb11-65"><a href="#cb11-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-66"><a href="#cb11-66" aria-hidden="true" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, num_embeddings, embedding_dim):</span>
+<span id="cb11-67"><a href="#cb11-67" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.weight <span class="op">=</span> torch.randn((num_embeddings, embedding_dim))</span>
+<span id="cb11-68"><a href="#cb11-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-69"><a href="#cb11-69" aria-hidden="true" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__call__</span>(<span class="va">self</span>, IX):</span>
+<span id="cb11-70"><a href="#cb11-70" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.out <span class="op">=</span> <span class="va">self</span>.weight[IX]</span>
+<span id="cb11-71"><a href="#cb11-71" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">self</span>.out</span>
+<span id="cb11-72"><a href="#cb11-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-73"><a href="#cb11-73" aria-hidden="true" tabindex="-1"></a>  <span class="kw">def</span> parameters(<span class="va">self</span>):</span>
+<span id="cb11-74"><a href="#cb11-74" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [<span class="va">self</span>.weight]</span>
+<span id="cb11-75"><a href="#cb11-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-76"><a href="#cb11-76" aria-hidden="true" tabindex="-1"></a><span class="co"># -----------------------------------------------------------------------------------------------</span></span>
+<span id="cb11-77"><a href="#cb11-77" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> FlattenConsecutive:</span>
+<span id="cb11-78"><a href="#cb11-78" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-79"><a href="#cb11-79" aria-hidden="true" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, n):</span>
+<span id="cb11-80"><a href="#cb11-80" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.n <span class="op">=</span> n</span>
+<span id="cb11-81"><a href="#cb11-81" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-82"><a href="#cb11-82" aria-hidden="true" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__call__</span>(<span class="va">self</span>, x):</span>
+<span id="cb11-83"><a href="#cb11-83" aria-hidden="true" tabindex="-1"></a>    B, T, C <span class="op">=</span> x.shape</span>
+<span id="cb11-84"><a href="#cb11-84" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> x.view(B, T<span class="op">//</span><span class="va">self</span>.n, C<span class="op">*</span><span class="va">self</span>.n)</span>
+<span id="cb11-85"><a href="#cb11-85" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> x.shape[<span class="dv">1</span>] <span class="op">==</span> <span class="dv">1</span>:</span>
+<span id="cb11-86"><a href="#cb11-86" aria-hidden="true" tabindex="-1"></a>      x <span class="op">=</span> x.squeeze(<span class="dv">1</span>)</span>
+<span id="cb11-87"><a href="#cb11-87" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.out <span class="op">=</span> x</span>
+<span id="cb11-88"><a href="#cb11-88" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">self</span>.out</span>
+<span id="cb11-89"><a href="#cb11-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-90"><a href="#cb11-90" aria-hidden="true" tabindex="-1"></a>  <span class="kw">def</span> parameters(<span class="va">self</span>):</span>
+<span id="cb11-91"><a href="#cb11-91" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> []</span>
+<span id="cb11-92"><a href="#cb11-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-93"><a href="#cb11-93" aria-hidden="true" tabindex="-1"></a><span class="co"># -----------------------------------------------------------------------------------------------</span></span>
+<span id="cb11-94"><a href="#cb11-94" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Sequential:</span>
+<span id="cb11-95"><a href="#cb11-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-96"><a href="#cb11-96" aria-hidden="true" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, layers):</span>
+<span id="cb11-97"><a href="#cb11-97" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.layers <span class="op">=</span> layers</span>
+<span id="cb11-98"><a href="#cb11-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-99"><a href="#cb11-99" aria-hidden="true" tabindex="-1"></a>  <span class="kw">def</span> <span class="fu">__call__</span>(<span class="va">self</span>, x):</span>
+<span id="cb11-100"><a href="#cb11-100" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> layer <span class="kw">in</span> <span class="va">self</span>.layers:</span>
+<span id="cb11-101"><a href="#cb11-101" aria-hidden="true" tabindex="-1"></a>      x <span class="op">=</span> layer(x)</span>
+<span id="cb11-102"><a href="#cb11-102" aria-hidden="true" tabindex="-1"></a>    <span class="va">self</span>.out <span class="op">=</span> x</span>
+<span id="cb11-103"><a href="#cb11-103" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="va">self</span>.out</span>
+<span id="cb11-104"><a href="#cb11-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-105"><a href="#cb11-105" aria-hidden="true" tabindex="-1"></a>  <span class="kw">def</span> parameters(<span class="va">self</span>):</span>
+<span id="cb11-106"><a href="#cb11-106" aria-hidden="true" tabindex="-1"></a>    <span class="co"># get parameters of all layers and stretch them out into one list</span></span>
+<span id="cb11-107"><a href="#cb11-107" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> [p <span class="cf">for</span> layer <span class="kw">in</span> <span class="va">self</span>.layers <span class="cf">for</span> p <span class="kw">in</span> layer.parameters()]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="original-network" class="level1">
+<h1>Original Network</h1>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">42</span>)<span class="op">;</span> <span class="co"># seed rng for reproducibility</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-outputid="48b94069-fc0e-4127-862a-c84cd71e63ff" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># original network</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>n_embd <span class="op">=</span> <span class="dv">10</span> <span class="co"># the dimensionality of the character embedding vectors</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>n_hidden <span class="op">=</span> <span class="dv">86</span> <span class="co"># the number of neurons in the hidden layer of the MLP</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="co"># model = Sequential([</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   Embedding(vocab_size, n_embd),</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   FlattenConsecutive(block_size), Linear(n_embd * block_size, n_hidden, bias=False), BatchNorm1d(n_hidden), Tanh(),</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co">#   Linear(n_hidden, vocab_size),</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="co"># ])</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a><span class="co"># hierarchical network</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="co"># n_embd = 24 # the dimensionality of the character embedding vectors</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a><span class="co"># n_hidden = 128 # the number of neurons in the hidden layer of the MLP</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> Sequential([</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  Embedding(vocab_size, n_embd),</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  FlattenConsecutive(<span class="dv">2</span>), Linear(n_embd <span class="op">*</span> <span class="dv">2</span>, n_hidden, bias<span class="op">=</span><span class="va">False</span>), BatchNorm1d(n_hidden), Tanh(),</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  FlattenConsecutive(<span class="dv">2</span>), Linear(n_hidden<span class="op">*</span><span class="dv">2</span>, n_hidden, bias<span class="op">=</span><span class="va">False</span>), BatchNorm1d(n_hidden), Tanh(),</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>  FlattenConsecutive(<span class="dv">2</span>), Linear(n_hidden<span class="op">*</span><span class="dv">2</span>, n_hidden, bias<span class="op">=</span><span class="va">False</span>), BatchNorm1d(n_hidden), Tanh(),</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  Linear(n_hidden, vocab_size),</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>])</span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="co"># parameter init</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>  model.layers[<span class="op">-</span><span class="dv">1</span>].weight <span class="op">*=</span> <span class="fl">0.1</span> <span class="co"># last layer make less confident</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>parameters <span class="op">=</span> model.parameters()</span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">sum</span>(p.nelement() <span class="cf">for</span> p <span class="kw">in</span> parameters)) <span class="co"># number of parameters in total</span></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> p <span class="kw">in</span> parameters:</span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>  p.requires_grad <span class="op">=</span> <span class="va">True</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>34439</code></pre>
+</div>
+</div>
+</section>
+<section id="full-training-block-size-8" class="level1">
+<h1>Full Training (block size 8)</h1>
+<div class="cell" data-outputid="f7564587-cdaa-4f5c-a187-f43103b23bd8" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># same optimization as last time</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>max_steps <span class="op">=</span> <span class="dv">200000</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>batch_size <span class="op">=</span> <span class="dv">32</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>lossi <span class="op">=</span> []</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(max_steps):</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># minibatch construct</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  ix <span class="op">=</span> torch.randint(<span class="dv">0</span>, Xtr.shape[<span class="dv">0</span>], (batch_size,))</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  Xb, Yb <span class="op">=</span> Xtr[ix], Ytr[ix] <span class="co"># batch X,Y</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># forward pass</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>  logits <span class="op">=</span> model(Xb)</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>  loss <span class="op">=</span> F.cross_entropy(logits, Yb) <span class="co"># loss function</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># backward pass</span></span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> p <span class="kw">in</span> parameters:</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>    p.grad <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>  loss.backward()</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># update: simple SGD</span></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>  lr <span class="op">=</span> <span class="fl">0.1</span> <span class="cf">if</span> i <span class="op">&lt;</span> <span class="dv">150000</span> <span class="cf">else</span> <span class="fl">0.01</span> <span class="co"># step learning rate decay</span></span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> p <span class="kw">in</span> parameters:</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>    p.data <span class="op">+=</span> <span class="op">-</span>lr <span class="op">*</span> p.grad</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>  <span class="co"># track stats</span></span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> i <span class="op">%</span> <span class="dv">10000</span> <span class="op">==</span> <span class="dv">0</span>: <span class="co"># print every once in a while</span></span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'</span><span class="sc">{</span>i<span class="sc">:7d}</span><span class="ss">/</span><span class="sc">{</span>max_steps<span class="sc">:7d}</span><span class="ss">: </span><span class="sc">{</span>loss<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss">'</span>)</span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>  lossi.append(loss.log10().item())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      0/ 200000: 3.2917
+  10000/ 200000: 2.5208
+  20000/ 200000: 2.2240
+  30000/ 200000: 2.1996
+  40000/ 200000: 1.9491
+  50000/ 200000: 2.2448
+  60000/ 200000: 2.3660
+  70000/ 200000: 1.7555
+  80000/ 200000: 2.1875
+  90000/ 200000: 1.9736
+ 100000/ 200000: 1.6797
+ 110000/ 200000: 1.4907
+ 120000/ 200000: 1.7593
+ 130000/ 200000: 2.3042
+ 140000/ 200000: 1.6335
+ 150000/ 200000: 1.9470
+ 160000/ 200000: 2.0996
+ 170000/ 200000: 2.1352
+ 180000/ 200000: 1.6327
+ 190000/ 200000: 2.1969</code></pre>
+</div>
+</div>
+</section>
+<section id="aside-fix-our-noisy-graph" class="level1">
+<h1>Aside: Fix our noisy graph</h1>
+<div class="cell" data-outputid="cf1ade77-025a-431b-a26a-87f5228c8096" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>plt.plot(lossi)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="02_wavenet_files/figure-html/cell-12-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell" data-outputid="5cbae3ac-3b8b-40d8-c71e-4d86eb017d3c" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># now to improve previous near-useless noisy graph</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>torch.arange(<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="14">
+<pre><code>tensor([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])</code></pre>
+</div>
+</div>
+<div class="cell" data-outputid="70c448d6-9c9d-418f-bb8b-5a3d3f8c461b" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>torch.arange(<span class="dv">10</span>).view(<span class="dv">2</span>,<span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="15">
+<pre><code>tensor([[0, 1, 2, 3, 4],
+        [5, 6, 7, 8, 9]])</code></pre>
+</div>
+</div>
+<div class="cell" data-outputid="01e09c49-e180-4e47-bc0e-36e25aa0aad1" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>torch.arange(<span class="dv">10</span>).view(<span class="dv">2</span>,<span class="op">-</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="16">
+<pre><code>tensor([[0, 1, 2, 3, 4],
+        [5, 6, 7, 8, 9]])</code></pre>
+</div>
+</div>
+<div class="cell" data-outputid="6042a327-e10a-4fda-8c57-3223aad95a75" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>torch.tensor(lossi).shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="17">
+<pre><code>torch.Size([200000])</code></pre>
+</div>
+</div>
+<div class="cell" data-outputid="ecff4a1b-f504-4959-81b7-bff01d9e774a" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>torch.tensor(lossi).view(<span class="op">-</span><span class="dv">1</span>,<span class="dv">1000</span>).shape</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="18">
+<pre><code>torch.Size([200, 1000])</code></pre>
+</div>
+</div>
+<div class="cell" data-outputid="97ab0d31-82c6-4140-fd06-15a53f43ac5f" data-execution_count="19">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>torch.tensor(lossi).view(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1000</span>).mean(<span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="19">
+<pre><code>tensor([0.3927, 0.3592, 0.3536, 0.3490, 0.3463, 0.3443, 0.3414, 0.3365, 0.3351,
+        0.3320, 0.3307, 0.3289, 0.3278, 0.3266, 0.3250, 0.3272, 0.3220, 0.3246,
+        0.3206, 0.3223, 0.3194, 0.3192, 0.3204, 0.3184, 0.3185, 0.3186, 0.3186,
+        0.3129, 0.3151, 0.3158, 0.3136, 0.3133, 0.3123, 0.3140, 0.3113, 0.3123,
+        0.3107, 0.3129, 0.3087, 0.3100, 0.3110, 0.3099, 0.3100, 0.3101, 0.3075,
+        0.3062, 0.3090, 0.3055, 0.3071, 0.3076, 0.3054, 0.3029, 0.3055, 0.3057,
+        0.3070, 0.3052, 0.3005, 0.3022, 0.3032, 0.3045, 0.3052, 0.3036, 0.3057,
+        0.3017, 0.3021, 0.3007, 0.3019, 0.3029, 0.3029, 0.3032, 0.3026, 0.3010,
+        0.3024, 0.3008, 0.3010, 0.3012, 0.2989, 0.2961, 0.3006, 0.2983, 0.2977,
+        0.3002, 0.2989, 0.3006, 0.2966, 0.2994, 0.2987, 0.2965, 0.2980, 0.2964,
+        0.2955, 0.2980, 0.2981, 0.2986, 0.2974, 0.2949, 0.2930, 0.2960, 0.2976,
+        0.2954, 0.2927, 0.2970, 0.2938, 0.2970, 0.2963, 0.2943, 0.2957, 0.2953,
+        0.2910, 0.2946, 0.2949, 0.2931, 0.2937, 0.2964, 0.2934, 0.2912, 0.2959,
+        0.2924, 0.2913, 0.2962, 0.2935, 0.2944, 0.2917, 0.2942, 0.2941, 0.2924,
+        0.2918, 0.2936, 0.2921, 0.2936, 0.2930, 0.2924, 0.2888, 0.2922, 0.2921,
+        0.2928, 0.2933, 0.2907, 0.2919, 0.2905, 0.2907, 0.2912, 0.2913, 0.2901,
+        0.2907, 0.2903, 0.2923, 0.2868, 0.2907, 0.2878, 0.2843, 0.2818, 0.2820,
+        0.2792, 0.2788, 0.2788, 0.2748, 0.2783, 0.2764, 0.2770, 0.2784, 0.2788,
+        0.2793, 0.2796, 0.2760, 0.2765, 0.2800, 0.2774, 0.2738, 0.2761, 0.2748,
+        0.2801, 0.2759, 0.2768, 0.2776, 0.2793, 0.2741, 0.2760, 0.2802, 0.2756,
+        0.2755, 0.2742, 0.2727, 0.2753, 0.2764, 0.2735, 0.2739, 0.2784, 0.2778,
+        0.2734, 0.2790, 0.2764, 0.2778, 0.2728, 0.2729, 0.2748, 0.2761, 0.2766,
+        0.2750, 0.2765])</code></pre>
+</div>
+</div>
+<div class="cell" data-outputid="00b655ad-a726-4954-a079-80b78ebcc77b" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>plt.plot(torch.tensor(lossi).view(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1000</span>).mean(<span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="02_wavenet_files/figure-html/cell-19-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+</section>
+<section id="evaluate-the-loss" class="level1">
+<h1>Evaluate the loss</h1>
+<div class="cell" data-outputid="ad6c02c8-945f-43a7-9150-1c1bd9be1b30" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>plt.plot(torch.tensor(lossi).view(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1000</span>).mean(<span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="02_wavenet_files/figure-html/cell-20-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># put layers into eval mode (needed for batchnorm especially)</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> layer <span class="kw">in</span> model.layers:</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  layer.training <span class="op">=</span> <span class="va">False</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-outputid="704372f6-0aef-41f7-8150-8a89b644fd3a" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># evaluate the loss</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="at">@torch.no_grad</span>() <span class="co"># this decorator disables gradient tracking inside pytorch</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> split_loss(split):</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  x,y <span class="op">=</span> {</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'train'</span>: (Xtr, Ytr),</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'val'</span>: (Xdev, Ydev),</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'test'</span>: (Xte, Yte),</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>  }[split]</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>  logits <span class="op">=</span> model(x)</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>  loss <span class="op">=</span> F.cross_entropy(logits, y)</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>  <span class="bu">print</span>(split, loss.item())</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>split_loss(<span class="st">'train'</span>)</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>split_loss(<span class="st">'val'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>train 1.86322021484375
+val 2.004162073135376</code></pre>
+</div>
+</div>
+</section>
+<section id="sample-from-the-model" class="level1">
+<h1>Sample from the model</h1>
+<div class="cell" data-outputid="5632dae8-2dd3-4516-d4bc-b6cfcf5494d0" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sample from the model</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">20</span>):</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> []</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>    context <span class="op">=</span> [<span class="dv">0</span>] <span class="op">*</span> block_size <span class="co"># initialize with all ...</span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>      <span class="co"># forward pass the neural net</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>      logits <span class="op">=</span> model(torch.tensor([context]))</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>      probs <span class="op">=</span> F.softmax(logits, dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>      <span class="co"># sample from the distribution</span></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>      ix <span class="op">=</span> torch.multinomial(probs, num_samples<span class="op">=</span><span class="dv">1</span>).item()</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>      <span class="co"># shift the context window and track the samples</span></span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>      context <span class="op">=</span> context[<span class="dv">1</span>:] <span class="op">+</span> [ix]</span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>      out.append(ix)</span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>      <span class="co"># if we sample the special '.' token, break</span></span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> ix <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">''</span>.join(itos[i] <span class="cf">for</span> i <span class="kw">in</span> out)) <span class="co"># decode and print the generated word</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>jabella.
+amilynn.
+eliana.
+arishadhes.
+corbin.
+maneima.
+tin.
+mondrich.
+roselynn.
+veianj.
+azara.
+abiya.
+alexia.
+lanai.
+aletta.
+aleasia.
+nayemin.
+lorrah.
+maxten.
+deklynn.</code></pre>
+</div>
+</div>
+</section>
+<section id="expanding-the-model" class="level1">
+<h1>Expanding the model</h1>
+<section id="update-embedding-layer" class="level2">
+<h2 class="anchored" data-anchor-id="update-embedding-layer">Update Embedding Layer</h2>
+<section id="current-model-state" class="level3">
+<h3 class="anchored" data-anchor-id="current-model-state">1. <strong>Current Model State</strong>:</h3>
+<p>The current model has training and validation losses that are close to each other. This suggests that the model isn’t overfitting. In such cases, a common approach to improve performance is to expand the model: increase its capacity by adding more neurons or layers.</p>
+</section>
+<section id="problem-with-current-architecture" class="level3">
+<h3 class="anchored" data-anchor-id="problem-with-current-architecture">2. <strong>Problem with Current Architecture</strong>:</h3>
+<p>Right now, the model takes in a sequence of characters, processes them through a single layer, and predicts the next character. This is somewhat akin to trying to understand a sentence by reading all its words at once. While you can add more layers, you’re still compressing all the information at the very beginning, which might be suboptimal.</p>
+</section>
+<section id="inspiration-from-wavenet" class="level3">
+<h3 class="anchored" data-anchor-id="inspiration-from-wavenet">3. <strong>Inspiration from WaveNet</strong>:</h3>
+<p>WaveNet offers a different approach. Instead of compressing all characters at once, it processes the input in a hierarchical manner. Imagine trying to understand a sentence not word by word, but by understanding two words at a time, then four words, then eight, and so on. This allows the model to capture relationships and patterns at different scales.</p>
+</section>
+<section id="progressive-fusion" class="level3">
+<h3 class="anchored" data-anchor-id="progressive-fusion">4. <strong>Progressive Fusion</strong>:</h3>
+<p>The key idea is to combine (or “fuse”) input data progressively. Start by combining pairs of characters (bigrams). Then, combine pairs of bigrams to form four-character chunks, and so on. This slow fusion ensures that the model has a more refined understanding of the input data at various levels of granularity.</p>
+</section>
+<section id="dilated-causal-convolutions" class="level3">
+<h3 class="anchored" data-anchor-id="dilated-causal-convolutions">5. <strong>Dilated Causal Convolutions</strong>:</h3>
+<p>While it sounds complex, the core idea is about efficiency and preserving information. In standard convolutions, each layer can only see a limited portion of the input. By using dilated convolutions, each layer can see a wider range of input, allowing the model to capture longer-term dependencies without needing extremely deep architectures. The “causal” part ensures that the prediction at any time step is only based on past and current data, not future data.</p>
+</section>
+<section id="conclusion" class="level3">
+<h3 class="anchored" data-anchor-id="conclusion">Conclusion:</h3>
+<p>In essence, the lecturer is suggesting moving from a simplistic model that quickly compresses input information to a more sophisticated architecture that understands the input in a layered and hierarchical manner. This approach, inspired by WaveNet, allows the model to capture patterns and relationships at different scales, potentially leading to better performance. The implementation details, like dilated causal convolutions, are there to ensure efficiency and respect the temporal nature of the data.</p>
+<p>#&nbsp;Layer inspector tool</p>
+<div class="cell" data-outputid="73bbba6b-ce91-405e-ec7c-0a67e8347aee" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> layer <span class="kw">in</span> model.layers:</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">print</span>(layer.__class__.<span class="va">__name__</span>, <span class="st">':'</span>, <span class="bu">tuple</span>(layer.out.shape) )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Embedding : (1, 8, 10)
+FlattenConsecutive : (1, 4, 20)
+Linear : (1, 4, 86)
+BatchNorm1d : (1, 4, 86)
+Tanh : (1, 4, 86)
+FlattenConsecutive : (1, 2, 172)
+Linear : (1, 2, 86)
+BatchNorm1d : (1, 2, 86)
+Tanh : (1, 2, 86)
+FlattenConsecutive : (1, 172)
+Linear : (1, 86)
+BatchNorm1d : (1, 86)
+Tanh : (1, 86)
+Linear : (1, 27)</code></pre>
+</div>
+</div>
+<div class="cell" data-outputid="a4fc8aa9-dc45-4ea3-bb8f-b317874ce040" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># same optimization as last time</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>max_steps <span class="op">=</span> <span class="dv">200000</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>batch_size <span class="op">=</span> <span class="dv">32</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>lossi <span class="op">=</span> []</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(max_steps):</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># minibatch construct</span></span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>  ix <span class="op">=</span> torch.randint(<span class="dv">0</span>, Xtr.shape[<span class="dv">0</span>], (batch_size,))</span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>  Xb, Yb <span class="op">=</span> Xtr[ix], Ytr[ix] <span class="co"># batch X,Y</span></span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># forward pass</span></span>
+<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a>  logits <span class="op">=</span> model(Xb)</span>
+<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a>  loss <span class="op">=</span> F.cross_entropy(logits, Yb) <span class="co"># loss function</span></span>
+<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-16"><a href="#cb39-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># backward pass</span></span>
+<span id="cb39-17"><a href="#cb39-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> p <span class="kw">in</span> parameters:</span>
+<span id="cb39-18"><a href="#cb39-18" aria-hidden="true" tabindex="-1"></a>    p.grad <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb39-19"><a href="#cb39-19" aria-hidden="true" tabindex="-1"></a>  loss.backward()</span>
+<span id="cb39-20"><a href="#cb39-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-21"><a href="#cb39-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># update: simple SGD</span></span>
+<span id="cb39-22"><a href="#cb39-22" aria-hidden="true" tabindex="-1"></a>  lr <span class="op">=</span> <span class="fl">0.1</span> <span class="cf">if</span> i <span class="op">&lt;</span> <span class="dv">150000</span> <span class="cf">else</span> <span class="fl">0.01</span> <span class="co"># step learning rate decay</span></span>
+<span id="cb39-23"><a href="#cb39-23" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> p <span class="kw">in</span> parameters:</span>
+<span id="cb39-24"><a href="#cb39-24" aria-hidden="true" tabindex="-1"></a>    p.data <span class="op">+=</span> <span class="op">-</span>lr <span class="op">*</span> p.grad</span>
+<span id="cb39-25"><a href="#cb39-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-26"><a href="#cb39-26" aria-hidden="true" tabindex="-1"></a>  <span class="co"># track stats</span></span>
+<span id="cb39-27"><a href="#cb39-27" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> i <span class="op">%</span> <span class="dv">10000</span> <span class="op">==</span> <span class="dv">0</span>: <span class="co"># print every once in a while</span></span>
+<span id="cb39-28"><a href="#cb39-28" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'</span><span class="sc">{</span>i<span class="sc">:7d}</span><span class="ss">/</span><span class="sc">{</span>max_steps<span class="sc">:7d}</span><span class="ss">: </span><span class="sc">{</span>loss<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss">'</span>)</span>
+<span id="cb39-29"><a href="#cb39-29" aria-hidden="true" tabindex="-1"></a>  lossi.append(loss.log10().item())</span>
+<span id="cb39-30"><a href="#cb39-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-31"><a href="#cb39-31" aria-hidden="true" tabindex="-1"></a>  <span class="cf">break</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      0/ 200000: 2.0798</code></pre>
+</div>
+</div>
+<div class="cell" data-outputid="701ea09a-e511-4865-bb13-657bbf0d71a8" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> layer <span class="kw">in</span> model.layers:</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>  <span class="bu">print</span>(layer.__class__.<span class="va">__name__</span>, <span class="st">':'</span>, <span class="bu">tuple</span>(layer.out.shape) )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Embedding : (32, 8, 10)
+FlattenConsecutive : (32, 4, 20)
+Linear : (32, 4, 86)
+BatchNorm1d : (32, 4, 86)
+Tanh : (32, 4, 86)
+FlattenConsecutive : (32, 2, 172)
+Linear : (32, 2, 86)
+BatchNorm1d : (32, 2, 86)
+Tanh : (32, 2, 86)
+FlattenConsecutive : (32, 172)
+Linear : (32, 86)
+BatchNorm1d : (32, 86)
+Tanh : (32, 86)
+Linear : (32, 27)</code></pre>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="full-training-with-block-size-8" class="level1">
+<h1>Full Training with block size 8</h1>
+<div class="cell" data-outputid="af1989a7-3f4f-4d99-d0b4-b53e08705930" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># same optimization as last time</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>max_steps <span class="op">=</span> <span class="dv">200000</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>batch_size <span class="op">=</span> <span class="dv">32</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>lossi <span class="op">=</span> []</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(max_steps):</span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># minibatch construct</span></span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>  ix <span class="op">=</span> torch.randint(<span class="dv">0</span>, Xtr.shape[<span class="dv">0</span>], (batch_size,))</span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>  Xb, Yb <span class="op">=</span> Xtr[ix], Ytr[ix] <span class="co"># batch X,Y</span></span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># forward pass</span></span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>  logits <span class="op">=</span> model(Xb)</span>
+<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a>  loss <span class="op">=</span> F.cross_entropy(logits, Yb) <span class="co"># loss function</span></span>
+<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-16"><a href="#cb43-16" aria-hidden="true" tabindex="-1"></a>  <span class="co"># backward pass</span></span>
+<span id="cb43-17"><a href="#cb43-17" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> p <span class="kw">in</span> parameters:</span>
+<span id="cb43-18"><a href="#cb43-18" aria-hidden="true" tabindex="-1"></a>    p.grad <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb43-19"><a href="#cb43-19" aria-hidden="true" tabindex="-1"></a>  loss.backward()</span>
+<span id="cb43-20"><a href="#cb43-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-21"><a href="#cb43-21" aria-hidden="true" tabindex="-1"></a>  <span class="co"># update: simple SGD</span></span>
+<span id="cb43-22"><a href="#cb43-22" aria-hidden="true" tabindex="-1"></a>  lr <span class="op">=</span> <span class="fl">0.1</span> <span class="cf">if</span> i <span class="op">&lt;</span> <span class="dv">150000</span> <span class="cf">else</span> <span class="fl">0.01</span> <span class="co"># step learning rate decay</span></span>
+<span id="cb43-23"><a href="#cb43-23" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> p <span class="kw">in</span> parameters:</span>
+<span id="cb43-24"><a href="#cb43-24" aria-hidden="true" tabindex="-1"></a>    p.data <span class="op">+=</span> <span class="op">-</span>lr <span class="op">*</span> p.grad</span>
+<span id="cb43-25"><a href="#cb43-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-26"><a href="#cb43-26" aria-hidden="true" tabindex="-1"></a>  <span class="co"># track stats</span></span>
+<span id="cb43-27"><a href="#cb43-27" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> i <span class="op">%</span> <span class="dv">10000</span> <span class="op">==</span> <span class="dv">0</span>: <span class="co"># print every once in a while</span></span>
+<span id="cb43-28"><a href="#cb43-28" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f'</span><span class="sc">{</span>i<span class="sc">:7d}</span><span class="ss">/</span><span class="sc">{</span>max_steps<span class="sc">:7d}</span><span class="ss">: </span><span class="sc">{</span>loss<span class="sc">.</span>item()<span class="sc">:.4f}</span><span class="ss">'</span>)</span>
+<span id="cb43-29"><a href="#cb43-29" aria-hidden="true" tabindex="-1"></a>  lossi.append(loss.log10().item())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      0/ 200000: 1.9996
+  10000/ 200000: 1.8951
+  20000/ 200000: 2.0129
+  30000/ 200000: 2.0465
+  40000/ 200000: 1.9690
+  50000/ 200000: 1.8374
+  60000/ 200000: 2.0106
+  70000/ 200000: 1.9450
+  80000/ 200000: 1.6818
+  90000/ 200000: 1.9299
+ 100000/ 200000: 1.8923
+ 110000/ 200000: 1.8658
+ 120000/ 200000: 1.9089
+ 130000/ 200000: 1.7384
+ 140000/ 200000: 1.8619
+ 150000/ 200000: 1.6927
+ 160000/ 200000: 1.6295
+ 170000/ 200000: 1.7644
+ 180000/ 200000: 2.0708
+ 190000/ 200000: 1.3967</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="29">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> layer <span class="kw">in</span> model.layers:</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>  layer.training <span class="op">=</span> <span class="va">False</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell" data-outputid="10825c67-3dec-4684-9f44-6840c5186ca4" data-execution_count="30">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>plt.plot(torch.tensor(lossi).view(<span class="op">-</span><span class="dv">1</span>, <span class="dv">1000</span>).mean(<span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="02_wavenet_files/figure-html/cell-29-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell" data-outputid="d0a0068a-a5b0-4f6e-b8ae-d53baa2f70ad" data-execution_count="31">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># evaluate the loss</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="at">@torch.no_grad</span>() <span class="co"># this decorator disables gradient tracking inside pytorch</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> split_loss(split):</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>  x,y <span class="op">=</span> {</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">'train'</span>: (Xtr, Ytr),</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">'val'</span>: (Xdev, Ydev),</span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">'test'</span>: (Xte, Yte),</span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>  }[split]</span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a>  logits <span class="op">=</span> model(x)</span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a>  loss <span class="op">=</span> F.cross_entropy(logits, y)</span>
+<span id="cb47-11"><a href="#cb47-11" aria-hidden="true" tabindex="-1"></a>  <span class="bu">print</span>(split, loss.item())</span>
+<span id="cb47-12"><a href="#cb47-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-13"><a href="#cb47-13" aria-hidden="true" tabindex="-1"></a>split_loss(<span class="st">'train'</span>)</span>
+<span id="cb47-14"><a href="#cb47-14" aria-hidden="true" tabindex="-1"></a>split_loss(<span class="st">'val'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>train 1.7929871082305908
+val 2.031975746154785</code></pre>
+</div>
+</div>
+<div class="cell" data-outputid="b7af65f4-40eb-4dd5-b008-cdcd300eadaa" data-execution_count="32">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sample from the model</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">20</span>):</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> []</span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>    context <span class="op">=</span> [<span class="dv">0</span>] <span class="op">*</span> block_size <span class="co"># initialize with all ...</span></span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>      <span class="co"># forward pass the neural net</span></span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a>      logits <span class="op">=</span> model(torch.tensor([context]))</span>
+<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a>      probs <span class="op">=</span> F.softmax(logits, dim<span class="op">=</span><span class="dv">1</span>)</span>
+<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a>      <span class="co"># sample from the distribution</span></span>
+<span id="cb49-11"><a href="#cb49-11" aria-hidden="true" tabindex="-1"></a>      ix <span class="op">=</span> torch.multinomial(probs, num_samples<span class="op">=</span><span class="dv">1</span>).item()</span>
+<span id="cb49-12"><a href="#cb49-12" aria-hidden="true" tabindex="-1"></a>      <span class="co"># shift the context window and track the samples</span></span>
+<span id="cb49-13"><a href="#cb49-13" aria-hidden="true" tabindex="-1"></a>      context <span class="op">=</span> context[<span class="dv">1</span>:] <span class="op">+</span> [ix]</span>
+<span id="cb49-14"><a href="#cb49-14" aria-hidden="true" tabindex="-1"></a>      out.append(ix)</span>
+<span id="cb49-15"><a href="#cb49-15" aria-hidden="true" tabindex="-1"></a>      <span class="co"># if we sample the special '.' token, break</span></span>
+<span id="cb49-16"><a href="#cb49-16" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> ix <span class="op">==</span> <span class="dv">0</span>:</span>
+<span id="cb49-17"><a href="#cb49-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span></span>
+<span id="cb49-18"><a href="#cb49-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-19"><a href="#cb49-19" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">''</span>.join(itos[i] <span class="cf">for</span> i <span class="kw">in</span> out)) <span class="co"># decode and print the generated word</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>hibak.
+chipposon.
+quincenlee.
+abderbon.
+holten.
+chdy.
+nakayla.
+dam.
+aida.
+quesedes.
+caryn.
+aunifa.
+sonher.
+johnleo.
+arfany.
+aimon.
+vik.
+yiszam.
+kaysee.
+phinan.</code></pre>
+</div>
+</div>
+</section>
+<section id="glossary" class="level1">
+<h1>Glossary</h1>
+<section id="random-seeding-in-the-context-of-pytorch-and-neural-network-training." class="level2">
+<h2 class="anchored" data-anchor-id="random-seeding-in-the-context-of-pytorch-and-neural-network-training.">Random seeding in the context of PyTorch and neural network training.</h2>
+<section id="purpose-of-seeding" class="level3">
+<h3 class="anchored" data-anchor-id="purpose-of-seeding">1. <strong>Purpose of Seeding</strong>:</h3>
+<p>In machine learning, especially in neural networks, we often initialize weights and biases randomly. Moreover, when you’re dealing with stochastic processes like dropout, sampling, and other random transformations, the behavior can differ from one run to another due to the randomness. By setting a seed for these random operations, we ensure that the randomness is consistent across multiple runs, making experiments reproducible.</p>
+</section>
+<section id="torch.manual_seed-vs.-torch.generator" class="level3">
+<h3 class="anchored" data-anchor-id="torch.manual_seed-vs.-torch.generator">2. <strong>torch.manual_seed() vs.&nbsp;torch.Generator()</strong>:</h3>
+<ul>
+<li><p><strong>torch.manual_seed(seed)</strong>: This sets the seed for the default global generator in PyTorch. Every time you call a function that involves randomness without specifying a generator, it uses the global generator. When you set a manual seed, you’re setting the seed for this global generator. It’s a straightforward way to ensure consistent randomness throughout your program.</p></li>
+<li><p><strong>torch.Generator()</strong>: This creates an independent random number generator. You can manually set the seed for this generator and use it for specific operations, keeping it separate from the global generator. This is particularly useful when you want different parts of your code to have different random behaviors, but still want each of those behaviors to be reproducible.</p></li>
+</ul>
+</section>
+<section id="why-not-always-use-torch.manual_seed" class="level3">
+<h3 class="anchored" data-anchor-id="why-not-always-use-torch.manual_seed">3. <strong>Why not always use torch.manual_seed()?</strong>:</h3>
+<p>In many cases, using <code>torch.manual_seed()</code> is sufficient, especially for simpler projects and experiments. However, as your projects grow in complexity, there might be reasons to maintain different seeds:</p>
+<ul>
+<li><p><strong>Fine-grained Control</strong>: You might want different parts of your code to operate with different seeds. For example, if you’re doing multi-task learning with multiple neural networks, you might want to initialize each network with a different seed, but still want each initialization to be reproducible.</p></li>
+<li><p><strong>Parallelism</strong>: When running operations in parallel, having separate generators can prevent potential synchronization issues and ensure that each parallel operation is consistent across runs.</p></li>
+<li><p><strong>Isolation</strong>: By using different generators for different parts of your code, you can change one part of your code without affecting the randomness in another part.</p></li>
+</ul>
+</section>
+<section id="conclusion-1" class="level3">
+<h3 class="anchored" data-anchor-id="conclusion-1">Conclusion:</h3>
+<p>While <code>torch.manual_seed()</code> is a quick and effective method for most use cases, as your projects become more complex, you might find situations where the granularity and control offered by <code>torch.Generator()</code> become necessary. Knowing when and how to use each method appropriately can make your experiments more organized and your results more reliable.</p>
+</section>
+</section>
+<section id="high-level-hierarchical-view-of-pytorch-api" class="level2">
+<h2 class="anchored" data-anchor-id="high-level-hierarchical-view-of-pytorch-api">High-level hierarchical view of PyTorch API</h2>
+<p>The PyTorch API is extensive, but I’ll provide a high-level hierarchical view of its core components, which should give you a roadmap for diving deeper:</p>
+<ol type="1">
+<li><strong>Tensors</strong>
+<ul>
+<li>Core data structure in PyTorch, similar to NumPy arrays but with GPU support.</li>
+<li><code>torch.Tensor</code> class and its various methods.</li>
+<li>Creation: <code>torch.empty()</code>, <code>torch.rand()</code>, <code>torch.zeros()</code>, <code>torch.ones()</code>, <code>torch.tensor()</code>, etc.</li>
+<li>Operations: Mathematical, Reduction, Comparison, Matrix, etc.</li>
+<li>Indexing, Slicing, Joining, Mutating ops: <code>torch.cat()</code>, <code>torch.stack()</code>, etc.</li>
+</ul></li>
+<li><strong>Autograd</strong>
+<ul>
+<li>Automatic differentiation library.</li>
+<li><code>torch.autograd</code> module.</li>
+<li><code>Variable</code>: Deprecated, but historically important. All Tensors now have <code>requires_grad</code> attribute.</li>
+<li><code>Function</code>: Defines a forward and backward operation. Links to <code>Variable</code> to build a computation graph.</li>
+</ul></li>
+<li><strong>Neural Networks</strong>
+<ul>
+<li><code>torch.nn</code> module.</li>
+<li>Layers: Pre-defined layers like <code>nn.Linear</code>, <code>nn.Conv2d</code>, <code>nn.ReLU</code>, etc.</li>
+<li>Loss functions: <code>nn.CrossEntropyLoss</code>, <code>nn.MSELoss</code>, etc.</li>
+<li>Optimizers: Located in <code>torch.optim</code>, e.g., <code>optim.Adam</code>, <code>optim.SGD</code>.</li>
+<li>Utilities: <code>nn.functional</code> for stateless functions like activation functions.</li>
+<li><code>nn.Module</code>: Base class for all neural network modules, aiding in organizing code and parameters.</li>
+<li><code>nn.Sequential</code>: A sequential container for stacking layers.</li>
+</ul></li>
+<li><strong>Utilities</strong>
+<ul>
+<li>Tensor transformations: <code>torchvision.transforms</code>.</li>
+<li>Data handling for NN training: <code>torch.utils.data.Dataset</code>, <code>torch.utils.data.DataLoader</code>.</li>
+</ul></li>
+<li><strong>Optimization</strong>
+<ul>
+<li><code>torch.optim</code> module.</li>
+<li>Optimization algorithms like SGD, Adam, RMSProp, etc.</li>
+<li>Learning rate schedulers: Adjust LR on-the-fly during training.</li>
+</ul></li>
+<li><strong>Serialization</strong>
+<ul>
+<li>Save and load models: <code>torch.save()</code>, <code>torch.load()</code>, <code>nn.Module.load_state_dict()</code>, etc.</li>
+</ul></li>
+<li><strong>Distributed Training</strong>
+<ul>
+<li><code>torch.distributed</code>: For multi-GPU and distributed training.</li>
+<li>Backend support for different communication protocols.</li>
+</ul></li>
+<li><strong>Other Libraries &amp; Extensions</strong>
+<ul>
+<li><code>torchvision</code>: Datasets, models, and image transformations for computer vision.</li>
+<li><code>torchaudio</code>: Audio processing tools and datasets.</li>
+<li><code>torchtext</code>: NLP data utilities and models.</li>
+</ul></li>
+<li><strong>Device &amp; CUDA</strong>
+<ul>
+<li>Tensor operations on different devices: CPU, GPU.</li>
+<li>CUDA Tensors: Tensors transferred to GPU.</li>
+<li>Device management: <code>torch.cuda</code>, <code>torch.device</code>.</li>
+</ul></li>
+<li><strong>JIT Compiler</strong>
+<ul>
+<li><code>torch.jit</code>: Just-In-Time compiler to convert PyTorch models to a representation that can be optimized and run in non-Python environments.</li>
+</ul></li>
+<li><strong>Quantization</strong>
+<ul>
+<li>Reduce the size of models and increase runtime performance.</li>
+<li><code>torch.quantization</code>: Contains utilities for model quantization.</li>
+</ul></li>
+</ol>
+<p>Start with Tensors and Autograd to get a solid grasp on the basics. Then, you can delve into neural networks with the <code>torch.nn</code> module. After mastering these, choose specialized topics based on your interests and needs.</p>
+</section>
+<section id="torch.nn.embedding." class="level2">
+<h2 class="anchored" data-anchor-id="torch.nn.embedding."><code>torch.nn.Embedding</code>.</h2>
+<section id="the-concept-of-embeddings" class="level3">
+<h3 class="anchored" data-anchor-id="the-concept-of-embeddings">1. <strong>The Concept of Embeddings</strong>:</h3>
+<p>Embeddings are a powerful tool in the world of deep learning, especially when dealing with categorical data, like words in a language. Instead of representing words or other categorical variables as discrete values (like integers), embeddings represent them as continuous vectors. These vectors capture more information and relationships between different words or categories.</p>
+</section>
+<section id="torch.nn.embedding" class="level3">
+<h3 class="anchored" data-anchor-id="torch.nn.embedding">2. <strong>torch.nn.Embedding</strong>:</h3>
+<p><code>torch.nn.Embedding</code> is PyTorch’s module to create an embedding layer. Essentially, it’s a lookup table that maps from integer indices (representing specific words or categories) to dense vectors (their embeddings).</p>
+</section>
+<section id="parameters" class="level3">
+<h3 class="anchored" data-anchor-id="parameters">3. <strong>Parameters</strong>:</h3>
+<ul>
+<li><p><strong>num_embeddings</strong>: Total number of distinct categories/words.</p></li>
+<li><p><strong>embedding_dim</strong>: The size of each embedding vector, i.e., the number of units each embedding should have.</p></li>
+</ul>
+</section>
+<section id="why-use-embeddings" class="level3">
+<h3 class="anchored" data-anchor-id="why-use-embeddings">4. <strong>Why Use Embeddings?</strong>:</h3>
+<ul>
+<li><p><strong>Dimensionality Reduction</strong>: One-hot encoded vectors can be massive (imagine a vector of length 50,000 for a moderate-sized vocabulary, with all zeros except for a single one). Embeddings condense this information into a much smaller dimension, like 300 for word embeddings.</p></li>
+<li><p><strong>Capture Relationships</strong>: Embeddings are learned from data. This means that words or categories that have similar meanings or behaviors can have embeddings that are close to each other in the vector space.</p></li>
+<li><p><strong>Flexibility</strong>: Embeddings can be fine-tuned during training. This means that as a model learns a task, it can also adjust the embeddings to capture any task-specific insights.</p></li>
+</ul>
+</section>
+<section id="usage" class="level3">
+<h3 class="anchored" data-anchor-id="usage">5. <strong>Usage</strong>:</h3>
+<p>An embedding layer is typically initialized with random weights and will learn an embedding for all the words in the training dataset. It is a flexible layer that can be used in a variety of ways, such as:</p>
+<ul>
+<li><p><strong>Pre-trained Embeddings</strong>: Sometimes, embeddings are pre-trained on a larger dataset and then fine-tuned on a specific task. Word2Vec, GloVe, and FastText are popular pre-trained word embeddings.</p></li>
+<li><p><strong>Task-specific Embeddings</strong>: For some tasks, it might be beneficial to let the embedding layer learn embeddings from scratch, tailored to the specific task.</p></li>
+</ul>
+</section>
+<section id="under-the-hood" class="level3">
+<h3 class="anchored" data-anchor-id="under-the-hood">6. <strong>Under the Hood</strong>:</h3>
+<p>At its core, an embedding layer is a weight matrix. The rows of this matrix correspond to each category’s unique ID (like a word’s ID), and the columns correspond to the embedding dimensions. When you “pass” an integer to this layer, it returns the corresponding row of the weight matrix. This operation is essentially a lookup, making it efficient.</p>
+</section>
+<section id="conclusion-2" class="level3">
+<h3 class="anchored" data-anchor-id="conclusion-2">Conclusion:</h3>
+<p><code>torch.nn.Embedding</code> provides an efficient and straightforward way to handle categorical data in neural networks. By converting discrete categorical values into continuous vectors, embeddings enable models to capture intricate relationships in the data and improve performance on a variety of tasks.</p>
+</section>
+</section>
+<section id="torch.nn.flatten." class="level2">
+<h2 class="anchored" data-anchor-id="torch.nn.flatten."><code>torch.nn.Flatten</code>.</h2>
+<section id="the-basic-idea" class="level3">
+<h3 class="anchored" data-anchor-id="the-basic-idea">1. <strong>The Basic Idea</strong>:</h3>
+<p>When working with neural networks, especially convolutional neural networks (CNNs), we often deal with multi-dimensional data (like images). After passing this data through several convolutional and pooling layers, we often want to use the resulting multi-dimensional feature maps in fully connected layers (dense layers). However, fully connected layers expect a 1D input. Here’s where <code>torch.nn.Flatten</code> comes in: it’s used to transform multi-dimensional data into a one-dimensional format.</p>
+</section>
+<section id="torch.nn.flatten" class="level3">
+<h3 class="anchored" data-anchor-id="torch.nn.flatten">2. <strong>torch.nn.Flatten</strong>:</h3>
+<p><code>torch.nn.Flatten</code> is a layer provided by PyTorch that reshapes its input into a one-dimensional tensor. It’s effectively a ‘flattening’ operation.</p>
+</section>
+<section id="parameters-1" class="level3">
+<h3 class="anchored" data-anchor-id="parameters-1">3. <strong>Parameters</strong>:</h3>
+<ul>
+<li><p><strong>start_dim</strong>: Dimension to start the flattening. Typically, for a batch of images, the data shape might be <code>[batch_size, channels, height, width]</code>. If we want to flatten the channel, height, and width dimensions, we’d start the flattening from dimension 1 (0-based indexing for dimensions). By default, <code>start_dim</code> is 1.</p></li>
+<li><p><strong>end_dim</strong>: Dimension to end the flattening. By default, it’s -1, meaning it will flatten all dimensions from <code>start_dim</code> to the last dimension.</p></li>
+</ul>
+</section>
+<section id="why-use-flatten" class="level3">
+<h3 class="anchored" data-anchor-id="why-use-flatten">4. <strong>Why Use Flatten?</strong>:</h3>
+<ul>
+<li><p><strong>Transitioning in Architectures</strong>: It’s common in CNNs to have convolutional layers followed by dense layers. The flatten layer acts as a bridge between these two, reshaping the output of the convolutional layers to a format that dense layers can work with.</p></li>
+<li><p><strong>Simplicity</strong>: Instead of manually reshaping tensors using <code>.view()</code> or <code>.reshape()</code>, <code>torch.nn.Flatten</code> provides a more readable and explicit way to flatten data within a model architecture.</p></li>
+</ul>
+</section>
+<section id="usage-1" class="level3">
+<h3 class="anchored" data-anchor-id="usage-1">5. <strong>Usage</strong>:</h3>
+<p>Imagine you have a batch of images with the shape <code>[batch_size, channels, height, width]</code>. After passing them through convolutional layers, you might get a shape like <code>[batch_size, 64, 7, 7]</code>. Before sending this to a fully connected layer, you’d use the flatten layer:</p>
+<div class="sourceCode" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>flat_layer <span class="op">=</span> torch.nn.Flatten()</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>flattened_data <span class="op">=</span> flat_layer(conv_output)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Now, <code>flattened_data</code> will have a shape <code>[batch_size, 64*7*7]</code>, ready to be passed to a fully connected layer.</p>
+</section>
+<section id="in-context" class="level3">
+<h3 class="anchored" data-anchor-id="in-context">6. <strong>In Context</strong>:</h3>
+<p>If you’re familiar with other deep learning frameworks, you might recognize this as similar to TensorFlow’s <code>tf.keras.layers.Flatten</code> or Keras’s <code>Flatten</code> layer. It’s a staple in the toolkit of designing deep learning architectures.</p>
+</section>
+<section id="conclusion-3" class="level3">
+<h3 class="anchored" data-anchor-id="conclusion-3">Conclusion:</h3>
+<p><code>torch.nn.Flatten</code> is a utility layer in PyTorch that streamlines the process of converting multi-dimensional tensors into a one-dimensional format, easing the transition from convolutional layers to fully connected layers in neural network architectures. It’s a straightforward yet crucial component for many deep learning models, particularly CNNs.</p>
+</section>
+</section>
+<section id="torch.nn.sequential." class="level2">
+<h2 class="anchored" data-anchor-id="torch.nn.sequential."><code>torch.nn.Sequential</code>.</h2>
+<section id="the-basic-idea-1" class="level3">
+<h3 class="anchored" data-anchor-id="the-basic-idea-1">1. <strong>The Basic Idea</strong>:</h3>
+<p>When building neural networks, we often create architectures that involve a series of layers or operations that process data in a specific order. <code>torch.nn.Sequential</code> is a container provided by PyTorch that allows us to encapsulate a sequence of modules or operations into a single module, streamlining both the definition and execution of such sequences.</p>
+</section>
+<section id="torch.nn.sequential" class="level3">
+<h3 class="anchored" data-anchor-id="torch.nn.sequential">2. <strong>torch.nn.Sequential</strong>:</h3>
+<p>At its core, <code>torch.nn.Sequential</code> is essentially an ordered container of modules. Data passed to a <code>Sequential</code> module will traverse through each contained module in the order they were added, with the output of one module becoming the input to the next.</p>
+</section>
+<section id="advantages" class="level3">
+<h3 class="anchored" data-anchor-id="advantages">3. <strong>Advantages</strong>:</h3>
+<ul>
+<li><p><strong>Readability</strong>: Architectures, especially simpler ones, become more readable and compact. Instead of defining and calling layers separately, you can consolidate them into a single <code>Sequential</code> block.</p></li>
+<li><p><strong>Modularity</strong>: It allows for easy reuse of certain sequences of operations across different architectures. If a specific sequence of layers gets used frequently, encapsulating it within a <code>Sequential</code> block makes it easier to plug into various models.</p></li>
+</ul>
+</section>
+<section id="usage-2" class="level3">
+<h3 class="anchored" data-anchor-id="usage-2">4. <strong>Usage</strong>:</h3>
+<p>Suppose you’re designing a simple feedforward neural network with two hidden layers and ReLU activations:</p>
+<p>Without <code>Sequential</code>:</p>
+<div class="sourceCode" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.fc1 <span class="op">=</span> torch.nn.Linear(input_size, hidden_size)</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.relu1 <span class="op">=</span> torch.nn.ReLU()</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.fc2 <span class="op">=</span> torch.nn.Linear(hidden_size, hidden_size)</span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.relu2 <span class="op">=</span> torch.nn.ReLU()</span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.fc3 <span class="op">=</span> torch.nn.Linear(hidden_size, output_size)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>With <code>Sequential</code>:</p>
+<div class="sourceCode" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.layers <span class="op">=</span> torch.nn.Sequential(</span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>    torch.nn.Linear(input_size, hidden_size),</span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>    torch.nn.ReLU(),</span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>    torch.nn.Linear(hidden_size, hidden_size),</span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a>    torch.nn.ReLU(),</span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a>    torch.nn.Linear(hidden_size, output_size)</span>
+<span id="cb53-7"><a href="#cb53-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The latter is clearly more concise and readable.</p>
+</section>
+<section id="points-to-remember" class="level3">
+<h3 class="anchored" data-anchor-id="points-to-remember">5. <strong>Points to Remember</strong>:</h3>
+<ul>
+<li><p>While <code>Sequential</code> is convenient, it’s most suited for networks where the data flow is linear. For architectures with branches (like skip connections in ResNets) or multiple inputs/outputs, manual layer definition might be more appropriate.</p></li>
+<li><p>Modules in <code>Sequential</code> are executed in the order they’re added, making the order crucial. Always ensure that layers are added in the intended sequence.</p></li>
+</ul>
+</section>
+<section id="in-context-1" class="level3">
+<h3 class="anchored" data-anchor-id="in-context-1">6. <strong>In Context</strong>:</h3>
+<p>If you’re familiar with other deep learning frameworks, the concept might remind you of Keras’s <code>Sequential</code> model. The idea of simplifying linear stacks of layers is a common one across various deep learning libraries, given its convenience.</p>
+</section>
+<section id="conclusion-4" class="level3">
+<h3 class="anchored" data-anchor-id="conclusion-4">Conclusion:</h3>
+<p><code>torch.nn.Sequential</code> is a convenient tool in the PyTorch library that helps in compactly defining and organizing linear sequences of operations in neural network architectures. While incredibly useful for straightforward, linear data flows, it’s essential to remember its limitations when dealing with more complex architectures.</p>
+<p>##&nbsp;<code>torch.squeeze</code></p>
+<p>The <code>torch.squeeze</code> function removes dimensions of size 1 from a tensor. It’s particularly useful when certain operations introduce unwanted singleton dimensions, and you want to revert back to a more compact shape.</p>
+<p><strong>Function signature</strong>:</p>
+<div class="sourceCode" id="cb54"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>torch.squeeze(<span class="bu">input</span>, dim<span class="op">=</span><span class="va">None</span>, <span class="op">*</span>, out<span class="op">=</span><span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><code>input</code> (Tensor): The input tensor.</li>
+<li><code>dim</code> (int, optional): Specifies which dimension to squeeze. If not specified, all dimensions of size 1 will be squeezed.</li>
+<li><code>out</code> (Tensor, optional): The output tensor.</li>
+</ul>
+</section>
+<section id="examples" class="level3">
+<h3 class="anchored" data-anchor-id="examples"><strong>Examples</strong>:</h3>
+<ol type="1">
+<li><strong>Squeezing all dimensions of size 1</strong>:</li>
+</ol>
+<div class="sourceCode" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a><span class="co"># A tensor with shape [1, 3, 1, 2]</span></span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.tensor([[[[<span class="dv">1</span>, <span class="dv">2</span>]], [[<span class="dv">3</span>, <span class="dv">4</span>]], [[<span class="dv">5</span>, <span class="dv">6</span>]]]])</span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(x.shape)  <span class="co"># torch.Size([1, 3, 1, 2])</span></span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> torch.squeeze(x)</span>
+<span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(y.shape)  <span class="co"># torch.Size([3, 2])</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Here, <code>torch.squeeze</code> removed the first and third dimensions, both of size 1.</p>
+<ol start="2" type="1">
+<li><strong>Squeezing a specific dimension</strong>:</li>
+</ol>
+<p>If you only want to squeeze a specific dimension, you can specify it using the <code>dim</code> argument.</p>
+<div class="sourceCode" id="cb56"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>z <span class="op">=</span> torch.squeeze(x, dim<span class="op">=</span><span class="dv">0</span>)</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(z.shape)  <span class="co"># torch.Size([3, 1, 2])</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>In this case, only the first dimension of size 1 was squeezed.</p>
+<ol start="3" type="1">
+<li><strong>A tensor with no dimensions of size 1</strong>:</li>
+</ol>
+<div class="sourceCode" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> torch.tensor([[<span class="dv">1</span>, <span class="dv">2</span>], [<span class="dv">3</span>, <span class="dv">4</span>]])</span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(a.shape)  <span class="co"># torch.Size([2, 2])</span></span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> torch.squeeze(a)</span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(b.shape)  <span class="co"># torch.Size([2, 2])</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>As there were no dimensions of size 1, <code>torch.squeeze</code> had no effect on the tensor’s shape.</p>
+</section>
+<section id="note" class="level3">
+<h3 class="anchored" data-anchor-id="note"><strong>Note</strong>:</h3>
+<p>Be cautious when using <code>torch.squeeze</code> without specifying a dimension. In some cases, especially when your tensor might sometimes have singleton dimensions due to variable data sizes (e.g., batch size of 1 in deep learning models), unintended squeezing might lead to shape mismatches or other errors in subsequent operations.</p>
+<p>##&nbsp;<code>torch.randint</code></p>
+</section>
+<section id="torch.randint" class="level3">
+<h3 class="anchored" data-anchor-id="torch.randint">1. <strong>torch.randint</strong>:</h3>
+<p><code>torch.randint</code> is a PyTorch function that returns a tensor filled with random integers generated uniformly between two specified integer values (low and high).</p>
+<p>The function signature is:</p>
+<div class="sourceCode" id="cb58"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>torch.randint(low<span class="op">=</span><span class="dv">0</span>, high, size, <span class="op">*</span>, dtype<span class="op">=</span><span class="va">None</span>, layout<span class="op">=</span>torch.strided, device<span class="op">=</span><span class="va">None</span>, requires_grad<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><code>low</code> (int, optional): Lowest integer to be drawn from the distribution. Default: 0.</li>
+<li><code>high</code> (int): One above the highest integer to be drawn from the distribution.</li>
+<li><code>size</code> (tuple): The shape of the output tensor.</li>
+<li>Additional arguments like <code>dtype</code>, <code>device</code>, and <code>requires_grad</code> allow you to further specify the nature of the returned tensor.</li>
+</ul>
+</section>
+<section id="given-line" class="level3">
+<h3 class="anchored" data-anchor-id="given-line">2. <strong>Given Line</strong>:</h3>
+<p>This would produce a 1D tensor with 4 random integer values in the specified range.</p>
+<p>This line aims to generate a tensor of random integer values between 0 (inclusive) and <code>Xtr.shape[0]</code> (exclusive).</p>
+<div class="sourceCode" id="cb59"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>ix <span class="op">=</span> torch.randint(<span class="dv">0</span>, Xtr.shape[<span class="dv">0</span>], (<span class="dv">4</span>,))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+<section id="convolutional-neural-network-cnn-in-simple-terms" class="level2">
+<h2 class="anchored" data-anchor-id="convolutional-neural-network-cnn-in-simple-terms">Convolutional Neural Network (CNN) in simple terms</h2>
+<p>Imagine you’re trying to identify objects in a large photograph, but instead of looking at the entire picture all at once, you use a small magnifying glass to focus on specific parts of the picture one at a time. As you move the magnifying glass over the picture, you notice different features: maybe the edge of a building, the curve of a car, or the pattern of a shirt.</p>
+<p>A Convolutional Neural Network (CNN) operates in a similar manner when processing images. Instead of analyzing the entire image in one go, it uses “filters” (akin to our magnifying glass) to scan through the image and detect specific features. These features could be edges, textures, colors, and more.</p>
+<p>As the CNN processes the image through multiple layers: 1. <strong>Early layers</strong> might recognize simple patterns like lines and edges. 2. <strong>Middle layers</strong> might recognize more complex structures, like shapes or specific textures. 3. <strong>Deeper layers</strong> might recognize high-level features, such as a human face or a dog.</p>
+<p>To continue with our analogy, after examining the entire photograph using the magnifying glass, you would then combine all the features you’ve noticed to determine what the entire image represents. Similarly, after detecting various features in an image, a CNN combines them in its later layers to determine the object in the image (e.g., “This is a picture of a cat”).</p>
+<p>In summary, a CNN processes images by scanning them for features using filters and then combines these features in sophisticated ways to make decisions about what the image contains. This structure makes CNNs particularly good at understanding visual data.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
