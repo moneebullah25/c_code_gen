@@ -1,0 +1,2036 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="description" content="The simplest, fastest repository for training/finetuning medium-sized GPTs">
+
+<title>c_code_gen - Nano GPT</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<link rel="stylesheet" href="styles.css">
+<meta property="og:title" content="c_code_gen - Nano GPT">
+<meta property="og:description" content="The simplest, fastest repository for training/finetuning medium-sized GPTs">
+<meta property="og:image" content="https://moneebullah25.github.io/c_code_gen/05_nano_gpt_files/figure-html/cell-15-output-1.png">
+<meta property="og:site-name" content="c_code_gen">
+<meta property="og:image:height" content="416">
+<meta property="og:image:width" content="547">
+<meta name="twitter:title" content="c_code_gen - Nano GPT">
+<meta name="twitter:description" content="The simplest, fastest repository for training/finetuning medium-sized GPTs">
+<meta name="twitter:image" content="https://moneebullah25.github.io/c_code_gen/05_nano_gpt_files/figure-html/cell-15-output-1.png">
+<meta name="twitter:image-height" content="416">
+<meta name="twitter:image-width" content="547">
+<meta name="twitter:card" content="summary_large_image">
+</head>
+
+<body class="nav-sidebar floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">c_code_gen</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools ms-auto">
+</div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./nano_gpt.html">Nano GPT</a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">c_code_gen</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./bigram.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Bigram Language Model Character Level</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./mlp.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Multilayer Perceptron</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./bn.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Batch Normalization</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./wavenet.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Wavenet</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./transformers.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Transformers</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./nano_gpt.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Nano GPT</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./uml_diagrams.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">UML Diagrams</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#preparing-the-data" id="toc-preparing-the-data" class="nav-link active" data-scroll-target="#preparing-the-data">Preparing the data</a>
+  <ul class="collapse">
+  <li><a href="#opening-and-exploring-the-data" id="toc-opening-and-exploring-the-data" class="nav-link" data-scroll-target="#opening-and-exploring-the-data">Opening and Exploring the Data</a></li>
+  <li><a href="#tokenization" id="toc-tokenization" class="nav-link" data-scroll-target="#tokenization">Tokenization</a></li>
+  <li><a href="#train-validation-split" id="toc-train-validation-split" class="nav-link" data-scroll-target="#train-validation-split">Train Validation Split</a></li>
+  <li><a href="#create-dataloader" id="toc-create-dataloader" class="nav-link" data-scroll-target="#create-dataloader">Create DataLoader</a></li>
+  </ul></li>
+  <li><a href="#bigram-language-model" id="toc-bigram-language-model" class="nav-link" data-scroll-target="#bigram-language-model">Bigram Language Model</a>
+  <ul class="collapse">
+  <li><a href="#creating-the-model" id="toc-creating-the-model" class="nav-link" data-scroll-target="#creating-the-model">Creating the Model</a></li>
+  <li><a href="#training-the-model" id="toc-training-the-model" class="nav-link" data-scroll-target="#training-the-model">Training the Model</a></li>
+  <li><a href="#porting-our-code-to-a-script" id="toc-porting-our-code-to-a-script" class="nav-link" data-scroll-target="#porting-our-code-to-a-script">Porting our code to a script</a></li>
+  </ul></li>
+  <li><a href="#self-attention-trick-averaging-the-previous-tokens-embeddings" id="toc-self-attention-trick-averaging-the-previous-tokens-embeddings" class="nav-link" data-scroll-target="#self-attention-trick-averaging-the-previous-tokens-embeddings">Self Attention Trick (Averaging the previous tokens embeddings)</a>
+  <ul class="collapse">
+  <li><a href="#using-explicit-loops" id="toc-using-explicit-loops" class="nav-link" data-scroll-target="#using-explicit-loops">Using Explicit loops</a></li>
+  <li><a href="#using-matrix-multiplication" id="toc-using-matrix-multiplication" class="nav-link" data-scroll-target="#using-matrix-multiplication">Using Matrix Multiplication</a></li>
+  <li><a href="#using-softmax" id="toc-using-softmax" class="nav-link" data-scroll-target="#using-softmax">Using Softmax</a></li>
+  </ul></li>
+  <li><a href="#minor-code-cleanup" id="toc-minor-code-cleanup" class="nav-link" data-scroll-target="#minor-code-cleanup">Minor Code Cleanup</a>
+  <ul class="collapse">
+  <li><a href="#adding-variable-embedding-size" id="toc-adding-variable-embedding-size" class="nav-link" data-scroll-target="#adding-variable-embedding-size">Adding variable embedding size</a></li>
+  <li><a href="#positional-encoding" id="toc-positional-encoding" class="nav-link" data-scroll-target="#positional-encoding">Positional Encoding</a></li>
+  </ul></li>
+  <li><a href="#self-attention" id="toc-self-attention" class="nav-link" data-scroll-target="#self-attention">Self Attention</a>
+  <ul class="collapse">
+  <li><a href="#previous-code-from-part-3" id="toc-previous-code-from-part-3" class="nav-link" data-scroll-target="#previous-code-from-part-3">Previous code from part 3</a></li>
+  <li><a href="#building-the-self-attention" id="toc-building-the-self-attention" class="nav-link" data-scroll-target="#building-the-self-attention">Building the Self-Attention</a></li>
+  <li><a href="#notes-about-self-attention" id="toc-notes-about-self-attention" class="nav-link" data-scroll-target="#notes-about-self-attention">Notes About Self Attention</a></li>
+  <li><a href="#adding-single-self-attention-head-to-the-bigram-language-model" id="toc-adding-single-self-attention-head-to-the-bigram-language-model" class="nav-link" data-scroll-target="#adding-single-self-attention-head-to-the-bigram-language-model">Adding single Self Attention Head to the Bigram Language Model</a>
+  <ul class="collapse">
+  <li><a href="#making-new-head-class" id="toc-making-new-head-class" class="nav-link" data-scroll-target="#making-new-head-class">Making new <code>Head</code> class</a></li>
+  <li><a href="#modifying-bigramlanguagemodel-class" id="toc-modifying-bigramlanguagemodel-class" class="nav-link" data-scroll-target="#modifying-bigramlanguagemodel-class">Modifying <code>BigramLanguageModel</code> class</a></li>
+  <li><a href="#testing" id="toc-testing" class="nav-link" data-scroll-target="#testing">Testing</a></li>
+  </ul></li>
+  <li><a href="#multi-head-attention" id="toc-multi-head-attention" class="nav-link" data-scroll-target="#multi-head-attention">Multi-Head Attention</a>
+  <ul class="collapse">
+  <li><a href="#testing-1" id="toc-testing-1" class="nav-link" data-scroll-target="#testing-1">Testing</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#adding-feedforward-layer" id="toc-adding-feedforward-layer" class="nav-link" data-scroll-target="#adding-feedforward-layer">Adding FeedForward Layer</a></li>
+  <li><a href="#then-add-it-to-forward-of-the-bigramlanguagemodel" id="toc-then-add-it-to-forward-of-the-bigramlanguagemodel" class="nav-link" data-scroll-target="#then-add-it-to-forward-of-the-bigramlanguagemodel">Then add it to forward of the BigramLanguageModel</a>
+  <ul class="collapse">
+  <li><a href="#test" id="toc-test" class="nav-link" data-scroll-target="#test">Test</a></li>
+  </ul></li>
+  <li><a href="#residual-connections" id="toc-residual-connections" class="nav-link" data-scroll-target="#residual-connections">Residual Connections</a>
+  <ul class="collapse">
+  <li><a href="#stacking-the-blocks" id="toc-stacking-the-blocks" class="nav-link" data-scroll-target="#stacking-the-blocks">Stacking the Blocks</a>
+  <ul class="collapse">
+  <li><a href="#test-1" id="toc-test-1" class="nav-link" data-scroll-target="#test-1">Test</a></li>
+  </ul></li>
+  <li><a href="#adding-residual-connections-skip-connections" id="toc-adding-residual-connections-skip-connections" class="nav-link" data-scroll-target="#adding-residual-connections-skip-connections">Adding Residual Connections (Skip Connections)</a>
+  <ul class="collapse">
+  <li><a href="#transformer-block" id="toc-transformer-block" class="nav-link" data-scroll-target="#transformer-block">Transformer Block</a></li>
+  <li><a href="#multi-head-attention-1" id="toc-multi-head-attention-1" class="nav-link" data-scroll-target="#multi-head-attention-1">Multi-Head Attention</a></li>
+  <li><a href="#feedforward-layer" id="toc-feedforward-layer" class="nav-link" data-scroll-target="#feedforward-layer">FeedForward Layer</a></li>
+  <li><a href="#test-2" id="toc-test-2" class="nav-link" data-scroll-target="#test-2">Test</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#layernorm" id="toc-layernorm" class="nav-link" data-scroll-target="#layernorm">LayerNorm</a>
+  <ul class="collapse">
+  <li><a href="#batchnorm1d-from-makemore-part-3" id="toc-batchnorm1d-from-makemore-part-3" class="nav-link" data-scroll-target="#batchnorm1d-from-makemore-part-3">BatchNorm1d from makemore part 3</a></li>
+  <li><a href="#adding-layernorm" id="toc-adding-layernorm" class="nav-link" data-scroll-target="#adding-layernorm">Adding LayerNorm</a>
+  <ul class="collapse">
+  <li><a href="#in-the-transformer-blocks" id="toc-in-the-transformer-blocks" class="nav-link" data-scroll-target="#in-the-transformer-blocks">In the Transformer Blocks</a></li>
+  <li><a href="#after-all-blocks-before-last-linear-layer" id="toc-after-all-blocks-before-last-linear-layer" class="nav-link" data-scroll-target="#after-all-blocks-before-last-linear-layer">After all blocks (before last linear layer)</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#scaling-up-the-model" id="toc-scaling-up-the-model" class="nav-link" data-scroll-target="#scaling-up-the-model">Scaling up the model</a>
+  <ul class="collapse">
+  <li><a href="#adding-n_layer-variable" id="toc-adding-n_layer-variable" class="nav-link" data-scroll-target="#adding-n_layer-variable">Adding <code>n_layer</code> variable</a></li>
+  <li><a href="#adding-dropouts" id="toc-adding-dropouts" class="nav-link" data-scroll-target="#adding-dropouts">Adding Dropouts</a></li>
+  <li><a href="#try" id="toc-try" class="nav-link" data-scroll-target="#try">Try</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/moneebullah25/c_code_gen/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Nano GPT</h1>
+</div>
+
+<div>
+  <div class="description">
+    The simplest, fastest repository for training/finetuning medium-sized GPTs
+  </div>
+</div>
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
+<section id="preparing-the-data" class="level1">
+<h1>Preparing the data</h1>
+<section id="opening-and-exploring-the-data" class="level2">
+<h2 class="anchored" data-anchor-id="opening-and-exploring-the-data">Opening and Exploring the Data</h2>
+<div class="cell" data-execution_count="3">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> <span class="bu">open</span>(<span class="st">"tinyshakespeare.txt"</span>, <span class="st">"r"</span>, encoding<span class="op">=</span><span class="st">"utf-8"</span>) <span class="im">as</span> f:</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    text <span class="op">=</span> f.read()</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"length of dataset in characters: </span><span class="sc">{</span><span class="bu">len</span>(text)<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>length of dataset in characters: 1115394</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="4">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"first 1000 characters of dataset:</span><span class="ch">\n</span><span class="sc">{</span>text[:<span class="dv">1000</span>]<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>first 1000 characters of dataset:
+First Citizen:
+Before we proceed any further, hear me speak.
+
+All:
+Speak, speak.
+
+First Citizen:
+You are all resolved rather to die than to famish?
+
+All:
+Resolved. resolved.
+
+First Citizen:
+First, you know Caius Marcius is chief enemy to the people.
+
+All:
+We know't, we know't.
+
+First Citizen:
+Let us kill him, and we'll have corn at our own price.
+Is't a verdict?
+
+All:
+No more talking on't; let it be done: away, away!
+
+Second Citizen:
+One word, good citizens.
+
+First Citizen:
+We are accounted poor citizens, the patricians good.
+What authority surfeits on would relieve us: if they
+would yield us but the superfluity, while it were
+wholesome, we might guess they relieved us humanely;
+but they think we are too dear: the leanness that
+afflicts us, the object of our misery, is as an
+inventory to particularise their abundance; our
+sufferance is a gain to them Let us revenge this with
+our pikes, ere we become rakes: for the gods know I
+speak this in hunger for bread, not in thirst for revenge.
+
+</code></pre>
+</div>
+</div>
+</section>
+<section id="tokenization" class="level2">
+<h2 class="anchored" data-anchor-id="tokenization">Tokenization</h2>
+<div class="cell" data-execution_count="5">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>chars <span class="op">=</span> <span class="bu">sorted</span>(<span class="bu">list</span>(<span class="bu">set</span>(text)))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>vocab_size <span class="op">=</span> <span class="bu">len</span>(chars)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"all chars are:</span><span class="sc">{</span><span class="st">''</span><span class="sc">.</span>join(chars)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"vocab size: </span><span class="sc">{</span>vocab_size<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>all chars are:
+ !$&amp;',-.3:;?ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
+vocab size: 65</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="6">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>stoi <span class="op">=</span> {ch:i <span class="cf">for</span> i, ch <span class="kw">in</span> <span class="bu">enumerate</span>(chars)}</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>itos <span class="op">=</span> {val:key <span class="cf">for</span> key, val <span class="kw">in</span> stoi.items()}</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>encode <span class="op">=</span> <span class="kw">lambda</span> s: [stoi[c] <span class="cf">for</span> c <span class="kw">in</span> s]</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>decode <span class="op">=</span> <span class="kw">lambda</span> l: <span class="st">''</span>.join([itos[i] <span class="cf">for</span> i <span class="kw">in</span> l])</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(encode(<span class="st">"Hello, world!"</span>))</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(decode(encode(<span class="st">"Hello, world!"</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[20, 43, 50, 50, 53, 6, 1, 61, 53, 56, 50, 42, 2]
+Hello, world!</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="7">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> torch.tensor(encode(text), dtype <span class="op">=</span> torch.<span class="bu">long</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"data shape: </span><span class="sc">{</span>data<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"data type: </span><span class="sc">{</span>data<span class="sc">.</span>dtype<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"-"</span><span class="op">*</span><span class="dv">50</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"first 100 characters of dataset:</span><span class="ch">\n</span><span class="sc">{</span>data[:<span class="dv">100</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"first 100 characters of dataset:</span><span class="ch">\n</span><span class="sc">{</span>decode(data[:<span class="dv">100</span>].tolist())<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>data shape: torch.Size([1115394])
+data type: torch.int64
+--------------------------------------------------
+first 100 characters of dataset:
+tensor([18, 47, 56, 57, 58,  1, 15, 47, 58, 47, 64, 43, 52, 10,  0, 14, 43, 44,
+        53, 56, 43,  1, 61, 43,  1, 54, 56, 53, 41, 43, 43, 42,  1, 39, 52, 63,
+         1, 44, 59, 56, 58, 46, 43, 56,  6,  1, 46, 43, 39, 56,  1, 51, 43,  1,
+        57, 54, 43, 39, 49,  8,  0,  0, 13, 50, 50, 10,  0, 31, 54, 43, 39, 49,
+         6,  1, 57, 54, 43, 39, 49,  8,  0,  0, 18, 47, 56, 57, 58,  1, 15, 47,
+        58, 47, 64, 43, 52, 10,  0, 37, 53, 59])
+first 100 characters of dataset:
+First Citizen:
+Before we proceed any further, hear me speak.
+
+All:
+Speak, speak.
+
+First Citizen:
+You</code></pre>
+</div>
+</div>
+</section>
+<section id="train-validation-split" class="level2">
+<h2 class="anchored" data-anchor-id="train-validation-split">Train Validation Split</h2>
+<div class="cell" data-execution_count="8">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>n <span class="op">=</span> <span class="bu">int</span>(<span class="fl">0.9</span> <span class="op">*</span> <span class="bu">len</span>(data))</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>train_data <span class="op">=</span> data[:n]</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>val_data <span class="op">=</span> data[n:]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="create-dataloader" class="level2">
+<h2 class="anchored" data-anchor-id="create-dataloader">Create DataLoader</h2>
+<div class="cell" data-execution_count="9">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>block_size <span class="op">=</span> <span class="dv">8</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>train_data[:block_size <span class="op">+</span> <span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="9">
+<pre><code>tensor([18, 47, 56, 57, 58,  1, 15, 47, 58])</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="10">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> train_data[:block_size]</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> train_data[<span class="dv">1</span>:block_size <span class="op">+</span> <span class="dv">1</span>]</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(block_size):</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    context <span class="op">=</span> x[:t <span class="op">+</span> <span class="dv">1</span>]</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>    target <span class="op">=</span> y[t]</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"when input tensor is </span><span class="sc">{</span>context<span class="sc">.</span>tolist()<span class="sc">}</span><span class="ss">, target is </span><span class="sc">{</span>target<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>when input tensor is [18], target is 47
+when input tensor is [18, 47], target is 56
+when input tensor is [18, 47, 56], target is 57
+when input tensor is [18, 47, 56, 57], target is 58
+when input tensor is [18, 47, 56, 57, 58], target is 1
+when input tensor is [18, 47, 56, 57, 58, 1], target is 15
+when input tensor is [18, 47, 56, 57, 58, 1, 15], target is 47
+when input tensor is [18, 47, 56, 57, 58, 1, 15, 47], target is 58</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="11">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">1337</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>batch_size <span class="op">=</span> <span class="dv">4</span> <span class="co"># how many independent sequences will we process in parallel</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>block_size <span class="op">=</span> <span class="dv">8</span> <span class="co"># what is the maximum context length for predictions?</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co"># number of input_examples = batch_size * block_size (4 * 8 = 32)</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> get_batch(split):</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Select the appropriate dataset based on the split parameter</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    data <span class="op">=</span> train_data <span class="cf">if</span> split <span class="op">==</span> <span class="st">"train"</span> <span class="cf">else</span> val_data</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Generate a batch of random starting indices within the dataset</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>    ix <span class="op">=</span> torch.randint(<span class="bu">len</span>(data) <span class="op">-</span> block_size, (batch_size,))</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Select a block of text of size block_size starting from each random index</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>    x <span class="op">=</span> torch.stack([data[i:i<span class="op">+</span>block_size] <span class="cf">for</span> i <span class="kw">in</span> ix])</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Shift the selected block of text by one character to the right to create the target sequence</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>    y <span class="op">=</span> torch.stack([data[i<span class="op">+</span><span class="dv">1</span>:i<span class="op">+</span>block_size<span class="op">+</span><span class="dv">1</span>] <span class="cf">for</span> i <span class="kw">in</span> ix])</span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> x, y</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>xb, yb <span class="op">=</span> get_batch(<span class="st">"train"</span>)</span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"inputs:</span><span class="ch">\n</span><span class="ss">shape</span><span class="sc">{</span>xb<span class="sc">.</span>shape<span class="sc">}</span><span class="ch">\n</span><span class="ss">data: </span><span class="sc">{</span>xb<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"targets:</span><span class="ch">\n</span><span class="ss">shape</span><span class="sc">{</span>yb<span class="sc">.</span>shape<span class="sc">}</span><span class="ch">\n</span><span class="ss">data: </span><span class="sc">{</span>yb<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>inputs:
+shapetorch.Size([4, 8])
+data: tensor([[24, 43, 58,  5, 57,  1, 46, 43],
+        [44, 53, 56,  1, 58, 46, 39, 58],
+        [52, 58,  1, 58, 46, 39, 58,  1],
+        [25, 17, 27, 10,  0, 21,  1, 54]])
+targets:
+shapetorch.Size([4, 8])
+data: tensor([[43, 58,  5, 57,  1, 46, 43, 39],
+        [53, 56,  1, 58, 46, 39, 58,  1],
+        [58,  1, 58, 46, 39, 58,  1, 46],
+        [17, 27, 10,  0, 21,  1, 54, 39]])</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="bigram-language-model" class="level1">
+<h1>Bigram Language Model</h1>
+<p>simpleset language model</p>
+<div class="cell" data-execution_count="12">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> torch.nn <span class="im">import</span> functional <span class="im">as</span> F</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">1337</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="12">
+<pre><code>&lt;torch._C.Generator at 0x7fc7542c07f0&gt;</code></pre>
+</div>
+</div>
+<section id="creating-the-model" class="level2">
+<h2 class="anchored" data-anchor-id="creating-the-model">Creating the Model</h2>
+<div class="cell" data-execution_count="13">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BigramLanguageModel(nn.Module):</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, vocab_size):</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>        <span class="co"># each token directly reads off the logits for the next token from a loockup table</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.token_embedding_table <span class="op">=</span> nn.Embedding(vocab_size, vocab_size)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, idx, targets <span class="op">=</span> <span class="va">None</span>):</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>        <span class="co"># idx and targets are both (B, T) tensor of ints</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>        logits <span class="op">=</span> <span class="va">self</span>.token_embedding_table(idx) <span class="co"># (B, T, C) = (4, 8 , vocab_size)</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> targets <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>            loss <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>            <span class="co"># note that F.cross_entropy accepts inputs in shape (B, C, T)</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>            B, T, C <span class="op">=</span> logits.shape</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>            logits <span class="op">=</span> logits.view(B <span class="op">*</span> T, C)</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>            targets <span class="op">=</span> targets.view(B <span class="op">*</span> T) <span class="co"># can be as targets = targets.view(-1)</span></span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>            loss <span class="op">=</span> F.cross_entropy(logits, targets)</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> logits, loss</span>
+<span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> generate(<span class="va">self</span>, idx, max_new_tokens):</span>
+<span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a>        <span class="co"># idx is (B, T) array of indices in the current context</span></span>
+<span id="cb20-25"><a href="#cb20-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(max_new_tokens):</span>
+<span id="cb20-26"><a href="#cb20-26" aria-hidden="true" tabindex="-1"></a>            <span class="co"># get the logits for the next token</span></span>
+<span id="cb20-27"><a href="#cb20-27" aria-hidden="true" tabindex="-1"></a>            logits, loss <span class="op">=</span> <span class="va">self</span>(idx)</span>
+<span id="cb20-28"><a href="#cb20-28" aria-hidden="true" tabindex="-1"></a>            <span class="co"># focus only on the last time step</span></span>
+<span id="cb20-29"><a href="#cb20-29" aria-hidden="true" tabindex="-1"></a>            <span class="co"># (note that we are feeding the whole context each time, however we only care about the last prediction)</span></span>
+<span id="cb20-30"><a href="#cb20-30" aria-hidden="true" tabindex="-1"></a>            <span class="co"># (this make doesn't make sense now, but the function will be modified later)</span></span>
+<span id="cb20-31"><a href="#cb20-31" aria-hidden="true" tabindex="-1"></a>            logits <span class="op">=</span> logits[:, <span class="op">-</span><span class="dv">1</span>, :] <span class="co"># Becomes (B, C) (get the last time step for each sequence)</span></span>
+<span id="cb20-32"><a href="#cb20-32" aria-hidden="true" tabindex="-1"></a>            <span class="co"># apply softmax to convert to probabilities</span></span>
+<span id="cb20-33"><a href="#cb20-33" aria-hidden="true" tabindex="-1"></a>            probs <span class="op">=</span> F.softmax(logits, dim <span class="op">=</span> <span class="op">-</span><span class="dv">1</span>) <span class="co"># (B, C)</span></span>
+<span id="cb20-34"><a href="#cb20-34" aria-hidden="true" tabindex="-1"></a>            <span class="co"># sample from the distribution</span></span>
+<span id="cb20-35"><a href="#cb20-35" aria-hidden="true" tabindex="-1"></a>            idx_next <span class="op">=</span> torch.multinomial(probs, num_samples<span class="op">=</span><span class="dv">1</span>) <span class="co"># (B, 1)</span></span>
+<span id="cb20-36"><a href="#cb20-36" aria-hidden="true" tabindex="-1"></a>            <span class="co"># append sampled token to the context</span></span>
+<span id="cb20-37"><a href="#cb20-37" aria-hidden="true" tabindex="-1"></a>            idx <span class="op">=</span> torch.cat((idx, idx_next), dim <span class="op">=</span> <span class="dv">1</span>) <span class="co"># (B, T + 1)</span></span>
+<span id="cb20-38"><a href="#cb20-38" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> idx</span>
+<span id="cb20-39"><a href="#cb20-39" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb20-40"><a href="#cb20-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-41"><a href="#cb20-41" aria-hidden="true" tabindex="-1"></a>m <span class="op">=</span> BigramLanguageModel(vocab_size)</span>
+<span id="cb20-42"><a href="#cb20-42" aria-hidden="true" tabindex="-1"></a>logits, loss <span class="op">=</span> m(xb, yb)</span>
+<span id="cb20-43"><a href="#cb20-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-44"><a href="#cb20-44" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"logits shape: </span><span class="sc">{</span>logits<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb20-45"><a href="#cb20-45" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"loss: </span><span class="sc">{</span>loss<span class="sc">}</span><span class="ss"> | we are expecting a loss of around </span><span class="sc">{</span>torch<span class="sc">.</span>log(torch.tensor(vocab_size))<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>logits shape: torch.Size([32, 65])
+loss: 4.878634929656982 | we are expecting a loss of around 4.174387454986572</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="14">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>idx <span class="op">=</span> torch.zeros((<span class="dv">1</span>,<span class="dv">1</span>), dtype <span class="op">=</span> torch.<span class="bu">long</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>generated <span class="op">=</span> m.generate(idx, <span class="dv">100</span>) <span class="co"># shape (1, 101)</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(decode(generated[<span class="dv">0</span>].tolist()))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Sr?qP-QWktXoL&amp;jLDJgOLVz'RIoDqHdhsV&amp;vLLxatjscMpwLERSPyao.qfzs$Ys$zF-w,;eEkzxjgCKFChs!iWW.ObzDnxA Ms$3</code></pre>
+</div>
+</div>
+</section>
+<section id="training-the-model" class="level2">
+<h2 class="anchored" data-anchor-id="training-the-model">Training the Model</h2>
+<div class="cell" data-execution_count="15">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>optimizer <span class="op">=</span> torch.optim.AdamW(m.parameters(), lr <span class="op">=</span> <span class="fl">1e-3</span>)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>batch_size <span class="op">=</span> <span class="dv">32</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>lossi <span class="op">=</span> []</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">10000</span>):</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># sample a batch of training data</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>    xb, yb <span class="op">=</span> get_batch(<span class="st">"train"</span>)</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># evaluate the loss</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>    logits, loss <span class="op">=</span> m(xb, yb)</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    optimizer.zero_grad(set_to_none <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>    loss.backward()</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>    optimizer.step()</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>    lossi.append(loss.item())</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"loss: </span><span class="sc">{</span>loss<span class="sc">.</span>item()<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>loss: 2.5727508068084717</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="16">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>plt.plot(lossi)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<p><img src="05_nano_gpt_files/figure-html/cell-15-output-1.png" class="img-fluid"></p>
+</div>
+</div>
+<div class="cell" data-execution_count="17">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sampling from the model</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>idx <span class="op">=</span> torch.zeros((<span class="dv">1</span>,<span class="dv">1</span>), dtype <span class="op">=</span> torch.<span class="bu">long</span>)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>generated <span class="op">=</span> m.generate(idx, <span class="dv">400</span>) <span class="co"># shape (1, 101)</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(decode(generated[<span class="dv">0</span>].tolist()))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Iyoteng h hasbe pave pirance
+Rie hicomyonthar's
+Plinseard ith henoure wounonthioneir thondy, y heltieiengerofo'dsssit ey
+KIN d pe wither vouprrouthercc.
+hathe; d!
+My hind tt hinig t ouchos tes; st yo hind wotte grotonear 'so it t jod weancotha:
+h hay.JUCle n prids, r loncave w hollular s O:
+HIs; ht anjx?
+
+DUThinqunt.
+
+LaZAnde.
+athave l.
+KEONH:
+ARThanco be y,-hedarwnoddy scace, tridesar, wnl'shenou</code></pre>
+</div>
+</div>
+</section>
+<section id="porting-our-code-to-a-script" class="level2">
+<h2 class="anchored" data-anchor-id="porting-our-code-to-a-script">Porting our code to a script</h2>
+<p>check <code>bigram.py</code></p>
+<div class="cell" data-execution_count="18">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>python3 bigram.py <span class="op">-</span>h</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>usage: bigram.py [-h] [--batch_size BATCH_SIZE] [--block_size BLOCK_SIZE]
+                 [--max_iters MAX_ITERS] [--eval_interval EVAL_INTERVAL]
+                 [--learning_rate LEARNING_RATE] [--eval_iters EVAL_ITERS]
+                 [--n_embed N_EMBED] [--n_layer N_LAYER] [--n_head N_HEAD]
+                 [--dropout DROPOUT]
+
+Process some integers.
+
+options:
+  -h, --help            show this help message and exit
+  --batch_size BATCH_SIZE
+                        how many independent sequences will we process in
+                        parallel (default: 4)
+  --block_size BLOCK_SIZE
+                        what is the maximum context length for predictions?
+                        (default: 8)
+  --max_iters MAX_ITERS
+                        how many training iterations do we want? (default:
+                        3000)
+  --eval_interval EVAL_INTERVAL
+                        how often do we evaluate the loss on train and val?
+                        (default: 300)
+  --learning_rate LEARNING_RATE
+                        what is the learning rate for the optimizer? (default:
+                        0.001)
+  --eval_iters EVAL_ITERS
+                        how many batches we average the loss over for train
+                        and val (default: 200)
+  --n_embed N_EMBED     how many dimensions do we want to embed the tokens in?
+                        (default: 32)
+  --n_layer N_LAYER     how many layers of transformer blocks (default: 3)
+  --n_head N_HEAD       how many heads do we want to use? (default: 4)
+  --dropout DROPOUT     what dropout probability do we want to use? (default:
+                        0.1)</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="20">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>python3 bigram.py</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.209729 M parameters
+ step 0 | train loss: 4.4116 | val loss: 4.4048
+ step 100 | train loss: 2.6539 | val loss: 2.6605
+ step 200 | train loss: 2.5140 | val loss: 2.5161
+ step 300 | train loss: 2.4039 | val loss: 2.4126
+ step 400 | train loss: 2.3430 | val loss: 2.3506
+ step 500 | train loss: 2.2918 | val loss: 2.3002
+ step 600 | train loss: 2.2347 | val loss: 2.2517
+ step 700 | train loss: 2.1930 | val loss: 2.2089
+ step 800 | train loss: 2.1556 | val loss: 2.1793
+ step 900 | train loss: 2.1211 | val loss: 2.1507
+ step 1000 | train loss: 2.0768 | val loss: 2.1179
+ step 1100 | train loss: 2.0615 | val loss: 2.1029
+ step 1200 | train loss: 2.0300 | val loss: 2.0744
+ step 1300 | train loss: 2.0145 | val loss: 2.0577
+ step 1400 | train loss: 1.9936 | val loss: 2.0542
+ step 1500 | train loss: 1.9759 | val loss: 2.0375
+ step 1600 | train loss: 1.9503 | val loss: 2.0281
+ step 1700 | train loss: 1.9273 | val loss: 2.0172
+ step 1800 | train loss: 1.9151 | val loss: 2.0030
+ step 1900 | train loss: 1.9089 | val loss: 2.0017
+ step 2000 | train loss: 1.8805 | val loss: 1.9853
+ step 2100 | train loss: 1.8700 | val loss: 1.9754
+ step 2200 | train loss: 1.8716 | val loss: 1.9654
+ step 2300 | train loss: 1.8520 | val loss: 1.9508
+ step 2400 | train loss: 1.8433 | val loss: 1.9484
+ step 2500 | train loss: 1.8300 | val loss: 1.9462
+ step 2600 | train loss: 1.8120 | val loss: 1.9332
+ step 2700 | train loss: 1.8117 | val loss: 1.9292
+ step 2800 | train loss: 1.8059 | val loss: 1.9191
+ step 2900 | train loss: 1.7842 | val loss: 1.8985
+ step 3000 | train loss: 1.7776 | val loss: 1.8973
+ step 3100 | train loss: 1.7803 | val loss: 1.9138
+ step 3200 | train loss: 1.7770 | val loss: 1.9130
+ step 3300 | train loss: 1.7566 | val loss: 1.8956
+ step 3400 | train loss: 1.7586 | val loss: 1.8909
+ step 3500 | train loss: 1.7417 | val loss: 1.8878
+ step 3600 | train loss: 1.7340 | val loss: 1.8668
+ step 3700 | train loss: 1.7352 | val loss: 1.8874
+ step 3800 | train loss: 1.7179 | val loss: 1.8655
+ step 3900 | train loss: 1.7237 | val loss: 1.8702
+ step 4000 | train loss: 1.7193 | val loss: 1.8635
+ step 4100 | train loss: 1.7079 | val loss: 1.8657
+ step 4200 | train loss: 1.7085 | val loss: 1.8462
+ step 4300 | train loss: 1.7024 | val loss: 1.8440
+ step 4400 | train loss: 1.6880 | val loss: 1.8442
+ step 4500 | train loss: 1.6986 | val loss: 1.8520
+ step 4600 | train loss: 1.6957 | val loss: 1.8502
+ step 4700 | train loss: 1.6892 | val loss: 1.8477
+ step 4800 | train loss: 1.6831 | val loss: 1.8370
+ step 4900 | train loss: 1.6708 | val loss: 1.8188
+
+
+Clown:
+Rorince, and is so blorbacest bobe to take On.
+
+MARCILIA:
+I'll bapitius have bury, delay ane away, what,
+Dound my know
+Yourself friance!
+Nor linding, and if eye, hone; and maid overs, and the news
+And about liking tear.
+His mild him speak; and allw youngs
+Pause and at lives home.
+Who like again Wich to draugions to them,
+Will we hide honour more-forrument of thrupted so;
+Anging must with all of which Priently of.
+
+HENRY VI
+
+JOHN Y:
+
+Saday Warwick forth in couragain.
+
+CRINIUS:
+
+And forwic</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="self-attention-trick-averaging-the-previous-tokens-embeddings" class="level1">
+<h1>Self Attention Trick (Averaging the previous tokens embeddings)</h1>
+<ul>
+<li>We need each token commuinicate with all previous tokens, for example: the 5th token communicate with 1st, 2nd, 3rd, 4th tokens</li>
+<li>Since we are predicting the next token, we need to consider the previous tokens only</li>
+<li>The easiset way to make them communicate is averaging the previous tokens embeddings (it’s kinda lossy since we are losing the spatial information)</li>
+</ul>
+<section id="using-explicit-loops" class="level2">
+<h2 class="anchored" data-anchor-id="using-explicit-loops">Using Explicit loops</h2>
+<div class="cell" data-execution_count="21">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">1337</span>)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>B, T, C <span class="op">=</span> <span class="dv">4</span>, <span class="dv">8</span>, <span class="dv">2</span> <span class="co"># batch size, time, channels</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.randn(B, T, C)</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"x shape: </span><span class="sc">{</span>x<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="co"># We want x[b, t] = mean_(i&lt;=t) x[b, i]</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>xbow <span class="op">=</span> torch.zeros((B, T, C))</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> b <span class="kw">in</span> <span class="bu">range</span>(B):</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> t <span class="kw">in</span> <span class="bu">range</span>(T):</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>        xprev <span class="op">=</span> x[b, :t<span class="op">+</span><span class="dv">1</span>] <span class="co"># (t, C)</span></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>        xbow[b, t] <span class="op">=</span> torch.mean(xprev, dim <span class="op">=</span> <span class="dv">0</span>) <span class="co"># average over time dimension (t)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>x shape: torch.Size([4, 8, 2])</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="22">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Let's Check the first Batch</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"x[0]: </span><span class="sc">{</span>x[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"xbow[0]: </span><span class="sc">{</span>xbow[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="co"># the first row is the same </span></span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(x[<span class="dv">0</span>, <span class="dv">0</span>] <span class="op">==</span> xbow[<span class="dv">0</span>, <span class="dv">0</span>])</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a><span class="co"># the second row is the average of the first two rows</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>((x[<span class="dv">0</span>, <span class="dv">0</span>] <span class="op">+</span> x[<span class="dv">0</span>, <span class="dv">1</span>]) <span class="op">/</span> <span class="dv">2</span> <span class="op">==</span> xbow[<span class="dv">0</span>, <span class="dv">1</span>])</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a><span class="co"># etc ...</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>x[0]: tensor([[ 0.1808, -0.0700],
+        [-0.3596, -0.9152],
+        [ 0.6258,  0.0255],
+        [ 0.9545,  0.0643],
+        [ 0.3612,  1.1679],
+        [-1.3499, -0.5102],
+        [ 0.2360, -0.2398],
+        [-0.9211,  1.5433]])
+xbow[0]: tensor([[ 0.1808, -0.0700],
+        [-0.0894, -0.4926],
+        [ 0.1490, -0.3199],
+        [ 0.3504, -0.2238],
+        [ 0.3525,  0.0545],
+        [ 0.0688, -0.0396],
+        [ 0.0927, -0.0682],
+        [-0.0341,  0.1332]])
+tensor([True, True])
+tensor([True, True])</code></pre>
+</div>
+</div>
+</section>
+<section id="using-matrix-multiplication" class="level2">
+<h2 class="anchored" data-anchor-id="using-matrix-multiplication">Using Matrix Multiplication</h2>
+<ul>
+<li>Instead of nested loops, we can make it using matrix multiplication</li>
+<li>This can be done by multiplying the matrix with lower triangular matrix</li>
+</ul>
+<div class="cell" data-execution_count="23">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">42</span>)</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="co"># lower triangular matrix of ones</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> torch.tril(torch.ones(<span class="dv">3</span>,<span class="dv">3</span>)) </span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="co"># make all rows sum to 1</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>a <span class="op">=</span> a <span class="op">/</span> torch.<span class="bu">sum</span>(a, <span class="dv">1</span>, keepdim <span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a><span class="co"># create a random matrix</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>b <span class="op">=</span> torch.randint(<span class="dv">0</span>, <span class="dv">10</span>, (<span class="dv">3</span>, <span class="dv">2</span>)).<span class="bu">float</span>() </span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a>c <span class="op">=</span> a <span class="op">@</span> b</span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"a (shape = </span><span class="sc">{</span>a<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">) =</span><span class="ch">\n</span><span class="sc">{</span>a<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"b (shape = </span><span class="sc">{</span>b<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">) =</span><span class="ch">\n</span><span class="sc">{</span>b<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"c (shape = </span><span class="sc">{</span>c<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">) =</span><span class="ch">\n</span><span class="sc">{</span>c<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>a (shape = torch.Size([3, 3])) =
+tensor([[1.0000, 0.0000, 0.0000],
+        [0.5000, 0.5000, 0.0000],
+        [0.3333, 0.3333, 0.3333]])
+b (shape = torch.Size([3, 2])) =
+tensor([[2., 7.],
+        [6., 4.],
+        [6., 5.]])
+c (shape = torch.Size([3, 2])) =
+tensor([[2.0000, 7.0000],
+        [4.0000, 5.5000],
+        [4.6667, 5.3333]])</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="24">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We want x[b, t] = mean_(i&lt;=t) x[b, i]</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>wei <span class="op">=</span> torch.tril(torch.ones(T, T)) <span class="co"># (T, T)</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="co"># make all rows sum to 1</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>wei <span class="op">=</span> wei <span class="op">/</span> torch.<span class="bu">sum</span>(wei, <span class="dv">1</span>, keepdim <span class="op">=</span> <span class="va">True</span>) <span class="co"># (T, T)</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>xbow2 <span class="op">=</span> wei <span class="op">@</span> x <span class="co"># (T, T) @ (B, T, C) ----broadcasting----&gt; (B, T, T) @ (B, T, C) ➡️ (B, T, C)</span></span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a><span class="co"># check if xbow2 is the same as xbow</span></span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(torch.allclose(xbow, xbow2, atol <span class="op">=</span> <span class="fl">1e-7</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>True</code></pre>
+</div>
+</div>
+</section>
+<section id="using-softmax" class="level2">
+<h2 class="anchored" data-anchor-id="using-softmax">Using Softmax</h2>
+<div class="cell" data-execution_count="25">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>tril <span class="op">=</span> torch.tril(torch.ones(T, T))</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="co"># we start with zeros, but later these will be replaced with data dependent values (affinities)</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>wei <span class="op">=</span> torch.zeros((T, T))</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a><span class="co"># masked_fill: for all elements where tril == 0, replace with float("-inf")</span></span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>wei <span class="op">=</span> wei.masked_fill(tril <span class="op">==</span> <span class="dv">0</span>, <span class="bu">float</span>(<span class="st">"-inf"</span>))</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"wei:</span><span class="ch">\n</span><span class="sc">{</span>wei<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>wei <span class="op">=</span> F.softmax(wei, dim <span class="op">=</span> <span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"wei:</span><span class="ch">\n</span><span class="sc">{</span>wei<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>xbow3 <span class="op">=</span> wei <span class="op">@</span> x</span>
+<span id="cb41-10"><a href="#cb41-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-11"><a href="#cb41-11" aria-hidden="true" tabindex="-1"></a><span class="co"># check if xbow3 is the same as xbow</span></span>
+<span id="cb41-12"><a href="#cb41-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(torch.allclose(xbow, xbow3, atol <span class="op">=</span> <span class="fl">1e-7</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>wei:
+tensor([[0., -inf, -inf, -inf, -inf, -inf, -inf, -inf],
+        [0., 0., -inf, -inf, -inf, -inf, -inf, -inf],
+        [0., 0., 0., -inf, -inf, -inf, -inf, -inf],
+        [0., 0., 0., 0., -inf, -inf, -inf, -inf],
+        [0., 0., 0., 0., 0., -inf, -inf, -inf],
+        [0., 0., 0., 0., 0., 0., -inf, -inf],
+        [0., 0., 0., 0., 0., 0., 0., -inf],
+        [0., 0., 0., 0., 0., 0., 0., 0.]])
+wei:
+tensor([[1.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
+        [0.5000, 0.5000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
+        [0.3333, 0.3333, 0.3333, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
+        [0.2500, 0.2500, 0.2500, 0.2500, 0.0000, 0.0000, 0.0000, 0.0000],
+        [0.2000, 0.2000, 0.2000, 0.2000, 0.2000, 0.0000, 0.0000, 0.0000],
+        [0.1667, 0.1667, 0.1667, 0.1667, 0.1667, 0.1667, 0.0000, 0.0000],
+        [0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.0000],
+        [0.1250, 0.1250, 0.1250, 0.1250, 0.1250, 0.1250, 0.1250, 0.1250]])
+True</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="minor-code-cleanup" class="level1">
+<h1>Minor Code Cleanup</h1>
+<p>(These modifications are done in <code>bigram.py</code>)</p>
+<section id="adding-variable-embedding-size" class="level2">
+<h2 class="anchored" data-anchor-id="adding-variable-embedding-size">Adding variable embedding size</h2>
+<ol type="1">
+<li>Removing vocab_size from the constructor of <code>BigramLanguageModel</code> class, since it’s already defiend above</li>
+<li>Modifying the embedding layer to has an output size of <code>n_embed</code> instead of <code>vocab_size</code></li>
+<li>Adding a linear layer with <code>vocab_size</code> outputs after the embedding layer</li>
+</ol>
+<div class="cell" data-execution_count="26">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BigramLanguageModel(nn.Module):</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># no need to pass vocab_size as an argument, since it is a global variable in this file</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>        <span class="co"># each token directly reads off the logits for the next token from a loockup table</span></span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.token_embedding_table <span class="op">=</span> nn.Embedding(vocab_size, n_embed)</span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>        <span class="co"># the output layer is a linear layer with vocab_size outputs</span></span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.lm_head <span class="op">=</span> nn.Linear(n_embed, vocab_size)</span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, idx, targets <span class="op">=</span> <span class="va">None</span>):</span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>        <span class="co"># idx and targets are both (B, T) tensor of ints</span></span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>        token_emb <span class="op">=</span> <span class="va">self</span>.token_embedding_table(idx) <span class="co"># (B, T, C) = (4, 8 , vocab_size)</span></span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>        logits <span class="op">=</span> <span class="va">self</span>.lm_head(token_emb) <span class="co"># (B, T, vocab_size) = (4, 8, vocab_size)</span></span>
+<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># rest of the code ..</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="positional-encoding" class="level2">
+<h2 class="anchored" data-anchor-id="positional-encoding">Positional Encoding</h2>
+<ol type="1">
+<li>Adding a positional encoding layer to the model <code>self.position_embedding_table</code></li>
+<li>Adding the positional encoding to the input embeddings <code>x = token_emb + pos_emb</code></li>
+</ol>
+<div class="cell" data-execution_count="27">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BigramLanguageModel(nn.Module):</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># no need to pass vocab_size as an argument, since it is a global variable in this file</span></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>        <span class="co"># each token directly reads off the logits for the next token from a loockup table</span></span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.token_embedding_table <span class="op">=</span> nn.Embedding(vocab_size, n_embed)</span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>        <span class="co"># each position is also associated with an embedding vector</span></span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.position_embedding_table <span class="op">=</span> nn.Embedding(block_size, n_embed)</span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>        <span class="co"># the output layer is a linear layer with vocab_size outputs</span></span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.lm_head <span class="op">=</span> nn.Linear(n_embed, vocab_size)</span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, idx, targets <span class="op">=</span> <span class="va">None</span>):</span>
+<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a>        B, T <span class="op">=</span> idx.shape</span>
+<span id="cb44-14"><a href="#cb44-14" aria-hidden="true" tabindex="-1"></a>        <span class="co"># idx and targets are both (B, T) tensor of ints</span></span>
+<span id="cb44-15"><a href="#cb44-15" aria-hidden="true" tabindex="-1"></a>        token_emb <span class="op">=</span> <span class="va">self</span>.token_embedding_table(idx) <span class="co"># (B, T, C) = (4, 8 , vocab_size)</span></span>
+<span id="cb44-16"><a href="#cb44-16" aria-hidden="true" tabindex="-1"></a>        pos_emb <span class="op">=</span> <span class="va">self</span>.position_embedding_table(torch.arange(T, device <span class="op">=</span> idx.device)) <span class="co"># (T, C) = (8, vocab_size)</span></span>
+<span id="cb44-17"><a href="#cb44-17" aria-hidden="true" tabindex="-1"></a>        <span class="co"># x has the token identities + the position embeddings</span></span>
+<span id="cb44-18"><a href="#cb44-18" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> token_emb <span class="op">+</span> pos_emb <span class="co"># (B, T, C) = (4, 8, vocab_size)</span></span>
+<span id="cb44-19"><a href="#cb44-19" aria-hidden="true" tabindex="-1"></a>        logits <span class="op">=</span> <span class="va">self</span>.lm_head(x) <span class="co"># (B, T, vocab_size) = (4, 8, vocab_size)</span></span>
+<span id="cb44-20"><a href="#cb44-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb44-21"><a href="#cb44-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># rest of the code ..</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="self-attention" class="level1">
+<h1>Self Attention</h1>
+<p>Consider his as <code>version 4</code> of part 3</p>
+<section id="previous-code-from-part-3" class="level2">
+<h2 class="anchored" data-anchor-id="previous-code-from-part-3">Previous code from part 3</h2>
+<div class="cell" data-execution_count="28">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">1337</span>)</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>B, T, C <span class="op">=</span> <span class="dv">4</span>, <span class="dv">8</span>, <span class="dv">32</span> <span class="co"># batch, time, channels</span></span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.randn(B, T, C)</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>tril <span class="op">=</span> torch.tril(torch.ones(T, T))</span>
+<span id="cb45-6"><a href="#cb45-6" aria-hidden="true" tabindex="-1"></a>wei <span class="op">=</span> torch.zeros((T, T))</span>
+<span id="cb45-7"><a href="#cb45-7" aria-hidden="true" tabindex="-1"></a>wei <span class="op">=</span> wei.masked_fill(tril <span class="op">==</span> <span class="dv">0</span>, <span class="bu">float</span>(<span class="st">"-inf"</span>))</span>
+<span id="cb45-8"><a href="#cb45-8" aria-hidden="true" tabindex="-1"></a>wei <span class="op">=</span> F.softmax(wei, dim <span class="op">=</span> <span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb45-9"><a href="#cb45-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-10"><a href="#cb45-10" aria-hidden="true" tabindex="-1"></a>out <span class="op">=</span> wei <span class="op">@</span> x</span>
+<span id="cb45-11"><a href="#cb45-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb45-12"><a href="#cb45-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"tril:</span><span class="ch">\n</span><span class="sc">{</span>tril<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb45-13"><a href="#cb45-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"wei:</span><span class="ch">\n</span><span class="sc">{</span>wei<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb45-14"><a href="#cb45-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"out.shape:</span><span class="ch">\n</span><span class="sc">{</span>out<span class="sc">.</span>shape<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>tril:
+tensor([[1., 0., 0., 0., 0., 0., 0., 0.],
+        [1., 1., 0., 0., 0., 0., 0., 0.],
+        [1., 1., 1., 0., 0., 0., 0., 0.],
+        [1., 1., 1., 1., 0., 0., 0., 0.],
+        [1., 1., 1., 1., 1., 0., 0., 0.],
+        [1., 1., 1., 1., 1., 1., 0., 0.],
+        [1., 1., 1., 1., 1., 1., 1., 0.],
+        [1., 1., 1., 1., 1., 1., 1., 1.]])
+wei:
+tensor([[1.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
+        [0.5000, 0.5000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
+        [0.3333, 0.3333, 0.3333, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
+        [0.2500, 0.2500, 0.2500, 0.2500, 0.0000, 0.0000, 0.0000, 0.0000],
+        [0.2000, 0.2000, 0.2000, 0.2000, 0.2000, 0.0000, 0.0000, 0.0000],
+        [0.1667, 0.1667, 0.1667, 0.1667, 0.1667, 0.1667, 0.0000, 0.0000],
+        [0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.1429, 0.0000],
+        [0.1250, 0.1250, 0.1250, 0.1250, 0.1250, 0.1250, 0.1250, 0.1250]])
+out.shape:
+torch.Size([4, 8, 32])</code></pre>
+</div>
+</div>
+</section>
+<section id="building-the-self-attention" class="level2">
+<h2 class="anchored" data-anchor-id="building-the-self-attention">Building the Self-Attention</h2>
+<p>Each token (can be called node too) at each position emmits 2 vectors: 1. Query: What I’m looking for? 2. Key: What do I contain? 3. Value: What I will tell you or the information I have <code>in this head</code>?</p>
+<ul>
+<li>Affinities between tokens <code>wei</code> = my Query @ all Keys</li>
+<li>If key and query are aligned ➡️ high value ➡️ learn more about this sequence</li>
+<li>Instead of multiplying wei with tokens directly, we multiply it with values (which is the information we want to learn about)</li>
+</ul>
+<div class="cell" data-execution_count="29">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">1337</span>)</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>B, T, C <span class="op">=</span> <span class="dv">4</span>, <span class="dv">8</span>, <span class="dv">32</span> <span class="co"># batch, time, channels</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a><span class="co"># x is private information of each token</span></span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.randn(B, T, C)</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a><span class="co"># single Head perform self-attention</span></span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>head_size <span class="op">=</span> <span class="dv">16</span></span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a>key <span class="op">=</span> nn.Linear(C, head_size, bias <span class="op">=</span> <span class="va">False</span>)</span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a>query <span class="op">=</span> nn.Linear(C, head_size, bias <span class="op">=</span> <span class="va">False</span>)</span>
+<span id="cb47-11"><a href="#cb47-11" aria-hidden="true" tabindex="-1"></a>value <span class="op">=</span> nn.Linear(C, head_size, bias <span class="op">=</span> <span class="va">False</span>)</span>
+<span id="cb47-12"><a href="#cb47-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-13"><a href="#cb47-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-14"><a href="#cb47-14" aria-hidden="true" tabindex="-1"></a>k <span class="op">=</span> key(x) <span class="co"># (B, T, head_size) = (4, 8, 16)</span></span>
+<span id="cb47-15"><a href="#cb47-15" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> query(x) <span class="co"># (B, T, head_size) = (4, 8, 16)</span></span>
+<span id="cb47-16"><a href="#cb47-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-17"><a href="#cb47-17" aria-hidden="true" tabindex="-1"></a><span class="co"># now every token in every batch is associated with a key and a query (in parallel), no communication between tokens has happened yet</span></span>
+<span id="cb47-18"><a href="#cb47-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-19"><a href="#cb47-19" aria-hidden="true" tabindex="-1"></a>wei <span class="op">=</span> q <span class="op">@</span> k.transpose(<span class="op">-</span><span class="dv">2</span>, <span class="op">-</span><span class="dv">1</span>) <span class="co"># (B, T, head_size) @ (B, head_size, T) = (B, T, T)</span></span>
+<span id="cb47-20"><a href="#cb47-20" aria-hidden="true" tabindex="-1"></a>tril <span class="op">=</span> torch.tril(torch.ones(T, T))</span>
+<span id="cb47-21"><a href="#cb47-21" aria-hidden="true" tabindex="-1"></a><span class="co"># wei are no longer zeros, but data dependent values (affinities)</span></span>
+<span id="cb47-22"><a href="#cb47-22" aria-hidden="true" tabindex="-1"></a><span class="co"># wei = torch.zeros((T, T))</span></span>
+<span id="cb47-23"><a href="#cb47-23" aria-hidden="true" tabindex="-1"></a>wei <span class="op">=</span> wei.masked_fill(tril <span class="op">==</span> <span class="dv">0</span>, <span class="bu">float</span>(<span class="st">"-inf"</span>))</span>
+<span id="cb47-24"><a href="#cb47-24" aria-hidden="true" tabindex="-1"></a>wei <span class="op">=</span> F.softmax(wei, dim <span class="op">=</span> <span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb47-25"><a href="#cb47-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-26"><a href="#cb47-26" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"wei[0]: </span><span class="sc">{</span>wei[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb47-27"><a href="#cb47-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-28"><a href="#cb47-28" aria-hidden="true" tabindex="-1"></a><span class="co"># multiply with value instead of x</span></span>
+<span id="cb47-29"><a href="#cb47-29" aria-hidden="true" tabindex="-1"></a>v <span class="op">=</span> value(x) <span class="co"># (B, T, head_size) = (4, 8, 16)</span></span>
+<span id="cb47-30"><a href="#cb47-30" aria-hidden="true" tabindex="-1"></a>out <span class="op">=</span> wei <span class="op">@</span> v <span class="co"># (B, T, T) @ (B, T, head_size) = (B, T, head_size)</span></span>
+<span id="cb47-31"><a href="#cb47-31" aria-hidden="true" tabindex="-1"></a><span class="co"># out = wei @ x</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>wei[0]: tensor([[1.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
+        [0.1574, 0.8426, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
+        [0.2088, 0.1646, 0.6266, 0.0000, 0.0000, 0.0000, 0.0000, 0.0000],
+        [0.5792, 0.1187, 0.1889, 0.1131, 0.0000, 0.0000, 0.0000, 0.0000],
+        [0.0294, 0.1052, 0.0469, 0.0276, 0.7909, 0.0000, 0.0000, 0.0000],
+        [0.0176, 0.2689, 0.0215, 0.0089, 0.6812, 0.0019, 0.0000, 0.0000],
+        [0.1691, 0.4066, 0.0438, 0.0416, 0.1048, 0.2012, 0.0329, 0.0000],
+        [0.0210, 0.0843, 0.0555, 0.2297, 0.0573, 0.0709, 0.2423, 0.2391]],
+       grad_fn=&lt;SelectBackward0&gt;)</code></pre>
+</div>
+</div>
+</section>
+<section id="notes-about-self-attention" class="level2">
+<h2 class="anchored" data-anchor-id="notes-about-self-attention">Notes About Self Attention</h2>
+<ol type="1">
+<li><p>Attention is a <strong>communication mechanism</strong>. Can be seen as nodes in a directed graph looking at each other and aggregating information with a weighted sum from all nodes that point to them, with data-dependent weights.</p></li>
+<li><p>There is no notion of space. Attention simply acts over a set of vectors. <strong>This is why we need to positionally encode tokens.</strong></p></li>
+<li><p>Each example across batch dimension is of course processed completely <strong>independently</strong> and <strong>never “talk” to each other</strong></p></li>
+<li><p>In an <code>encoder</code> attention block just delete the single line that does masking with <code>tril</code>, <strong>allowing all tokens to communicate</strong>, it can be used for some applications like translation and sentiment analysis. This block here is called a “decoder” attention block because it has triangular masking, and is usually used in autoregressive settings, like <strong>language modeling</strong>.</p></li>
+<li><p><code>self-attention</code> just means that the <strong>keys</strong> and <strong>values</strong> are <strong>produced from the same source</strong> as <strong>queries</strong>. In “cross-attention”, the <strong>queries</strong> still get produced from <strong>x</strong>, but the <strong>keys</strong> and <strong>values</strong> come from some other, external source (e.g.&nbsp;an <strong>encoder</strong> module)</p></li>
+<li><p><code>Scaled Dot-Product Attention</code>: <span class="math inline">\(\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V\)</span></p>
+<p><code>Scaled</code> attention additional divides <code>wei</code> by <span class="math inline">\(\frac{1}{\sqrt{\text{head\_size}}}\)</span>. This makes it so when input <code>Q</code>, <code>K</code> are unit variance, <code>wei</code> will be <strong>unit variance</strong> too and Softmax will stay diffuse and <strong>not saturate</strong> too much. it’s important especially in initialization.</p>
+<p>if the <strong>variance</strong> is <strong>very high</strong>, <strong>softmax</strong> will <strong>converge</strong> to <strong>one-hot vector</strong></p></li>
+</ol>
+<div class="cell" data-execution_count="30">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Scaled Attention</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>k <span class="op">=</span> torch.randn(B, T, head_size)</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>q <span class="op">=</span> torch.randn(B, T, head_size)</span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Unscaled Attention"</span>)</span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a>wei <span class="op">=</span> q <span class="op">@</span> k.transpose(<span class="op">-</span><span class="dv">2</span>, <span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"var(k) = </span><span class="sc">{</span>torch<span class="sc">.</span>var(k)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"var(q) = </span><span class="sc">{</span>torch<span class="sc">.</span>var(q)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"var(wei) = </span><span class="sc">{</span>torch<span class="sc">.</span>var(wei)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-11"><a href="#cb49-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">Scaled Attention"</span>)</span>
+<span id="cb49-12"><a href="#cb49-12" aria-hidden="true" tabindex="-1"></a>wei <span class="op">=</span> q <span class="op">@</span> k.transpose(<span class="op">-</span><span class="dv">2</span>, <span class="op">-</span><span class="dv">1</span>) <span class="op">*</span> (head_size <span class="op">**</span> <span class="op">-</span><span class="fl">0.5</span>)</span>
+<span id="cb49-13"><a href="#cb49-13" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"var(k) = </span><span class="sc">{</span>torch<span class="sc">.</span>var(k)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb49-14"><a href="#cb49-14" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"var(q) = </span><span class="sc">{</span>torch<span class="sc">.</span>var(q)<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb49-15"><a href="#cb49-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"var(wei) = </span><span class="sc">{</span>torch<span class="sc">.</span>var(wei)<span class="sc">}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Unscaled Attention
+var(k) = 1.044861912727356
+var(q) = 1.0700464248657227
+var(wei) = 17.46897315979004
+
+Scaled Attention
+var(k) = 1.044861912727356
+var(q) = 1.0700464248657227
+var(wei) = 1.0918108224868774</code></pre>
+</div>
+</div>
+</section>
+<section id="adding-single-self-attention-head-to-the-bigram-language-model" class="level2">
+<h2 class="anchored" data-anchor-id="adding-single-self-attention-head-to-the-bigram-language-model">Adding single Self Attention Head to the Bigram Language Model</h2>
+<section id="making-new-head-class" class="level3">
+<h3 class="anchored" data-anchor-id="making-new-head-class">Making new <code>Head</code> class</h3>
+<div class="cell" data-execution_count="31">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Making the Head Class</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Head(nn.Module):</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">""" one head of self attention """</span></span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, head_size):</span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.key <span class="op">=</span> nn.Linear(n_embed, head_size, bias <span class="op">=</span> <span class="va">False</span>)</span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.query <span class="op">=</span> nn.Linear(n_embed, head_size, bias <span class="op">=</span> <span class="va">False</span>)</span>
+<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.value <span class="op">=</span> nn.Linear(n_embed, head_size, bias <span class="op">=</span> <span class="va">False</span>)</span>
+<span id="cb51-10"><a href="#cb51-10" aria-hidden="true" tabindex="-1"></a>        <span class="co"># since tril isn't a parameter, we register it as a buffer</span></span>
+<span id="cb51-11"><a href="#cb51-11" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.register_buffer(<span class="st">"tril"</span>, torch.tril(torch.ones(block_size, block_size)))</span>
+<span id="cb51-12"><a href="#cb51-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb51-13"><a href="#cb51-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb51-14"><a href="#cb51-14" aria-hidden="true" tabindex="-1"></a>        B, T, C <span class="op">=</span> x.shape</span>
+<span id="cb51-15"><a href="#cb51-15" aria-hidden="true" tabindex="-1"></a>        k <span class="op">=</span> <span class="va">self</span>.key(x) <span class="co"># (B, T, C)</span></span>
+<span id="cb51-16"><a href="#cb51-16" aria-hidden="true" tabindex="-1"></a>        q <span class="op">=</span> <span class="va">self</span>.query(x) <span class="co"># (B, T, C)</span></span>
+<span id="cb51-17"><a href="#cb51-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-18"><a href="#cb51-18" aria-hidden="true" tabindex="-1"></a>        <span class="co"># compute attention scores (affinities)</span></span>
+<span id="cb51-19"><a href="#cb51-19" aria-hidden="true" tabindex="-1"></a>        wei <span class="op">=</span> q <span class="op">@</span> k.transpose(<span class="op">-</span><span class="dv">2</span>, <span class="op">-</span><span class="dv">1</span>) <span class="op">*</span> (C <span class="op">**</span> <span class="op">-</span><span class="fl">0.5</span>) <span class="co"># (B, T, C) @ (B, C, T) = (B, T, T)</span></span>
+<span id="cb51-20"><a href="#cb51-20" aria-hidden="true" tabindex="-1"></a>        wei <span class="op">=</span> wei.masked_fill(<span class="va">self</span>.tril[:T, :T] <span class="op">==</span> <span class="dv">0</span> , <span class="bu">float</span>(<span class="st">"-inf"</span>)) <span class="co"># (B, T, T)</span></span>
+<span id="cb51-21"><a href="#cb51-21" aria-hidden="true" tabindex="-1"></a>        wei <span class="op">=</span> F.softmax(wei, dim <span class="op">=</span> <span class="op">-</span><span class="dv">1</span>) <span class="co"># (B, T, T)</span></span>
+<span id="cb51-22"><a href="#cb51-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-23"><a href="#cb51-23" aria-hidden="true" tabindex="-1"></a>        <span class="co"># perform weighted aggregation of the values</span></span>
+<span id="cb51-24"><a href="#cb51-24" aria-hidden="true" tabindex="-1"></a>        v <span class="op">=</span> <span class="va">self</span>.value(x) <span class="co"># (B, T, C)</span></span>
+<span id="cb51-25"><a href="#cb51-25" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> wei <span class="op">@</span> v <span class="co"># (B, T, T) @ (B, T, C) = (B, T, C)</span></span>
+<span id="cb51-26"><a href="#cb51-26" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> out</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="modifying-bigramlanguagemodel-class" class="level3">
+<h3 class="anchored" data-anchor-id="modifying-bigramlanguagemodel-class">Modifying <code>BigramLanguageModel</code> class</h3>
+<ol type="1">
+<li>Adding <code>Head</code> to the <code>BigramLanguageModel</code> class</li>
+<li>Adding <code>Head</code> to the <code>BigramLanguageModel</code> forward pass</li>
+<li>For <code>generate</code> function, we need crop idx to keep <code>idx.shape &lt;= block_size</code>, since we are using <code>positional embedding</code></li>
+</ol>
+<div class="cell" data-execution_count="32">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Adding Head to the BigramLanguageModel</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a><span class="co"># super simple bigram model</span></span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BigramLanguageModel(nn.Module):</span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># no need to pass vocab_size as an argument, since it is a global variable in this file</span></span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a>        <span class="co"># each token directly reads off the logits for the next token from a loockup table</span></span>
+<span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.token_embedding_table <span class="op">=</span> nn.Embedding(vocab_size, n_embed)</span>
+<span id="cb52-10"><a href="#cb52-10" aria-hidden="true" tabindex="-1"></a>        <span class="co"># each position is also associated with an embedding vector</span></span>
+<span id="cb52-11"><a href="#cb52-11" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.position_embedding_table <span class="op">=</span> nn.Embedding(block_size, n_embed)</span>
+<span id="cb52-12"><a href="#cb52-12" aria-hidden="true" tabindex="-1"></a>        <span class="co"># a single head of self attention</span></span>
+<span id="cb52-13"><a href="#cb52-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.sa_head <span class="op">=</span> Head(n_embed)</span>
+<span id="cb52-14"><a href="#cb52-14" aria-hidden="true" tabindex="-1"></a>        <span class="co"># the output layer is a linear layer with vocab_size outputs</span></span>
+<span id="cb52-15"><a href="#cb52-15" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.lm_head <span class="op">=</span> nn.Linear(n_embed, vocab_size)</span>
+<span id="cb52-16"><a href="#cb52-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-17"><a href="#cb52-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, idx, targets <span class="op">=</span> <span class="va">None</span>):</span>
+<span id="cb52-18"><a href="#cb52-18" aria-hidden="true" tabindex="-1"></a>        B, T <span class="op">=</span> idx.shape</span>
+<span id="cb52-19"><a href="#cb52-19" aria-hidden="true" tabindex="-1"></a>        <span class="co"># idx and targets are both (B, T) tensor of ints</span></span>
+<span id="cb52-20"><a href="#cb52-20" aria-hidden="true" tabindex="-1"></a>        token_emb <span class="op">=</span> <span class="va">self</span>.token_embedding_table(idx) <span class="co"># (B, T, C) = (4, 8 , vocab_size)</span></span>
+<span id="cb52-21"><a href="#cb52-21" aria-hidden="true" tabindex="-1"></a>        pos_emb <span class="op">=</span> <span class="va">self</span>.position_embedding_table(torch.arange(T, device <span class="op">=</span> idx.device)) <span class="co"># (T, C) = (8, vocab_size)</span></span>
+<span id="cb52-22"><a href="#cb52-22" aria-hidden="true" tabindex="-1"></a>        <span class="co"># x has the token identities + the position embeddings</span></span>
+<span id="cb52-23"><a href="#cb52-23" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> token_emb <span class="op">+</span> pos_emb <span class="co"># (B, T, C) = (4, 8, vocab_size)</span></span>
+<span id="cb52-24"><a href="#cb52-24" aria-hidden="true" tabindex="-1"></a>        <span class="co"># feed the input to the self attention head</span></span>
+<span id="cb52-25"><a href="#cb52-25" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> <span class="va">self</span>.sa_head(x) <span class="co"># (B, T, C) = (4, 8, vocab_size)</span></span>
+<span id="cb52-26"><a href="#cb52-26" aria-hidden="true" tabindex="-1"></a>        logits <span class="op">=</span> <span class="va">self</span>.lm_head(x) <span class="co"># (B, T, vocab_size) = (4, 8, vocab_size)</span></span>
+<span id="cb52-27"><a href="#cb52-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-28"><a href="#cb52-28" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> targets <span class="kw">is</span> <span class="va">None</span>:</span>
+<span id="cb52-29"><a href="#cb52-29" aria-hidden="true" tabindex="-1"></a>            loss <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb52-30"><a href="#cb52-30" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb52-31"><a href="#cb52-31" aria-hidden="true" tabindex="-1"></a>            <span class="co"># note that F.cross_entropy accepts inputs in shape (B, C, T)</span></span>
+<span id="cb52-32"><a href="#cb52-32" aria-hidden="true" tabindex="-1"></a>            B, T, C <span class="op">=</span> logits.shape</span>
+<span id="cb52-33"><a href="#cb52-33" aria-hidden="true" tabindex="-1"></a>            logits <span class="op">=</span> logits.view(B <span class="op">*</span> T, C)</span>
+<span id="cb52-34"><a href="#cb52-34" aria-hidden="true" tabindex="-1"></a>            targets <span class="op">=</span> targets.view(B <span class="op">*</span> T) <span class="co"># can be as targets = targets.view(-1)</span></span>
+<span id="cb52-35"><a href="#cb52-35" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb52-36"><a href="#cb52-36" aria-hidden="true" tabindex="-1"></a>            loss <span class="op">=</span> F.cross_entropy(logits, targets)</span>
+<span id="cb52-37"><a href="#cb52-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-38"><a href="#cb52-38" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> logits, loss</span>
+<span id="cb52-39"><a href="#cb52-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-40"><a href="#cb52-40" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> generate(<span class="va">self</span>, idx, max_new_tokens):</span>
+<span id="cb52-41"><a href="#cb52-41" aria-hidden="true" tabindex="-1"></a>        <span class="co"># idx is (B, T) array of indices in the current context</span></span>
+<span id="cb52-42"><a href="#cb52-42" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(max_new_tokens):</span>
+<span id="cb52-43"><a href="#cb52-43" aria-hidden="true" tabindex="-1"></a>            <span class="co"># crop idx to the last block_size tokens</span></span>
+<span id="cb52-44"><a href="#cb52-44" aria-hidden="true" tabindex="-1"></a>            idx_cond <span class="op">=</span> idx[:, <span class="op">-</span>block_size:] <span class="co"># (B, T)</span></span>
+<span id="cb52-45"><a href="#cb52-45" aria-hidden="true" tabindex="-1"></a>            <span class="co"># get the logits for the next token</span></span>
+<span id="cb52-46"><a href="#cb52-46" aria-hidden="true" tabindex="-1"></a>            logits, loss <span class="op">=</span> <span class="va">self</span>(idx_cond)</span>
+<span id="cb52-47"><a href="#cb52-47" aria-hidden="true" tabindex="-1"></a>            <span class="co"># focus only on the last time step</span></span>
+<span id="cb52-48"><a href="#cb52-48" aria-hidden="true" tabindex="-1"></a>            <span class="co"># (note that we are feeding the whole context each time, however we only care about the last prediction)</span></span>
+<span id="cb52-49"><a href="#cb52-49" aria-hidden="true" tabindex="-1"></a>            <span class="co"># (this make doesn't make sense now, but the function will be modified later)</span></span>
+<span id="cb52-50"><a href="#cb52-50" aria-hidden="true" tabindex="-1"></a>            logits <span class="op">=</span> logits[:, <span class="op">-</span><span class="dv">1</span>, :] <span class="co"># Becomes (B, C) (get the last time step for each sequence)</span></span>
+<span id="cb52-51"><a href="#cb52-51" aria-hidden="true" tabindex="-1"></a>            <span class="co"># apply softmax to convert to probabilities</span></span>
+<span id="cb52-52"><a href="#cb52-52" aria-hidden="true" tabindex="-1"></a>            probs <span class="op">=</span> F.softmax(logits, dim <span class="op">=</span> <span class="op">-</span><span class="dv">1</span>) <span class="co"># (B, C)</span></span>
+<span id="cb52-53"><a href="#cb52-53" aria-hidden="true" tabindex="-1"></a>            <span class="co"># sample from the distribution</span></span>
+<span id="cb52-54"><a href="#cb52-54" aria-hidden="true" tabindex="-1"></a>            idx_next <span class="op">=</span> torch.multinomial(probs, num_samples<span class="op">=</span><span class="dv">1</span>) <span class="co"># (B, 1)</span></span>
+<span id="cb52-55"><a href="#cb52-55" aria-hidden="true" tabindex="-1"></a>            <span class="co"># append sampled token to the context</span></span>
+<span id="cb52-56"><a href="#cb52-56" aria-hidden="true" tabindex="-1"></a>            idx <span class="op">=</span> torch.cat((idx, idx_next), dim <span class="op">=</span> <span class="dv">1</span>) <span class="co"># (B, T + 1)</span></span>
+<span id="cb52-57"><a href="#cb52-57" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> idx</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="testing" class="level3">
+<h3 class="anchored" data-anchor-id="testing">Testing</h3>
+<p>(loss is <code>2.54</code> instead of <code>2.57</code>)</p>
+<div class="cell" data-execution_count="33">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>python3 bigram.py <span class="op">--</span>eval_interval <span class="dv">2999</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.209729 M parameters
+ step 0 | train loss: 4.4116 | val loss: 4.4048
+ step 2999 | train loss: 1.7879 | val loss: 1.9086
+
+And they bride.
+
+NUTHORD IV:
+Kind Petice you each graves the can
+he art third wear he. Warwithry ane away, my feans
+acut onour
+Yourself fittice of my helige, at mirters,
+I in latiHer drove to does me none
+And justs like die; like us, courmby:
+Aughtainst, why. Here, she royal elsed whom
+Is would that
+And insun her evices to thee, and The chiress poor
+of his burder hands thy fis are
+In the flownd male of would Prive my of.
+
+HENRY BOLON:
+Prisabardand the Eart to uncles.
+
+DUCHASS III:
+My hand for hi</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="multi-head-attention" class="level2">
+<h2 class="anchored" data-anchor-id="multi-head-attention">Multi-Head Attention</h2>
+<ul>
+<li>Make the new <code>MultiHeadAttention</code> class</li>
+</ul>
+<div class="cell" data-execution_count="34">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> MultiHeadAttention(nn.Module):</span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">""" multiple heads of self-attention in parallel """</span></span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, num_head, head_size):</span>
+<span id="cb55-5"><a href="#cb55-5" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb55-6"><a href="#cb55-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.heads <span class="op">=</span> nn.ModuleList([Head(head_size) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(num_head)])</span>
+<span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb55-9"><a href="#cb55-9" aria-hidden="true" tabindex="-1"></a>        <span class="co"># concatenate them into the channel dimension</span></span>
+<span id="cb55-10"><a href="#cb55-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> torch.cat([h(x) <span class="cf">for</span> h <span class="kw">in</span> <span class="va">self</span>.heads], dim <span class="op">=</span> <span class="op">-</span><span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>then add it to <code>BigramLanguageModel</code> class</p>
+<p>previously:</p>
+<div class="sourceCode" id="cb56"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.sa_head <span class="op">=</span> Head(n_embed)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>now:</p>
+<div class="sourceCode" id="cb57"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.sa_heads <span class="op">=</span> MultiHeadAttention(num_head <span class="op">=</span> <span class="dv">4</span>, head_size <span class="op">=</span> n_embed <span class="op">//</span> <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="testing-1" class="level3">
+<h3 class="anchored" data-anchor-id="testing-1">Testing</h3>
+<p>(loss is <code>2.51</code> instead of <code>2.54</code>)</p>
+<div class="cell" data-execution_count="35">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>python3 bigram.py <span class="op">--</span>eval_interval <span class="dv">2999</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.209729 M parameters
+ step 0 | train loss: 4.4116 | val loss: 4.4048
+ step 2999 | train loss: 1.7879 | val loss: 1.9086
+
+And they bride.
+
+NUTHORD IV:
+Kind Petice you each graves the can
+he art third wear he. Warwithry ane away, my feans
+acut onour
+Yourself fittice of my helige, at mirters,
+I in latiHer drove to does me none
+And justs like die; like us, courmby:
+Aughtainst, why. Here, she royal elsed whom
+Is would that
+And insun her evices to thee, and The chiress poor
+of his burder hands thy fis are
+In the flownd male of would Prive my of.
+
+HENRY BOLON:
+Prisabardand the Eart to uncles.
+
+DUCHASS III:
+My hand for hi</code></pre>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="adding-feedforward-layer" class="level1">
+<h1>Adding FeedForward Layer</h1>
+<p>The feedforward is applied to each token independently</p>
+<div class="cell" data-execution_count="36">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> FeedForward(nn.Module):</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">""" a simple linear layer followed by a non-linearity """</span></span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, n_embed):</span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.net <span class="op">=</span> nn.Sequential(</span>
+<span id="cb60-6"><a href="#cb60-6" aria-hidden="true" tabindex="-1"></a>            nn.Linear(n_embed, n_embed),</span>
+<span id="cb60-7"><a href="#cb60-7" aria-hidden="true" tabindex="-1"></a>            nn.ReLU(),</span>
+<span id="cb60-8"><a href="#cb60-8" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb60-9"><a href="#cb60-9" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb60-10"><a href="#cb60-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb60-11"><a href="#cb60-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.net(x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="then-add-it-to-forward-of-the-bigramlanguagemodel" class="level1">
+<h1>Then add it to forward of the BigramLanguageModel</h1>
+<div class="sourceCode" id="cb61"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="co"># previous code ..</span></span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="va">self</span>.sa_heads(x) <span class="co"># (B, T, C) = (4, 8, vocab_size)</span></span>
+<span id="cb61-3"><a href="#cb61-3" aria-hidden="true" tabindex="-1"></a><span class="co"># feed the output of the self attention head to the feed forward layer</span></span>
+<span id="cb61-4"><a href="#cb61-4" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="va">self</span>.ff(x) <span class="co"># (B, T, C) = (4, 8, vocab_size)</span></span>
+<span id="cb61-5"><a href="#cb61-5" aria-hidden="true" tabindex="-1"></a>logits <span class="op">=</span> <span class="va">self</span>.lm_head(x) <span class="co"># (B, T, vocab_size) = (4, 8, vocab_size)</span></span>
+<span id="cb61-6"><a href="#cb61-6" aria-hidden="true" tabindex="-1"></a><span class="co"># rest of the code ..</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="test" class="level2">
+<h2 class="anchored" data-anchor-id="test">Test</h2>
+<p>(loss is <code>2.46</code> instead of <code>2.51</code>)</p>
+<div class="cell" data-execution_count="37">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>python3 bigram.py <span class="op">--</span>eval_interval <span class="dv">2999</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.209729 M parameters
+ step 0 | train loss: 4.4116 | val loss: 4.4048
+ step 2999 | train loss: 1.7879 | val loss: 1.9086
+
+And they bride.
+
+NUTHORD IV:
+Kind Petice you each graves the can
+he art third wear he. Warwithry ane away, my feans
+acut onour
+Yourself fittice of my helige, at mirters,
+I in latiHer drove to does me none
+And justs like die; like us, courmby:
+Aughtainst, why. Here, she royal elsed whom
+Is would that
+And insun her evices to thee, and The chiress poor
+of his burder hands thy fis are
+In the flownd male of would Prive my of.
+
+HENRY BOLON:
+Prisabardand the Eart to uncles.
+
+DUCHASS III:
+My hand for hi</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="residual-connections" class="level1">
+<h1>Residual Connections</h1>
+<section id="stacking-the-blocks" class="level2">
+<h2 class="anchored" data-anchor-id="stacking-the-blocks">Stacking the Blocks</h2>
+<div class="cell" data-execution_count="38">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Block(nn.Module):</span>
+<span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">""" Transformer Block: Communication followed by Computation """</span></span>
+<span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb64-4"><a href="#cb64-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, n_embed, n_head):</span>
+<span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a>        <span class="co">""" n_embed: embedding dimension</span></span>
+<span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a><span class="co">            n_head: number of heads in the multi-head attention</span></span>
+<span id="cb64-7"><a href="#cb64-7" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb64-8"><a href="#cb64-8" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb64-9"><a href="#cb64-9" aria-hidden="true" tabindex="-1"></a>        head_size <span class="op">=</span> n_embed <span class="op">//</span> n_head</span>
+<span id="cb64-10"><a href="#cb64-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.sa <span class="op">=</span> MultiHeadAttention(n_head, head_size)</span>
+<span id="cb64-11"><a href="#cb64-11" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.ffwd <span class="op">=</span> FeedForward(n_embed)</span>
+<span id="cb64-12"><a href="#cb64-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb64-13"><a href="#cb64-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb64-14"><a href="#cb64-14" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> <span class="va">self</span>.sa(x)</span>
+<span id="cb64-15"><a href="#cb64-15" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> <span class="va">self</span>.ffwd(x)</span>
+<span id="cb64-16"><a href="#cb64-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="sourceCode" id="cb65"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="co"># previous code ..</span></span>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a><span class="co"># each token directly reads off the logits for the next token from a loockup table</span></span>
+<span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.token_embedding_table <span class="op">=</span> nn.Embedding(vocab_size, n_embed)</span>
+<span id="cb65-4"><a href="#cb65-4" aria-hidden="true" tabindex="-1"></a><span class="co"># each position is also associated with an embedding vector</span></span>
+<span id="cb65-5"><a href="#cb65-5" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.position_embedding_table <span class="op">=</span> nn.Embedding(block_size, n_embed)</span>
+<span id="cb65-6"><a href="#cb65-6" aria-hidden="true" tabindex="-1"></a><span class="co"># transformer blocks</span></span>
+<span id="cb65-7"><a href="#cb65-7" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.blocks <span class="op">=</span> nn.Sequential(</span>
+<span id="cb65-8"><a href="#cb65-8" aria-hidden="true" tabindex="-1"></a>        Block(n_embed, n_head <span class="op">=</span> <span class="dv">4</span>),</span>
+<span id="cb65-9"><a href="#cb65-9" aria-hidden="true" tabindex="-1"></a>        Block(n_embed, n_head <span class="op">=</span> <span class="dv">4</span>),</span>
+<span id="cb65-10"><a href="#cb65-10" aria-hidden="true" tabindex="-1"></a>        Block(n_embed, n_head <span class="op">=</span> <span class="dv">4</span>),</span>
+<span id="cb65-11"><a href="#cb65-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb65-12"><a href="#cb65-12" aria-hidden="true" tabindex="-1"></a><span class="va">self</span>.lm_head <span class="op">=</span> nn.Linear(n_embed, vocab_size)</span>
+<span id="cb65-13"><a href="#cb65-13" aria-hidden="true" tabindex="-1"></a><span class="co"># rest of the code ..</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Add them in the forward pass</p>
+<div class="sourceCode" id="cb66"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="co"># previous code ..</span></span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> token_emb <span class="op">+</span> pos_emb <span class="co"># (B, T, C) = (4, 8, vocab_size)</span></span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a><span class="co"># feed the input to the self attention head</span></span>
+<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> <span class="va">self</span>.blocks(x) <span class="co"># (B, T, C) = (4, 8, vocab_size)</span></span>
+<span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a>logits <span class="op">=</span> <span class="va">self</span>.lm_head(x) <span class="co"># (B, T, vocab_size) = (4, 8, vocab_size)</span></span>
+<span id="cb66-6"><a href="#cb66-6" aria-hidden="true" tabindex="-1"></a><span class="co"># rest of the code ..</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="test-1" class="level3">
+<h3 class="anchored" data-anchor-id="test-1">Test</h3>
+<p>(loss is <code>2.81</code> instead of <code>2.46</code>) ➡️ <strong>WORSE</strong></p>
+<div class="cell" data-execution_count="39">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>python3 bigram.py <span class="op">--</span>eval_interval <span class="dv">2999</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.209729 M parameters
+ step 0 | train loss: 4.4116 | val loss: 4.4048
+ step 2999 | train loss: 1.7879 | val loss: 1.9086
+
+And they bride.
+
+NUTHORD IV:
+Kind Petice you each graves the can
+he art third wear he. Warwithry ane away, my feans
+acut onour
+Yourself fittice of my helige, at mirters,
+I in latiHer drove to does me none
+And justs like die; like us, courmby:
+Aughtainst, why. Here, she royal elsed whom
+Is would that
+And insun her evices to thee, and The chiress poor
+of his burder hands thy fis are
+In the flownd male of would Prive my of.
+
+HENRY BOLON:
+Prisabardand the Eart to uncles.
+
+DUCHASS III:
+My hand for hi</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="adding-residual-connections-skip-connections" class="level2">
+<h2 class="anchored" data-anchor-id="adding-residual-connections-skip-connections">Adding Residual Connections (Skip Connections)</h2>
+<section id="transformer-block" class="level3">
+<h3 class="anchored" data-anchor-id="transformer-block">Transformer Block</h3>
+<div class="cell" data-execution_count="40">
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Block(nn.Module):</span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">""" Transformer Block: Communication followed by Computation """</span></span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, n_embed, n_head):</span>
+<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a>        <span class="co">""" n_embed: embedding dimension</span></span>
+<span id="cb69-6"><a href="#cb69-6" aria-hidden="true" tabindex="-1"></a><span class="co">            n_head: number of heads in the multi-head attention</span></span>
+<span id="cb69-7"><a href="#cb69-7" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb69-8"><a href="#cb69-8" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb69-9"><a href="#cb69-9" aria-hidden="true" tabindex="-1"></a>        head_size <span class="op">=</span> n_embed <span class="op">//</span> n_head</span>
+<span id="cb69-10"><a href="#cb69-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.sa <span class="op">=</span> MultiHeadAttention(n_head, head_size)</span>
+<span id="cb69-11"><a href="#cb69-11" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.ffwd <span class="op">=</span> FeedForward(n_embed)</span>
+<span id="cb69-12"><a href="#cb69-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb69-13"><a href="#cb69-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb69-14"><a href="#cb69-14" aria-hidden="true" tabindex="-1"></a>        <span class="co"># residual connection (add the input to the output)</span></span>
+<span id="cb69-15"><a href="#cb69-15" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> x <span class="op">+</span> <span class="va">self</span>.sa(x)</span>
+<span id="cb69-16"><a href="#cb69-16" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> x <span class="op">+</span> <span class="va">self</span>.ffwd(x)</span>
+<span id="cb69-17"><a href="#cb69-17" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="multi-head-attention-1" class="level3">
+<h3 class="anchored" data-anchor-id="multi-head-attention-1">Multi-Head Attention</h3>
+<div class="cell" data-execution_count="41">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Multi Head Attention Class</span></span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> MultiHeadAttention(nn.Module):</span>
+<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">""" multiple heads of self-attention in parallel """</span></span>
+<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb70-5"><a href="#cb70-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, num_head, head_size):</span>
+<span id="cb70-6"><a href="#cb70-6" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb70-7"><a href="#cb70-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.heads <span class="op">=</span> nn.ModuleList([Head(head_size) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(num_head)])</span>
+<span id="cb70-8"><a href="#cb70-8" aria-hidden="true" tabindex="-1"></a>        <span class="co"># linear transformation to the output of the multi-head attention as projection back to the residual pathway</span></span>
+<span id="cb70-9"><a href="#cb70-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.proj <span class="op">=</span> nn.Linear(n_embed, n_embed)</span>
+<span id="cb70-10"><a href="#cb70-10" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb70-11"><a href="#cb70-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb70-12"><a href="#cb70-12" aria-hidden="true" tabindex="-1"></a>        <span class="co"># out is the outptu of the multi-head attention</span></span>
+<span id="cb70-13"><a href="#cb70-13" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span>  torch.cat([h(x) <span class="cf">for</span> h <span class="kw">in</span> <span class="va">self</span>.heads], dim <span class="op">=</span> <span class="op">-</span><span class="dv">1</span>)</span>
+<span id="cb70-14"><a href="#cb70-14" aria-hidden="true" tabindex="-1"></a>        <span class="co"># apply a linear layer to the concatenated output</span></span>
+<span id="cb70-15"><a href="#cb70-15" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> <span class="va">self</span>.proj(out)</span>
+<span id="cb70-16"><a href="#cb70-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> out</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="feedforward-layer" class="level3">
+<h3 class="anchored" data-anchor-id="feedforward-layer">FeedForward Layer</h3>
+<div class="cell" data-execution_count="42">
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Feed Forward Class</span></span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> FeedForward(nn.Module):</span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a>    <span class="co">""" a simple linear layer followed by a non-linearity """</span></span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, n_embed):</span>
+<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb71-6"><a href="#cb71-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.net <span class="op">=</span> nn.Sequential(</span>
+<span id="cb71-7"><a href="#cb71-7" aria-hidden="true" tabindex="-1"></a>            <span class="co"># multiply by 4 to follow the original implementation</span></span>
+<span id="cb71-8"><a href="#cb71-8" aria-hidden="true" tabindex="-1"></a>            nn.Linear(n_embed, <span class="dv">4</span> <span class="op">*</span> n_embed),</span>
+<span id="cb71-9"><a href="#cb71-9" aria-hidden="true" tabindex="-1"></a>            nn.ReLU(),</span>
+<span id="cb71-10"><a href="#cb71-10" aria-hidden="true" tabindex="-1"></a>            nn.Linear(n_embed <span class="op">*</span> <span class="dv">4</span>, n_embed),</span>
+<span id="cb71-11"><a href="#cb71-11" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb71-12"><a href="#cb71-12" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb71-13"><a href="#cb71-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb71-14"><a href="#cb71-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.net(x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="test-2" class="level3">
+<h3 class="anchored" data-anchor-id="test-2">Test</h3>
+<p>(loss is <code>2.33</code> instead of <code>2.81</code> and <code>2.46</code> before it)</p>
+<div class="cell" data-execution_count="43">
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>python3 bigram.py <span class="op">--</span>eval_interval <span class="dv">2999</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.209729 M parameters
+ step 0 | train loss: 4.4116 | val loss: 4.4048
+ step 2999 | train loss: 1.7879 | val loss: 1.9086
+
+And they bride.
+
+NUTHORD IV:
+Kind Petice you each graves the can
+he art third wear he. Warwithry ane away, my feans
+acut onour
+Yourself fittice of my helige, at mirters,
+I in latiHer drove to does me none
+And justs like die; like us, courmby:
+Aughtainst, why. Here, she royal elsed whom
+Is would that
+And insun her evices to thee, and The chiress poor
+of his burder hands thy fis are
+In the flownd male of would Prive my of.
+
+HENRY BOLON:
+Prisabardand the Eart to uncles.
+
+DUCHASS III:
+My hand for hi</code></pre>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="layernorm" class="level1">
+<h1>LayerNorm</h1>
+<section id="batchnorm1d-from-makemore-part-3" class="level2">
+<h2 class="anchored" data-anchor-id="batchnorm1d-from-makemore-part-3">BatchNorm1d from makemore part 3</h2>
+<div class="cell" data-execution_count="44">
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BatchNorm1d:</span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, dim, eps<span class="op">=</span><span class="fl">1e-5</span>, momentum <span class="op">=</span> <span class="fl">0.1</span>):</span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.eps <span class="op">=</span> eps</span>
+<span id="cb74-4"><a href="#cb74-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.momentum <span class="op">=</span> momentum</span>
+<span id="cb74-5"><a href="#cb74-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.training <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb74-6"><a href="#cb74-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-7"><a href="#cb74-7" aria-hidden="true" tabindex="-1"></a>        <span class="co"># parameters (trained with backprop)</span></span>
+<span id="cb74-8"><a href="#cb74-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.gamma <span class="op">=</span> torch.ones(dim)</span>
+<span id="cb74-9"><a href="#cb74-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.beta <span class="op">=</span> torch.zeros(dim)</span>
+<span id="cb74-10"><a href="#cb74-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-11"><a href="#cb74-11" aria-hidden="true" tabindex="-1"></a>        <span class="co"># buffers (trained while running `momentum update`)</span></span>
+<span id="cb74-12"><a href="#cb74-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.running_mean <span class="op">=</span> torch.zeros(dim)</span>
+<span id="cb74-13"><a href="#cb74-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.running_var <span class="op">=</span> torch.ones(dim)</span>
+<span id="cb74-14"><a href="#cb74-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-15"><a href="#cb74-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__call__</span>(<span class="va">self</span>, x):</span>
+<span id="cb74-16"><a href="#cb74-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.training:</span>
+<span id="cb74-17"><a href="#cb74-17" aria-hidden="true" tabindex="-1"></a>            <span class="co"># batch mean</span></span>
+<span id="cb74-18"><a href="#cb74-18" aria-hidden="true" tabindex="-1"></a>            xmean <span class="op">=</span> x.mean(<span class="dv">0</span>, keepdim<span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb74-19"><a href="#cb74-19" aria-hidden="true" tabindex="-1"></a>            <span class="co"># batch variance</span></span>
+<span id="cb74-20"><a href="#cb74-20" aria-hidden="true" tabindex="-1"></a>            xvar <span class="op">=</span> x.var(<span class="dv">0</span>, keepdim<span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb74-21"><a href="#cb74-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb74-22"><a href="#cb74-22" aria-hidden="true" tabindex="-1"></a>            xmean <span class="op">=</span> <span class="va">self</span>.running_mean</span>
+<span id="cb74-23"><a href="#cb74-23" aria-hidden="true" tabindex="-1"></a>            xvar <span class="op">=</span> <span class="va">self</span>.running_var</span>
+<span id="cb74-24"><a href="#cb74-24" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb74-25"><a href="#cb74-25" aria-hidden="true" tabindex="-1"></a>        xhat <span class="op">=</span> (x <span class="op">-</span> xmean) <span class="op">/</span> torch.sqrt(xvar <span class="op">+</span> <span class="va">self</span>.eps)</span>
+<span id="cb74-26"><a href="#cb74-26" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.out <span class="op">=</span> <span class="va">self</span>.gamma <span class="op">*</span> xhat <span class="op">+</span> <span class="va">self</span>.beta</span>
+<span id="cb74-27"><a href="#cb74-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-28"><a href="#cb74-28" aria-hidden="true" tabindex="-1"></a>        <span class="co"># update the buffers in training</span></span>
+<span id="cb74-29"><a href="#cb74-29" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="va">self</span>.training:</span>
+<span id="cb74-30"><a href="#cb74-30" aria-hidden="true" tabindex="-1"></a>            <span class="cf">with</span> torch.no_grad():</span>
+<span id="cb74-31"><a href="#cb74-31" aria-hidden="true" tabindex="-1"></a>                <span class="va">self</span>.running_mean <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> <span class="va">self</span>.momentum) <span class="op">*</span> <span class="va">self</span>.running_mean <span class="op">+</span> <span class="va">self</span>.momentum <span class="op">*</span> xmean</span>
+<span id="cb74-32"><a href="#cb74-32" aria-hidden="true" tabindex="-1"></a>                <span class="va">self</span>.running_var <span class="op">=</span> (<span class="dv">1</span> <span class="op">-</span> <span class="va">self</span>.momentum) <span class="op">*</span> <span class="va">self</span>.running_var <span class="op">+</span> <span class="va">self</span>.momentum <span class="op">*</span> xvar</span>
+<span id="cb74-33"><a href="#cb74-33" aria-hidden="true" tabindex="-1"></a>        </span>
+<span id="cb74-34"><a href="#cb74-34" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.out</span>
+<span id="cb74-35"><a href="#cb74-35" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb74-36"><a href="#cb74-36" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> parameters(<span class="va">self</span>):</span>
+<span id="cb74-37"><a href="#cb74-37" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> [<span class="va">self</span>.gamma, <span class="va">self</span>.beta]</span>
+<span id="cb74-38"><a href="#cb74-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-39"><a href="#cb74-39" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">1337</span>)</span>
+<span id="cb74-40"><a href="#cb74-40" aria-hidden="true" tabindex="-1"></a>module <span class="op">=</span> BatchNorm1d(<span class="dv">100</span>)</span>
+<span id="cb74-41"><a href="#cb74-41" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.randn(<span class="dv">32</span>, <span class="dv">100</span>)</span>
+<span id="cb74-42"><a href="#cb74-42" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> module(x)</span>
+<span id="cb74-43"><a href="#cb74-43" aria-hidden="true" tabindex="-1"></a>x.shape</span>
+<span id="cb74-44"><a href="#cb74-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb74-45"><a href="#cb74-45" aria-hidden="true" tabindex="-1"></a><span class="co"># columns are normalized</span></span>
+<span id="cb74-46"><a href="#cb74-46" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"mean of first column: </span><span class="sc">{</span>x[:, <span class="dv">0</span>]<span class="sc">.</span>mean()<span class="sc">:.4f}</span><span class="ss"> | std of first column: </span><span class="sc">{</span>x[:, <span class="dv">0</span>]<span class="sc">.</span>std()<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb74-47"><a href="#cb74-47" aria-hidden="true" tabindex="-1"></a><span class="co"># rows are not normalized ➡️ we need to normalize the rows instead</span></span>
+<span id="cb74-48"><a href="#cb74-48" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"mean of first row: </span><span class="sc">{</span>x[<span class="dv">0</span>, :]<span class="sc">.</span>mean()<span class="sc">:.4f}</span><span class="ss"> | std of first row: </span><span class="sc">{</span>x[<span class="dv">0</span>, :]<span class="sc">.</span>std()<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>mean of first column: 0.0000 | std of first column: 1.0000
+mean of first row: 0.0411 | std of first row: 1.0431</code></pre>
+</div>
+</div>
+<div class="cell" data-execution_count="45">
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="co"># after normalizing the rows (and removing the buffers too)</span></span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BatchNorm1d:</span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, dim, eps<span class="op">=</span><span class="fl">1e-5</span>, momentum <span class="op">=</span> <span class="fl">0.1</span>):</span>
+<span id="cb76-4"><a href="#cb76-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.eps <span class="op">=</span> eps</span>
+<span id="cb76-5"><a href="#cb76-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.gamma <span class="op">=</span> torch.ones(dim)</span>
+<span id="cb76-6"><a href="#cb76-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.beta <span class="op">=</span> torch.zeros(dim)</span>
+<span id="cb76-7"><a href="#cb76-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb76-8"><a href="#cb76-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__call__</span>(<span class="va">self</span>, x):</span>
+<span id="cb76-9"><a href="#cb76-9" aria-hidden="true" tabindex="-1"></a>        xmean <span class="op">=</span> x.mean(<span class="dv">1</span>, keepdim<span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb76-10"><a href="#cb76-10" aria-hidden="true" tabindex="-1"></a>        xvar <span class="op">=</span> x.var(<span class="dv">1</span>, keepdim<span class="op">=</span> <span class="va">True</span>)</span>
+<span id="cb76-11"><a href="#cb76-11" aria-hidden="true" tabindex="-1"></a>        xhat <span class="op">=</span> (x <span class="op">-</span> xmean) <span class="op">/</span> torch.sqrt(xvar <span class="op">+</span> <span class="va">self</span>.eps)</span>
+<span id="cb76-12"><a href="#cb76-12" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.out <span class="op">=</span> <span class="va">self</span>.gamma <span class="op">*</span> xhat <span class="op">+</span> <span class="va">self</span>.beta</span>
+<span id="cb76-13"><a href="#cb76-13" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.out</span>
+<span id="cb76-14"><a href="#cb76-14" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb76-15"><a href="#cb76-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> parameters(<span class="va">self</span>):</span>
+<span id="cb76-16"><a href="#cb76-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> [<span class="va">self</span>.gamma, <span class="va">self</span>.beta]</span>
+<span id="cb76-17"><a href="#cb76-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb76-18"><a href="#cb76-18" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">1337</span>)</span>
+<span id="cb76-19"><a href="#cb76-19" aria-hidden="true" tabindex="-1"></a>module <span class="op">=</span> BatchNorm1d(<span class="dv">100</span>)</span>
+<span id="cb76-20"><a href="#cb76-20" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.randn(<span class="dv">32</span>, <span class="dv">100</span>)</span>
+<span id="cb76-21"><a href="#cb76-21" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> module(x)</span>
+<span id="cb76-22"><a href="#cb76-22" aria-hidden="true" tabindex="-1"></a>x.shape</span>
+<span id="cb76-23"><a href="#cb76-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb76-24"><a href="#cb76-24" aria-hidden="true" tabindex="-1"></a><span class="co"># columns are not normalized now</span></span>
+<span id="cb76-25"><a href="#cb76-25" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"mean of first column: </span><span class="sc">{</span>x[:, <span class="dv">0</span>]<span class="sc">.</span>mean()<span class="sc">:.4f}</span><span class="ss"> | std of first column: </span><span class="sc">{</span>x[:, <span class="dv">0</span>]<span class="sc">.</span>std()<span class="sc">:.4f}</span><span class="ss">"</span>)</span>
+<span id="cb76-26"><a href="#cb76-26" aria-hidden="true" tabindex="-1"></a><span class="co"># rows are normalized now</span></span>
+<span id="cb76-27"><a href="#cb76-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="ss">f"mean of first row: </span><span class="sc">{</span>x[<span class="dv">0</span>, :]<span class="sc">.</span>mean()<span class="sc">:.4f}</span><span class="ss"> | std of first row: </span><span class="sc">{</span>x[<span class="dv">0</span>, :]<span class="sc">.</span>std()<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>mean of first column: 0.1469 | std of first column: 0.8803
+mean of first row: -0.0000 | std of first row: 1.0000</code></pre>
+</div>
+</div>
+</section>
+<section id="adding-layernorm" class="level2">
+<h2 class="anchored" data-anchor-id="adding-layernorm">Adding LayerNorm</h2>
+<section id="in-the-transformer-blocks" class="level3">
+<h3 class="anchored" data-anchor-id="in-the-transformer-blocks">In the Transformer Blocks</h3>
+<div class="cell" data-execution_count="46">
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Block(nn.Module):</span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">""" Transformer Block: Communication followed by Computation """</span></span>
+<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb78-4"><a href="#cb78-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, n_embed, n_head):</span>
+<span id="cb78-5"><a href="#cb78-5" aria-hidden="true" tabindex="-1"></a>        <span class="co">""" n_embed: embedding dimension</span></span>
+<span id="cb78-6"><a href="#cb78-6" aria-hidden="true" tabindex="-1"></a><span class="co">            n_head: number of heads in the multi-head attention</span></span>
+<span id="cb78-7"><a href="#cb78-7" aria-hidden="true" tabindex="-1"></a><span class="co">        """</span></span>
+<span id="cb78-8"><a href="#cb78-8" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb78-9"><a href="#cb78-9" aria-hidden="true" tabindex="-1"></a>        head_size <span class="op">=</span> n_embed <span class="op">//</span> n_head</span>
+<span id="cb78-10"><a href="#cb78-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.sa <span class="op">=</span> MultiHeadAttention(n_head, head_size)</span>
+<span id="cb78-11"><a href="#cb78-11" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.ffwd <span class="op">=</span> FeedForward(n_embed)</span>
+<span id="cb78-12"><a href="#cb78-12" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ln1 is applied directly on input before the multi-head attention</span></span>
+<span id="cb78-13"><a href="#cb78-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.ln1 <span class="op">=</span> nn.LayerNorm(n_embed)</span>
+<span id="cb78-14"><a href="#cb78-14" aria-hidden="true" tabindex="-1"></a>        <span class="co"># ln2 is applied directly on the output of the multi-head attention before the feed-forward layer</span></span>
+<span id="cb78-15"><a href="#cb78-15" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.ln2 <span class="op">=</span> nn.LayerNorm(n_embed)</span>
+<span id="cb78-16"><a href="#cb78-16" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb78-17"><a href="#cb78-17" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb78-18"><a href="#cb78-18" aria-hidden="true" tabindex="-1"></a>        <span class="co"># residual connection (add the input to the output)</span></span>
+<span id="cb78-19"><a href="#cb78-19" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> x <span class="op">+</span> <span class="va">self</span>.sa(<span class="va">self</span>.ln1(x))</span>
+<span id="cb78-20"><a href="#cb78-20" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> x <span class="op">+</span> <span class="va">self</span>.ffwd(<span class="va">self</span>.ln2(x))</span>
+<span id="cb78-21"><a href="#cb78-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="after-all-blocks-before-last-linear-layer" class="level3">
+<h3 class="anchored" data-anchor-id="after-all-blocks-before-last-linear-layer">After all blocks (before last linear layer)</h3>
+<div class="cell" data-execution_count="47">
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BigramLanguageModel(nn.Module):</span>
+<span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># no need to pass vocab_size as an argument, since it is a global variable in this file</span></span>
+<span id="cb79-3"><a href="#cb79-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb79-4"><a href="#cb79-4" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb79-5"><a href="#cb79-5" aria-hidden="true" tabindex="-1"></a>        <span class="co"># each token directly reads off the logits for the next token from a loockup table</span></span>
+<span id="cb79-6"><a href="#cb79-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.token_embedding_table <span class="op">=</span> nn.Embedding(vocab_size, n_embed)</span>
+<span id="cb79-7"><a href="#cb79-7" aria-hidden="true" tabindex="-1"></a>        <span class="co"># each position is also associated with an embedding vector</span></span>
+<span id="cb79-8"><a href="#cb79-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.position_embedding_table <span class="op">=</span> nn.Embedding(block_size, n_embed)</span>
+<span id="cb79-9"><a href="#cb79-9" aria-hidden="true" tabindex="-1"></a>        <span class="co"># transformer blocks</span></span>
+<span id="cb79-10"><a href="#cb79-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.blocks <span class="op">=</span> nn.Sequential(</span>
+<span id="cb79-11"><a href="#cb79-11" aria-hidden="true" tabindex="-1"></a>                Block(n_embed, n_head <span class="op">=</span> <span class="dv">4</span>),</span>
+<span id="cb79-12"><a href="#cb79-12" aria-hidden="true" tabindex="-1"></a>                Block(n_embed, n_head <span class="op">=</span> <span class="dv">4</span>),</span>
+<span id="cb79-13"><a href="#cb79-13" aria-hidden="true" tabindex="-1"></a>                Block(n_embed, n_head <span class="op">=</span> <span class="dv">4</span>),</span>
+<span id="cb79-14"><a href="#cb79-14" aria-hidden="true" tabindex="-1"></a>                <span class="co"># add layernorm here</span></span>
+<span id="cb79-15"><a href="#cb79-15" aria-hidden="true" tabindex="-1"></a>                nn.LayerNorm(n_embed),</span>
+<span id="cb79-16"><a href="#cb79-16" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb79-17"><a href="#cb79-17" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.lm_head <span class="op">=</span> nn.Linear(n_embed, vocab_size)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="scaling-up-the-model" class="level1">
+<h1>Scaling up the model</h1>
+<section id="adding-n_layer-variable" class="level2">
+<h2 class="anchored" data-anchor-id="adding-n_layer-variable">Adding <code>n_layer</code> variable</h2>
+<div class="cell" data-execution_count="48">
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="co"># super simple bigram model</span></span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> BigramLanguageModel(nn.Module):</span>
+<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># no need to pass vocab_size as an argument, since it is a global variable in this file</span></span>
+<span id="cb80-4"><a href="#cb80-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>):</span>
+<span id="cb80-5"><a href="#cb80-5" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb80-6"><a href="#cb80-6" aria-hidden="true" tabindex="-1"></a>        <span class="co"># each token directly reads off the logits for the next token from a loockup table</span></span>
+<span id="cb80-7"><a href="#cb80-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.token_embedding_table <span class="op">=</span> nn.Embedding(vocab_size, n_embed)</span>
+<span id="cb80-8"><a href="#cb80-8" aria-hidden="true" tabindex="-1"></a>        <span class="co"># each position is also associated with an embedding vector</span></span>
+<span id="cb80-9"><a href="#cb80-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.position_embedding_table <span class="op">=</span> nn.Embedding(block_size, n_embed)</span>
+<span id="cb80-10"><a href="#cb80-10" aria-hidden="true" tabindex="-1"></a>        <span class="co"># transformer blocks</span></span>
+<span id="cb80-11"><a href="#cb80-11" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.blocks <span class="op">=</span> nn.Sequential(<span class="op">*</span>[Block(n_embed, n_head <span class="op">=</span> <span class="dv">4</span>) <span class="cf">for</span> _ <span class="kw">in</span> <span class="bu">range</span>(n_layer)])</span>
+<span id="cb80-12"><a href="#cb80-12" aria-hidden="true" tabindex="-1"></a>        <span class="co"># Remember to add it in forward too</span></span>
+<span id="cb80-13"><a href="#cb80-13" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.ln_f <span class="op">=</span> nn.LayerNorm(n_embed)</span>
+<span id="cb80-14"><a href="#cb80-14" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.lm_head <span class="op">=</span> nn.Linear(n_embed, vocab_size)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="adding-dropouts" class="level2">
+<h2 class="anchored" data-anchor-id="adding-dropouts">Adding Dropouts</h2>
+<ul>
+<li>In <code>Head</code> after calculating <code>wei</code></li>
+<li>In <code>MultiHeadAttention</code> after <code>self.proj</code></li>
+<li>In <code>FeedForward</code> after last linear</li>
+</ul>
+</section>
+<section id="try" class="level2">
+<h2 class="anchored" data-anchor-id="try">Try</h2>
+<div class="cell" data-execution_count="49">
+<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>python3 bigram.py</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>0.209729 M parameters
+ step 0 | train loss: 4.4116 | val loss: 4.4048
+ step 100 | train loss: 2.6539 | val loss: 2.6605
+ step 200 | train loss: 2.5140 | val loss: 2.5161
+ step 300 | train loss: 2.4039 | val loss: 2.4126
+ step 400 | train loss: 2.3430 | val loss: 2.3506
+ step 500 | train loss: 2.2918 | val loss: 2.3002
+ step 600 | train loss: 2.2347 | val loss: 2.2517
+ step 700 | train loss: 2.1930 | val loss: 2.2089
+ step 800 | train loss: 2.1556 | val loss: 2.1793
+ step 900 | train loss: 2.1211 | val loss: 2.1507
+ step 1000 | train loss: 2.0768 | val loss: 2.1179
+ step 1100 | train loss: 2.0615 | val loss: 2.1029
+ step 1200 | train loss: 2.0300 | val loss: 2.0744
+ step 1300 | train loss: 2.0145 | val loss: 2.0577
+ step 1400 | train loss: 1.9936 | val loss: 2.0542
+ step 1500 | train loss: 1.9759 | val loss: 2.0375
+ step 1600 | train loss: 1.9503 | val loss: 2.0281
+ step 1700 | train loss: 1.9273 | val loss: 2.0172
+ step 1800 | train loss: 1.9151 | val loss: 2.0030
+ step 1900 | train loss: 1.9089 | val loss: 2.0017
+ step 2000 | train loss: 1.8805 | val loss: 1.9853
+ step 2100 | train loss: 1.8700 | val loss: 1.9754
+ step 2200 | train loss: 1.8716 | val loss: 1.9654
+ step 2300 | train loss: 1.8520 | val loss: 1.9508
+ step 2400 | train loss: 1.8433 | val loss: 1.9484
+ step 2500 | train loss: 1.8300 | val loss: 1.9462
+ step 2600 | train loss: 1.8120 | val loss: 1.9332
+ step 2700 | train loss: 1.8117 | val loss: 1.9292
+ step 2800 | train loss: 1.8059 | val loss: 1.9191
+ step 2900 | train loss: 1.7842 | val loss: 1.8985
+ step 3000 | train loss: 1.7776 | val loss: 1.8973
+ step 3100 | train loss: 1.7803 | val loss: 1.9138
+ step 3200 | train loss: 1.7770 | val loss: 1.9130
+ step 3300 | train loss: 1.7566 | val loss: 1.8956
+ step 3400 | train loss: 1.7586 | val loss: 1.8909
+ step 3500 | train loss: 1.7417 | val loss: 1.8878
+ step 3600 | train loss: 1.7340 | val loss: 1.8668
+ step 3700 | train loss: 1.7352 | val loss: 1.8874
+ step 3800 | train loss: 1.7179 | val loss: 1.8655
+ step 3900 | train loss: 1.7237 | val loss: 1.8702
+ step 4000 | train loss: 1.7193 | val loss: 1.8635
+ step 4100 | train loss: 1.7079 | val loss: 1.8657
+ step 4200 | train loss: 1.7085 | val loss: 1.8462
+ step 4300 | train loss: 1.7024 | val loss: 1.8440
+ step 4400 | train loss: 1.6880 | val loss: 1.8442
+ step 4500 | train loss: 1.6986 | val loss: 1.8520
+ step 4600 | train loss: 1.6957 | val loss: 1.8502
+ step 4700 | train loss: 1.6892 | val loss: 1.8477
+ step 4800 | train loss: 1.6831 | val loss: 1.8370
+ step 4900 | train loss: 1.6708 | val loss: 1.8188
+
+
+Clown:
+Rorince, and is so blorbacest bobe to take On.
+
+MARCILIA:
+I'll bapitius have bury, delay ane away, what,
+Dound my know
+Yourself friance!
+Nor linding, and if eye, hone; and maid overs, and the news
+And about liking tear.
+His mild him speak; and allw youngs
+Pause and at lives home.
+Who like again Wich to draugions to them,
+Will we hide honour more-forrument of thrupted so;
+Anging must with all of which Priently of.
+
+HENRY VI
+
+JOHN Y:
+
+Saday Warwick forth in couragain.
+
+CRINIUS:
+
+And forwic</code></pre>
+</div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
