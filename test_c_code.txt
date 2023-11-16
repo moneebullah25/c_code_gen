@@ -1,0 +1,2677 @@
+/**
+  ******************************************************************************
+  * @file    stm32f4xx_ll_adc.c
+  * @author  MCD Application Team
+  * @brief   ADC LL module driver
+  ******************************************************************************
+  * @attention
+  *
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics.
+  * All rights reserved.</center></h2>
+  *
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
+  *
+  ******************************************************************************
+  */
+#if defined(USE_FULL_LL_DRIVER)
+
+/* Includes ------------------------------------------------------------------*/
+#include "stm32f4xx_ll_adc.h"
+#include "stm32f4xx_ll_bus.h"
+
+#ifdef  USE_FULL_ASSERT
+  #include "stm32_assert.h"
+#else
+  #define assert_param(expr) ((void)0U)
+#endif
+
+/** @addtogroup STM32F4xx_LL_Driver
+  * @{
+  */
+
+#if defined (ADC1) || defined (ADC2) || defined (ADC3)
+
+/** @addtogroup ADC_LL ADC
+  * @{
+  */
+
+/* Private types -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+/* Private constants ---------------------------------------------------------*/
+/* Private macros ------------------------------------------------------------*/
+
+/** @addtogroup ADC_LL_Private_Macros
+  * @{
+  */
+
+/* Check of parameters for configuration of ADC hierarchical scope:           */
+/* common to several ADC instances.                                           */
+#define IS_LL_ADC_COMMON_CLOCK(__CLOCK__)                                      \
+  (   ((__CLOCK__) == LL_ADC_CLOCK_SYNC_PCLK_DIV2)                             \
+   || ((__CLOCK__) == LL_ADC_CLOCK_SYNC_PCLK_DIV4)                             \
+   || ((__CLOCK__) == LL_ADC_CLOCK_SYNC_PCLK_DIV6)                             \
+   || ((__CLOCK__) == LL_ADC_CLOCK_SYNC_PCLK_DIV8)                             \
+  )
+
+/* Check of parameters for configuration of ADC hierarchical scope:           */
+/* ADC instance.                                                              */
+#define IS_LL_ADC_RESOLUTION(__RESOLUTION__)                                   \
+  (   ((__RESOLUTION__) == LL_ADC_RESOLUTION_12B)                              \
+   || ((__RESOLUTION__) == LL_ADC_RESOLUTION_10B)                              \
+   || ((__RESOLUTION__) == LL_ADC_RESOLUTION_8B)                               \
+   || ((__RESOLUTION__) == LL_ADC_RESOLUTION_6B)                               \
+  )
+
+#define IS_LL_ADC_DATA_ALIGN(__DATA_ALIGN__)                                   \
+  (   ((__DATA_ALIGN__) == LL_ADC_DATA_ALIGN_RIGHT)                            \
+   || ((__DATA_ALIGN__) == LL_ADC_DATA_ALIGN_LEFT)                             \
+  )
+
+#define IS_LL_ADC_SCAN_SELECTION(__SCAN_SELECTION__)                           \
+  (   ((__SCAN_SELECTION__) == LL_ADC_SEQ_SCAN_DISABLE)                        \
+   || ((__SCAN_SELECTION__) == LL_ADC_SEQ_SCAN_ENABLE)                         \
+  )
+
+#define IS_LL_ADC_SEQ_SCAN_MODE(__SEQ_SCAN_MODE__)                             \
+  (   ((__SCAN_MODE__) == LL_ADC_SEQ_SCAN_DISABLE)                             \
+   || ((__SCAN_MODE__) == LL_ADC_SEQ_SCAN_ENABLE)                              \
+  )
+
+/* Check of parameters for configuration of ADC hierarchical scope:           */
+/* ADC group regular                                                          */
+#define IS_LL_ADC_REG_TRIG_SOURCE(__REG_TRIG_SOURCE__)                         \
+  (   ((__REG_TRIG_SOURCE__) == LL_ADC_REG_TRIG_SOFTWARE)                      \
+   || ((__REG_TRIG_SOURCE__) == LL_ADC_REG_TRIG_EXT_TIM1_CH1)                  \
+   || ((__REG_TRIG_SOURCE__) == LL_ADC_REG_TRIG_EXT_TIM1_CH2)                  \
+   || ((__REG_TRIG_SOURCE__) == LL_ADC_REG_TRIG_EXT_TIM1_CH3)                  \
+   || ((__REG_TRIG_SOURCE__) == LL_ADC_REG_TRIG_EXT_TIM2_CH2)                  \
+   || ((__REG_TRIG_SOURCE__) == LL_ADC_REG_TRIG_EXT_TIM2_CH3)                  \
+   || ((__REG_TRIG_SOURCE__) == LL_ADC_REG_TRIG_EXT_TIM2_CH4)                  \
+   || ((__REG_TRIG_SOURCE__) == LL_ADC_REG_TRIG_EXT_TIM2_TRGO)                 \
+   || ((__REG_TRIG_SOURCE__) == LL_ADC_REG_TRIG_EXT_TIM3_CH1)                  \
+   || ((__REG_TRIG_SOURCE__) == LL_ADC_REG_TRIG_EXT_TIM3_TRGO)                 \
+   || ((__REG_TRIG_SOURCE__) == LL_ADC_REG_TRIG_EXT_TIM4_CH4)                  \
+   || ((__REG_TRIG_SOURCE__) == LL_ADC_REG_TRIG_EXT_TIM5_CH1)                  \
+   || ((__REG_TRIG_SOURCE__) == LL_ADC_REG_TRIG_EXT_TIM5_CH2)                  \
+   || ((__REG_TRIG_SOURCE__) == LL_ADC_REG_TRIG_EXT_TIM5_CH3)                  \
+   || ((__REG_TRIG_SOURCE__) == LL_ADC_REG_TRIG_EXT_TIM8_CH1)                  \
+   || ((__REG_TRIG_SOURCE__) == LL_ADC_REG_TRIG_EXT_TIM8_TRGO)                 \
+   || ((__REG_TRIG_SOURCE__) == LL_ADC_REG_TRIG_EXT_EXTI_LINE11)               \
+  )
+#define IS_LL_ADC_REG_CONTINUOUS_MODE(__REG_CONTINUOUS_MODE__)                 \
+  (   ((__REG_CONTINUOUS_MODE__) == LL_ADC_REG_CONV_SINGLE)                    \
+   || ((__REG_CONTINUOUS_MODE__) == LL_ADC_REG_CONV_CONTINUOUS)                \
+  )
+
+#define IS_LL_ADC_REG_DMA_TRANSFER(__REG_DMA_TRANSFER__)                       \
+  (   ((__REG_DMA_TRANSFER__) == LL_ADC_REG_DMA_TRANSFER_NONE)                 \
+   || ((__REG_DMA_TRANSFER__) == LL_ADC_REG_DMA_TRANSFER_LIMITED)              \
+   || ((__REG_DMA_TRANSFER__) == LL_ADC_REG_DMA_TRANSFER_UNLIMITED)            \
+  )
+
+#define IS_LL_ADC_REG_FLAG_EOC_SELECTION(__REG_FLAG_EOC_SELECTION__)           \
+  (   ((__REG_FLAG_EOC_SELECTION__) == LL_ADC_REG_FLAG_EOC_SEQUENCE_CONV)      \
+   || ((__REG_FLAG_EOC_SELECTION__) == LL_ADC_REG_FLAG_EOC_UNITARY_CONV)       \
+  )
+
+#define IS_LL_ADC_REG_SEQ_SCAN_LENGTH(__REG_SEQ_SCAN_LENGTH__)                 \
+  (   ((__REG_SEQ_SCAN_LENGTH__) == LL_ADC_REG_SEQ_SCAN_DISABLE)               \
+   || ((__REG_SEQ_SCAN_LENGTH__) == LL_ADC_REG_SEQ_SCAN_ENABLE_2RANKS)         \
+   || ((__REG_SEQ_SCAN_LENGTH__) == LL_ADC_REG_SEQ_SCAN_ENABLE_3RANKS)         \
+   || ((__REG_SEQ_SCAN_LENGTH__) == LL_ADC_REG_SEQ_SCAN_ENABLE_4RANKS)         \
+   || ((__REG_SEQ_SCAN_LENGTH__) == LL_ADC_REG_SEQ_SCAN_ENABLE_5RANKS)         \
+   || ((__REG_SEQ_SCAN_LENGTH__) == LL_ADC_REG_SEQ_SCAN_ENABLE_6RANKS)         \
+   || ((__REG_SEQ_SCAN_LENGTH__) == LL_ADC_REG_SEQ_SCAN_ENABLE_7RANKS)         \
+   || ((__REG_SEQ_SCAN_LENGTH__) == LL_ADC_REG_SEQ_SCAN_ENABLE_8RANKS)         \
+   || ((__REG_SEQ_SCAN_LENGTH__) == LL_ADC_REG_SEQ_SCAN_ENABLE_9RANKS)         \
+   || ((__REG_SEQ_SCAN_LENGTH__) == LL_ADC_REG_SEQ_SCAN_ENABLE_10RANKS)        \
+   || ((__REG_SEQ_SCAN_LENGTH__) == LL_ADC_REG_SEQ_SCAN_ENABLE_11RANKS)        \
+   || ((__REG_SEQ_SCAN_LENGTH__) == LL_ADC_REG_SEQ_SCAN_ENABLE_12RANKS)        \
+   || ((__REG_SEQ_SCAN_LENGTH__) == LL_ADC_REG_SEQ_SCAN_ENABLE_13RANKS)        \
+   || ((__REG_SEQ_SCAN_LENGTH__) == LL_ADC_REG_SEQ_SCAN_ENABLE_14RANKS)        \
+   || ((__REG_SEQ_SCAN_LENGTH__) == LL_ADC_REG_SEQ_SCAN_ENABLE_15RANKS)        \
+   || ((__REG_SEQ_SCAN_LENGTH__) == LL_ADC_REG_SEQ_SCAN_ENABLE_16RANKS)        \
+  )
+
+#define IS_LL_ADC_REG_SEQ_SCAN_DISCONT_MODE(__REG_SEQ_DISCONT_MODE__)          \
+  (   ((__REG_SEQ_DISCONT_MODE__) == LL_ADC_REG_SEQ_DISCONT_DISABLE)           \
+   || ((__REG_SEQ_DISCONT_MODE__) == LL_ADC_REG_SEQ_DISCONT_1RANK)             \
+   || ((__REG_SEQ_DISCONT_MODE__) == LL_ADC_REG_SEQ_DISCONT_2RANKS)            \
+   || ((__REG_SEQ_DISCONT_MODE__) == LL_ADC_REG_SEQ_DISCONT_3RANKS)            \
+   || ((__REG_SEQ_DISCONT_MODE__) == LL_ADC_REG_SEQ_DISCONT_4RANKS)            \
+   || ((__REG_SEQ_DISCONT_MODE__) == LL_ADC_REG_SEQ_DISCONT_5RANKS)            \
+   || ((__REG_SEQ_DISCONT_MODE__) == LL_ADC_REG_SEQ_DISCONT_6RANKS)            \
+   || ((__REG_SEQ_DISCONT_MODE__) == LL_ADC_REG_SEQ_DISCONT_7RANKS)            \
+   || ((__REG_SEQ_DISCONT_MODE__) == LL_ADC_REG_SEQ_DISCONT_8RANKS)            \
+  )
+
+/* Check of parameters for configuration of ADC hierarchical scope:           */
+/* ADC group injected                                                         */
+#define IS_LL_ADC_INJ_TRIG_SOURCE(__INJ_TRIG_SOURCE__)                         \
+  (   ((__INJ_TRIG_SOURCE__) == LL_ADC_INJ_TRIG_SOFTWARE)                      \
+   || ((__INJ_TRIG_SOURCE__) == LL_ADC_INJ_TRIG_EXT_TIM1_CH4)                  \
+   || ((__INJ_TRIG_SOURCE__) == LL_ADC_INJ_TRIG_EXT_TIM1_TRGO)                 \
+   || ((__INJ_TRIG_SOURCE__) == LL_ADC_INJ_TRIG_EXT_TIM2_CH1)                  \
+   || ((__INJ_TRIG_SOURCE__) == LL_ADC_INJ_TRIG_EXT_TIM2_TRGO)                 \
+   || ((__INJ_TRIG_SOURCE__) == LL_ADC_INJ_TRIG_EXT_TIM3_CH2)                  \
+   || ((__INJ_TRIG_SOURCE__) == LL_ADC_INJ_TRIG_EXT_TIM3_CH4)                  \
+   || ((__INJ_TRIG_SOURCE__) == LL_ADC_INJ_TRIG_EXT_TIM4_CH1)                  \
+   || ((__INJ_TRIG_SOURCE__) == LL_ADC_INJ_TRIG_EXT_TIM4_CH2)                  \
+   || ((__INJ_TRIG_SOURCE__) == LL_ADC_INJ_TRIG_EXT_TIM4_CH3)                  \
+   || ((__INJ_TRIG_SOURCE__) == LL_ADC_INJ_TRIG_EXT_TIM4_TRGO)                 \
+   || ((__INJ_TRIG_SOURCE__) == LL_ADC_INJ_TRIG_EXT_TIM5_CH4)                  \
+   || ((__INJ_TRIG_SOURCE__) == LL_ADC_INJ_TRIG_EXT_TIM5_TRGO)                 \
+   || ((__INJ_TRIG_SOURCE__) == LL_ADC_INJ_TRIG_EXT_TIM8_CH2)                  \
+   || ((__INJ_TRIG_SOURCE__) == LL_ADC_INJ_TRIG_EXT_TIM8_CH3)                  \
+   || ((__INJ_TRIG_SOURCE__) == LL_ADC_INJ_TRIG_EXT_TIM8_CH4)                  \
+   || ((__INJ_TRIG_SOURCE__) == LL_ADC_INJ_TRIG_EXT_EXTI_LINE15)               \
+  )
+
+#define IS_LL_ADC_INJ_TRIG_EXT_EDGE(__INJ_TRIG_EXT_EDGE__)                     \
+  (   ((__INJ_TRIG_EXT_EDGE__) == LL_ADC_INJ_TRIG_EXT_RISING)                  \
+   || ((__INJ_TRIG_EXT_EDGE__) == LL_ADC_INJ_TRIG_EXT_FALLING)                 \
+   || ((__INJ_TRIG_EXT_EDGE__) == LL_ADC_INJ_TRIG_EXT_RISINGFALLING)           \
+  )
+
+#define IS_LL_ADC_INJ_TRIG_AUTO(__INJ_TRIG_AUTO__)                             \
+  (   ((__INJ_TRIG_AUTO__) == LL_ADC_INJ_TRIG_INDEPENDENT)                     \
+   || ((__INJ_TRIG_AUTO__) == LL_ADC_INJ_TRIG_FROM_GRP_REGULAR)                \
+  )
+
+#define IS_LL_ADC_INJ_SEQ_SCAN_LENGTH(__INJ_SEQ_SCAN_LENGTH__)                 \
+  (   ((__INJ_SEQ_SCAN_LENGTH__) == LL_ADC_INJ_SEQ_SCAN_DISABLE)               \
+   || ((__INJ_SEQ_SCAN_LENGTH__) == LL_ADC_INJ_SEQ_SCAN_ENABLE_2RANKS)         \
+   || ((__INJ_SEQ_SCAN_LENGTH__) == LL_ADC_INJ_SEQ_SCAN_ENABLE_3RANKS)         \
+   || ((__INJ_SEQ_SCAN_LENGTH__) == LL_ADC_INJ_SEQ_SCAN_ENABLE_4RANKS)         \
+  )
+
+#define IS_LL_ADC_INJ_SEQ_SCAN_DISCONT_MODE(__INJ_SEQ_DISCONT_MODE__)          \
+  (   ((__INJ_SEQ_DISCONT_MODE__) == LL_ADC_INJ_SEQ_DISCONT_DISABLE)           \
+   || ((__INJ_SEQ_DISCONT_MODE__) == LL_ADC_INJ_SEQ_DISCONT_1RANK)             \
+  )
+
+#if defined(ADC_MULTIMODE_SUPPORT)
+/* Check of parameters for configuration of ADC hierarchical scope:           */
+/* multimode.                                                                 */
+#if defined(ADC3)
+#define IS_LL_ADC_MULTI_MODE(__MULTI_MODE__)                                   \
+  (   ((__MULTI_MODE__) == LL_ADC_MULTI_INDEPENDENT)                           \
+   || ((__MULTI_MODE__) == LL_ADC_MULTI_DUAL_REG_SIMULT)                       \
+   || ((__MULTI_MODE__) == LL_ADC_MULTI_DUAL_REG_INTERL)                       \
+   || ((__MULTI_MODE__) == LL_ADC_MULTI_DUAL_INJ_SIMULT)                       \
+   || ((__MULTI_MODE__) == LL_ADC_MULTI_DUAL_INJ_ALTERN)                       \
+   || ((__MULTI_MODE__) == LL_ADC_MULTI_DUAL_REG_SIM_INJ_SIM)                  \
+   || ((__MULTI_MODE__) == LL_ADC_MULTI_DUAL_REG_SIM_INJ_ALT)                  \
+   || ((__MULTI_MODE__) == LL_ADC_MULTI_DUAL_REG_INT_INJ_SIM)                  \
+   || ((__MULTI_MODE__) == LL_ADC_MULTI_TRIPLE_REG_SIM_INJ_SIM)                \
+   || ((__MULTI_MODE__) == LL_ADC_MULTI_TRIPLE_REG_SIM_INJ_ALT)                \
+   || ((__MULTI_MODE__) == LL_ADC_MULTI_TRIPLE_INJ_SIMULT)                     \
+   || ((__MULTI_MODE__) == LL_ADC_MULTI_TRIPLE_REG_SIMULT)                     \
+   || ((__MULTI_MODE__) == LL_ADC_MULTI_TRIPLE_REG_INTERL)                     \
+   || ((__MULTI_MODE__) == LL_ADC_MULTI_TRIPLE_INJ_ALTERN)                     \
+  )
+#else
+#define IS_LL_ADC_MULTI_MODE(__MULTI_MODE__)                                   \
+  (   ((__MULTI_MODE__) == LL_ADC_MULTI_INDEPENDENT)                           \
+   || ((__MULTI_MODE__) == LL_ADC_MULTI_DUAL_REG_SIMULT)                       \
+   || ((__MULTI_MODE__) == LL_ADC_MULTI_DUAL_REG_INTERL)                       \
+   || ((__MULTI_MODE__) == LL_ADC_MULTI_DUAL_INJ_SIMULT)                       \
+   || ((__MULTI_MODE__) == LL_ADC_MULTI_DUAL_INJ_ALTERN)                       \
+   || ((__MULTI_MODE__) == LL_ADC_MULTI_DUAL_REG_SIM_INJ_SIM)                  \
+   || ((__MULTI_MODE__) == LL_ADC_MULTI_DUAL_REG_SIM_INJ_ALT)                  \
+   || ((__MULTI_MODE__) == LL_ADC_MULTI_DUAL_REG_INT_INJ_SIM)                  \
+  )
+#endif
+
+#define IS_LL_ADC_MULTI_DMA_TRANSFER(__MULTI_DMA_TRANSFER__)                   \
+  (   ((__MULTI_DMA_TRANSFER__) == LL_ADC_MULTI_REG_DMA_EACH_ADC)              \
+   || ((__MULTI_DMA_TRANSFER__) == LL_ADC_MULTI_REG_DMA_LIMIT_1)               \
+   || ((__MULTI_DMA_TRANSFER__) == LL_ADC_MULTI_REG_DMA_LIMIT_2)               \
+   || ((__MULTI_DMA_TRANSFER__) == LL_ADC_MULTI_REG_DMA_LIMIT_3)               \
+   || ((__MULTI_DMA_TRANSFER__) == LL_ADC_MULTI_REG_DMA_UNLMT_1)               \
+   || ((__MULTI_DMA_TRANSFER__) == LL_ADC_MULTI_REG_DMA_UNLMT_2)               \
+   || ((__MULTI_DMA_TRANSFER__) == LL_ADC_MULTI_REG_DMA_UNLMT_3)               \
+  )
+
+#define IS_LL_ADC_MULTI_TWOSMP_DELAY(__MULTI_TWOSMP_DELAY__)                   \
+  (   ((__MULTI_TWOSMP_DELAY__) == LL_ADC_MULTI_TWOSMP_DELAY_5CYCLES)          \
+   || ((__MULTI_TWOSMP_DELAY__) == LL_ADC_MULTI_TWOSMP_DELAY_6CYCLES)          \
+   || ((__MULTI_TWOSMP_DELAY__) == LL_ADC_MULTI_TWOSMP_DELAY_7CYCLES)          \
+   || ((__MULTI_TWOSMP_DELAY__) == LL_ADC_MULTI_TWOSMP_DELAY_8CYCLES)          \
+   || ((__MULTI_TWOSMP_DELAY__) == LL_ADC_MULTI_TWOSMP_DELAY_9CYCLES)          \
+   || ((__MULTI_TWOSMP_DELAY__) == LL_ADC_MULTI_TWOSMP_DELAY_10CYCLES)         \
+   || ((__MULTI_TWOSMP_DELAY__) == LL_ADC_MULTI_TWOSMP_DELAY_11CYCLES)         \
+   || ((__MULTI_TWOSMP_DELAY__) == LL_ADC_MULTI_TWOSMP_DELAY_12CYCLES)         \
+   || ((__MULTI_TWOSMP_DELAY__) == LL_ADC_MULTI_TWOSMP_DELAY_13CYCLES)         \
+   || ((__MULTI_TWOSMP_DELAY__) == LL_ADC_MULTI_TWOSMP_DELAY_14CYCLES)         \
+   || ((__MULTI_TWOSMP_DELAY__) == LL_ADC_MULTI_TWOSMP_DELAY_15CYCLES)         \
+   || ((__MULTI_TWOSMP_DELAY__) == LL_ADC_MULTI_TWOSMP_DELAY_16CYCLES)         \
+   || ((__MULTI_TWOSMP_DELAY__) == LL_ADC_MULTI_TWOSMP_DELAY_17CYCLES)         \
+   || ((__MULTI_TWOSMP_DELAY__) == LL_ADC_MULTI_TWOSMP_DELAY_18CYCLES)         \
+   || ((__MULTI_TWOSMP_DELAY__) == LL_ADC_MULTI_TWOSMP_DELAY_19CYCLES)         \
+   || ((__MULTI_TWOSMP_DELAY__) == LL_ADC_MULTI_TWOSMP_DELAY_20CYCLES)         \
+  )
+
+#define IS_LL_ADC_MULTI_MASTER_SLAVE(__MULTI_MASTER_SLAVE__)                   \
+  (   ((__MULTI_MASTER_SLAVE__) == LL_ADC_MULTI_MASTER)                        \
+   || ((__MULTI_MASTER_SLAVE__) == LL_ADC_MULTI_SLAVE)                         \
+   || ((__MULTI_MASTER_SLAVE__) == LL_ADC_MULTI_MASTER_SLAVE)                  \
+  )
+
+#endif /* ADC_MULTIMODE_SUPPORT */
+/**
+  * @}
+  */
+
+
+/* Private function prototypes -----------------------------------------------*/
+
+/* Exported functions --------------------------------------------------------*/
+/** @addtogroup ADC_LL_Exported_Functions
+  * @{
+  */
+
+/** @addtogroup ADC_LL_EF_Init
+  * @{
+  */
+
+/**
+  * @brief  De-initialize registers of all ADC instances belonging to
+  *         the same ADC common instance to their default reset values.
+  * @param  ADCxy_COMMON ADC common instance
+  *         (can be set directly from CMSIS definition or by using helper macro @ref __LL_ADC_COMMON_INSTANCE() )
+  * @retval An ErrorStatus enumeration value:
+  *          - SUCCESS: ADC common registers are de-initialized
+  *          - ERROR: not applicable
+  */
+ErrorStatus LL_ADC_CommonDeInit(ADC_Common_TypeDef *ADCxy_COMMON)
+{
+  /* Check the parameters */
+  assert_param(IS_ADC_COMMON_INSTANCE(ADCxy_COMMON));
+  
+
+  /* Force reset of ADC clock (core clock) */
+  LL_APB2_GRP1_ForceReset(LL_APB2_GRP1_PERIPH_ADC);
+  
+  /* Release reset of ADC clock (core clock) */
+  LL_APB2_GRP1_ReleaseReset(LL_APB2_GRP1_PERIPH_ADC);
+  
+  return SUCCESS;
+}
+
+/**
+  * @brief  Initialize some features of ADC common parameters
+  *         (all ADC instances belonging to the same ADC common instance)
+  *         and multimode (for devices with several ADC instances available).
+  * @note   The setting of ADC common parameters is conditioned to
+  *         ADC instances state:
+  *         All ADC instances belonging to the same ADC common instance
+  *         must be disabled.
+  * @param  ADCxy_COMMON ADC common instance
+  *         (can be set directly from CMSIS definition or by using helper macro @ref __LL_ADC_COMMON_INSTANCE() )
+  * @param  ADC_CommonInitStruct Pointer to a @ref LL_ADC_CommonInitTypeDef structure
+  * @retval An ErrorStatus enumeration value:
+  *          - SUCCESS: ADC common registers are initialized
+  *          - ERROR: ADC common registers are not initialized
+  */
+ErrorStatus LL_ADC_CommonInit(ADC_Common_TypeDef *ADCxy_COMMON, LL_ADC_CommonInitTypeDef *ADC_CommonInitStruct)
+{
+  ErrorStatus status = SUCCESS;
+  
+  /* Check the parameters */
+  assert_param(IS_ADC_COMMON_INSTANCE(ADCxy_COMMON));
+  assert_param(IS_LL_ADC_COMMON_CLOCK(ADC_CommonInitStruct->CommonClock));
+  
+#if defined(ADC_MULTIMODE_SUPPORT)
+  assert_param(IS_LL_ADC_MULTI_MODE(ADC_CommonInitStruct->Multimode));
+  if(ADC_CommonInitStruct->Multimode != LL_ADC_MULTI_INDEPENDENT)
+  {
+    assert_param(IS_LL_ADC_MULTI_DMA_TRANSFER(ADC_CommonInitStruct->MultiDMATransfer));
+    assert_param(IS_LL_ADC_MULTI_TWOSMP_DELAY(ADC_CommonInitStruct->MultiTwoSamplingDelay));
+  }
+#endif /* ADC_MULTIMODE_SUPPORT */
+
+  /* Note: Hardware constraint (refer to description of functions             */
+  /*       "LL_ADC_SetCommonXXX()" and "LL_ADC_SetMultiXXX()"):               */
+  /*       On this STM32 series, setting of these features is conditioned to  */
+  /*       ADC state:                                                         */
+  /*       All ADC instances of the ADC common group must be disabled.        */
+  if(__LL_ADC_IS_ENABLED_ALL_COMMON_INSTANCE(ADCxy_COMMON) == 0UL)
+  {
+    /* Configuration of ADC hierarchical scope:                               */
+    /*  - common to several ADC                                               */
+    /*    (all ADC instances belonging to the same ADC common instance)       */
+    /*    - Set ADC clock (conversion clock)                                  */
+    /*  - multimode (if several ADC instances available on the                */
+    /*    selected device)                                                    */
+    /*    - Set ADC multimode configuration                                   */
+    /*    - Set ADC multimode DMA transfer                                    */
+    /*    - Set ADC multimode: delay between 2 sampling phases                */
+#if defined(ADC_MULTIMODE_SUPPORT)
+    if(ADC_CommonInitStruct->Multimode != LL_ADC_MULTI_INDEPENDENT)
+    {
+      MODIFY_REG(ADCxy_COMMON->CCR,
+                   ADC_CCR_ADCPRE
+                 | ADC_CCR_MULTI
+                 | ADC_CCR_DMA
+                 | ADC_CCR_DDS
+                 | ADC_CCR_DELAY
+                ,
+                   ADC_CommonInitStruct->CommonClock
+                 | ADC_CommonInitStruct->Multimode
+                 | ADC_CommonInitStruct->MultiDMATransfer
+                 | ADC_CommonInitStruct->MultiTwoSamplingDelay
+                );
+    }
+    else
+    {
+      MODIFY_REG(ADCxy_COMMON->CCR,
+                   ADC_CCR_ADCPRE
+                 | ADC_CCR_MULTI
+                 | ADC_CCR_DMA
+                 | ADC_CCR_DDS
+                 | ADC_CCR_DELAY
+                ,
+                   ADC_CommonInitStruct->CommonClock
+                 | LL_ADC_MULTI_INDEPENDENT
+                );
+    }
+#else
+    LL_ADC_SetCommonClock(ADCxy_COMMON, ADC_CommonInitStruct->CommonClock);
+#endif
+  }
+  else
+  {
+    /* Initialization error: One or several ADC instances belonging to        */
+    /* the same ADC common instance are not disabled.                         */
+    status = ERROR;
+  }
+  
+  return status;
+}
+
+/**
+  * @brief  Set each @ref LL_ADC_CommonInitTypeDef field to default value.
+  * @param  ADC_CommonInitStruct Pointer to a @ref LL_ADC_CommonInitTypeDef structure
+  *                              whose fields will be set to default values.
+  * @retval None
+  */
+void LL_ADC_CommonStructInit(LL_ADC_CommonInitTypeDef *ADC_CommonInitStruct)
+{
+  /* Set ADC_CommonInitStruct fields to default values */
+  /* Set fields of ADC common */
+  /* (all ADC instances belonging to the same ADC common instance) */
+  ADC_CommonInitStruct->CommonClock = LL_ADC_CLOCK_SYNC_PCLK_DIV2;
+  
+#if defined(ADC_MULTIMODE_SUPPORT)
+  /* Set fields of ADC multimode */
+  ADC_CommonInitStruct->Multimode             = LL_ADC_MULTI_INDEPENDENT;
+    ADC_CommonInitStruct->MultiDMATransfer      = LL_ADC_MULTI_REG_DMA_EACH_ADC;
+  ADC_CommonInitStruct->MultiTwoSamplingDelay = LL_ADC_MULTI_TWOSMP_DELAY_5CYCLES;
+#endif /* ADC_MULTIMODE_SUPPORT */
+}
+
+/**
+  * @brief  De-initialize registers of the selected ADC instance
+  *         to their default reset values.
+  * @note   To reset all ADC instances quickly (perform a hard reset),
+  *         use function @ref LL_ADC_CommonDeInit().
+  * @param  ADCx ADC instance
+  * @retval An ErrorStatus enumeration value:
+  *          - SUCCESS: ADC registers are de-initialized
+  *          - ERROR: ADC registers are not de-initialized
+  */
+ErrorStatus LL_ADC_DeInit(ADC_TypeDef *ADCx)
+{
+  ErrorStatus status = SUCCESS;
+  
+  /* Check the parameters */
+  assert_param(IS_ADC_ALL_INSTANCE(ADCx));
+  
+  /* Disable ADC instance if not already disabled.                            */
+  if(LL_ADC_IsEnabled(ADCx) == 1UL)
+  {
+    /* Set ADC group regular trigger source to SW start to ensure to not      */
+    /* have an external trigger event occurring during the conversion stop    */
+    /* ADC disable process.                                                   */
+    LL_ADC_REG_SetTriggerSource(ADCx, LL_ADC_REG_TRIG_SOFTWARE);
+    
+    /* Set ADC group injected trigger source to SW start to ensure to not     */
+    /* have an external trigger event occurring during the conversion stop    */
+    /* ADC disable process.                                                   */
+    LL_ADC_INJ_SetTriggerSource(ADCx, LL_ADC_INJ_TRIG_SOFTWARE);
+    
+    /* Disable the ADC instance */
+    LL_ADC_Disable(ADCx);
+  }
+  
+  /* Check whether ADC state is compliant with expected state */
+  /* (hardware requirements of bits state to reset registers below) */
+  if(READ_BIT(ADCx->CR2, ADC_CR2_ADON) == 0UL)
+  {
+    /* ========== Reset ADC registers ========== */
+    /* Reset register SR */
+    CLEAR_BIT(ADCx->SR,
+              (  LL_ADC_FLAG_STRT
+               | LL_ADC_FLAG_JSTRT
+               | LL_ADC_FLAG_EOCS
+               | LL_ADC_FLAG_OVR
+               | LL_ADC_FLAG_JEOS
+               | LL_ADC_FLAG_AWD1 )
+             );
+    
+    /* Reset register CR1 */
+    CLEAR_BIT(ADCx->CR1,
+              (  ADC_CR1_OVRIE   | ADC_CR1_RES     | ADC_CR1_AWDEN
+               | ADC_CR1_JAWDEN
+               | ADC_CR1_DISCNUM | ADC_CR1_JDISCEN | ADC_CR1_DISCEN
+               | ADC_CR1_JAUTO   | ADC_CR1_AWDSGL  | ADC_CR1_SCAN
+               | ADC_CR1_JEOCIE  | ADC_CR1_AWDIE   | ADC_CR1_EOCIE
+               | ADC_CR1_AWDCH                                     )
+             );
+    
+    /* Reset register CR2 */
+    CLEAR_BIT(ADCx->CR2,
+              (  ADC_CR2_SWSTART  | ADC_CR2_EXTEN  | ADC_CR2_EXTSEL
+               | ADC_CR2_JSWSTART | ADC_CR2_JEXTEN | ADC_CR2_JEXTSEL
+               | ADC_CR2_ALIGN    | ADC_CR2_EOCS
+               | ADC_CR2_DDS      | ADC_CR2_DMA
+               | ADC_CR2_CONT     | ADC_CR2_ADON                    )
+             );
+    
+    /* Reset register SMPR1 */
+    CLEAR_BIT(ADCx->SMPR1,
+              (  ADC_SMPR1_SMP18 | ADC_SMPR1_SMP17 | ADC_SMPR1_SMP16
+               | ADC_SMPR1_SMP15 | ADC_SMPR1_SMP14 | ADC_SMPR1_SMP13
+               | ADC_SMPR1_SMP12 | ADC_SMPR1_SMP11 | ADC_SMPR1_SMP10)
+             );
+    
+    /* Reset register SMPR2 */
+    CLEAR_BIT(ADCx->SMPR2,
+              (  ADC_SMPR2_SMP9
+               | ADC_SMPR2_SMP8 | ADC_SMPR2_SMP7 | ADC_SMPR2_SMP6
+               | ADC_SMPR2_SMP5 | ADC_SMPR2_SMP4 | ADC_SMPR2_SMP3
+               | ADC_SMPR2_SMP2 | ADC_SMPR2_SMP1 | ADC_SMPR2_SMP0)
+             );
+    
+    /* Reset register JOFR1 */
+    CLEAR_BIT(ADCx->JOFR1, ADC_JOFR1_JOFFSET1);
+    /* Reset register JOFR2 */
+    CLEAR_BIT(ADCx->JOFR2, ADC_JOFR2_JOFFSET2);
+    /* Reset register JOFR3 */
+    CLEAR_BIT(ADCx->JOFR3, ADC_JOFR3_JOFFSET3);
+    /* Reset register JOFR4 */
+    CLEAR_BIT(ADCx->JOFR4, ADC_JOFR4_JOFFSET4);
+    
+    /* Reset register HTR */
+    SET_BIT(ADCx->HTR, ADC_HTR_HT);
+    /* Reset register LTR */
+    CLEAR_BIT(ADCx->LTR, ADC_LTR_LT);
+    
+    /* Reset register SQR1 */
+    CLEAR_BIT(ADCx->SQR1,
+              (  ADC_SQR1_L
+               | ADC_SQR1_SQ16
+               | ADC_SQR1_SQ15 | ADC_SQR1_SQ14 | ADC_SQR1_SQ13)
+             );
+             
+    /* Reset register SQR2 */
+    CLEAR_BIT(ADCx->SQR2,
+              (  ADC_SQR2_SQ12 | ADC_SQR2_SQ11 | ADC_SQR2_SQ10
+               | ADC_SQR2_SQ9 | ADC_SQR2_SQ8 | ADC_SQR2_SQ7)
+             );
+
+    /* Reset register SQR3 */
+    CLEAR_BIT(ADCx->SQR3,
+              (  ADC_SQR3_SQ6 | ADC_SQR3_SQ5 | ADC_SQR3_SQ4
+               | ADC_SQR3_SQ3 | ADC_SQR3_SQ2 | ADC_SQR3_SQ1)
+             );
+
+    /* Reset register JSQR */
+    CLEAR_BIT(ADCx->JSQR,
+              (  ADC_JSQR_JL
+               | ADC_JSQR_JSQ4 | ADC_JSQR_JSQ3
+               | ADC_JSQR_JSQ2 | ADC_JSQR_JSQ1  )
+             );
+    
+    /* Reset register DR */
+    /* bits in access mode read only, no direct reset applicable */
+    
+    /* Reset registers JDR1, JDR2, JDR3, JDR4 */
+    /* bits in access mode read only, no direct reset applicable */
+    
+    /* Reset register CCR */
+    CLEAR_BIT(ADC->CCR, ADC_CCR_TSVREFE | ADC_CCR_ADCPRE);
+  }
+  
+  return status;
+}
+
+/**
+  * @brief  Initialize some features of ADC instance.
+  * @note   These parameters have an impact on ADC scope: ADC instance.
+  *         Affects both group regular and group injected (availability
+  *         of ADC group injected depends on STM32 families).
+  *         Refer to corresponding unitary functions into
+  *         @ref ADC_LL_EF_Configuration_ADC_Instance .
+  * @note   The setting of these parameters by function @ref LL_ADC_Init()
+  *         is conditioned to ADC state:
+  *         ADC instance must be disabled.
+  *         This condition is applied to all ADC features, for efficiency
+  *         and compatibility over all STM32 families. However, the different
+  *         features can be set under different ADC state conditions
+  *         (setting possible with ADC enabled without conversion on going,
+  *         ADC enabled with conversion on going, ...)
+  *         Each feature can be updated afterwards with a unitary function
+  *         and potentially with ADC in a different state than disabled,
+  *         refer to description of each function for setting
+  *         conditioned to ADC state.
+  * @note   After using this function, some other features must be configured
+  *         using LL unitary functions.
+  *         The minimum configuration remaining to be done is:
+  *          - Set ADC group regular or group injected sequencer:
+  *            map channel on the selected sequencer rank.
+  *            Refer to function @ref LL_ADC_REG_SetSequencerRanks().
+  *          - Set ADC channel sampling time
+  *            Refer to function LL_ADC_SetChannelSamplingTime();
+  * @param  ADCx ADC instance
+  * @param  ADC_InitStruct Pointer to a @ref LL_ADC_REG_InitTypeDef structure
+  * @retval An ErrorStatus enumeration value:
+  *          - SUCCESS: ADC registers are initialized
+  *          - ERROR: ADC registers are not initialized
+  */
+ErrorStatus LL_ADC_Init(ADC_TypeDef *ADCx, LL_ADC_InitTypeDef *ADC_InitStruct)
+{
+  ErrorStatus status = SUCCESS;
+  
+  /* Check the parameters */
+  assert_param(IS_ADC_ALL_INSTANCE(ADCx));
+  
+  assert_param(IS_LL_ADC_RESOLUTION(ADC_InitStruct->Resolution));
+  assert_param(IS_LL_ADC_DATA_ALIGN(ADC_InitStruct->DataAlignment));
+  assert_param(IS_LL_ADC_SCAN_SELECTION(ADC_InitStruct->SequencersScanMode));
+  
+  /* Note: Hardware constraint (refer to description of this function):       */
+  /*       ADC instance must be disabled.                                     */
+  if(LL_ADC_IsEnabled(ADCx) == 0UL)
+  {
+    /* Configuration of ADC hierarchical scope:                               */
+    /*  - ADC instance                                                        */
+    /*    - Set ADC data resolution                                           */
+    /*    - Set ADC conversion data alignment                                 */
+    MODIFY_REG(ADCx->CR1,
+                 ADC_CR1_RES
+               | ADC_CR1_SCAN
+              ,
+                 ADC_InitStruct->Resolution
+               | ADC_InitStruct->SequencersScanMode
+              );
+    
+    MODIFY_REG(ADCx->CR2,
+                 ADC_CR2_ALIGN
+              ,
+                 ADC_InitStruct->DataAlignment
+              );
+
+  }
+  else
+  {
+    /* Initialization error: ADC instance is not disabled. */
+    status = ERROR;
+  }
+  return status;
+}
+
+/**
+  * @brief  Set each @ref LL_ADC_InitTypeDef field to default value.
+  * @param  ADC_InitStruct Pointer to a @ref LL_ADC_InitTypeDef structure
+  *                        whose fields will be set to default values.
+  * @retval None
+  */
+void LL_ADC_StructInit(LL_ADC_InitTypeDef *ADC_InitStruct)
+{
+  /* Set ADC_InitStruct fields to default values */
+  /* Set fields of ADC instance */
+  ADC_InitStruct->Resolution    = LL_ADC_RESOLUTION_12B;
+  ADC_InitStruct->DataAlignment = LL_ADC_DATA_ALIGN_RIGHT;
+  
+  /* Enable scan mode to have a generic behavior with ADC of other            */
+  /* STM32 families, without this setting available:                          */
+  /* ADC group regular sequencer and ADC group injected sequencer depend      */
+  /* only of their own configuration.                                         */
+  ADC_InitStruct->SequencersScanMode      = LL_ADC_SEQ_SCAN_ENABLE;
+  
+}
+
+/**
+  * @brief  Initialize some features of ADC group regular.
+  * @note   These parameters have an impact on ADC scope: ADC group regular.
+  *         Refer to corresponding unitary functions into
+  *         @ref ADC_LL_EF_Configuration_ADC_Group_Regular
+  *         (functions with prefix "REG").
+  * @note   The setting of these parameters by function @ref LL_ADC_Init()
+  *         is conditioned to ADC state:
+  *         ADC instance must be disabled.
+  *         This condition is applied to all ADC features, for efficiency
+  *         and compatibility over all STM32 families. However, the different
+  *         features can be set under different ADC state conditions
+  *         (setting possible with ADC enabled without conversion on going,
+  *         ADC enabled with conversion on going, ...)
+  *         Each feature can be updated afterwards with a unitary function
+  *         and potentially with ADC in a different state than disabled,
+  *         refer to description of each function for setting
+  *         conditioned to ADC state.
+  * @note   After using this function, other features must be configured
+  *         using LL unitary functions.
+  *         The minimum configuration remaining to be done is:
+  *          - Set ADC group regular or group injected sequencer:
+  *            map channel on the selected sequencer rank.
+  *            Refer to function @ref LL_ADC_REG_SetSequencerRanks().
+  *          - Set ADC channel sampling time
+  *            Refer to function LL_ADC_SetChannelSamplingTime();
+  * @param  ADCx ADC instance
+  * @param  ADC_REG_InitStruct Pointer to a @ref LL_ADC_REG_InitTypeDef structure
+  * @retval An ErrorStatus enumeration value:
+  *          - SUCCESS: ADC registers are initialized
+  *          - ERROR: ADC registers are not initialized
+  */
+ErrorStatus LL_ADC_REG_Init(ADC_TypeDef *ADCx, LL_ADC_REG_InitTypeDef *ADC_REG_InitStruct)
+{
+  ErrorStatus status = SUCCESS;
+  
+  /* Check the parameters */
+  assert_param(IS_ADC_ALL_INSTANCE(ADCx));
+  assert_param(IS_LL_ADC_REG_TRIG_SOURCE(ADC_REG_InitStruct->TriggerSource));
+  assert_param(IS_LL_ADC_REG_SEQ_SCAN_LENGTH(ADC_REG_InitStruct->SequencerLength));
+  if(ADC_REG_InitStruct->SequencerLength != LL_ADC_REG_SEQ_SCAN_DISABLE)
+  {
+    assert_param(IS_LL_ADC_REG_SEQ_SCAN_DISCONT_MODE(ADC_REG_InitStruct->SequencerDiscont));
+  }
+  assert_param(IS_LL_ADC_REG_CONTINUOUS_MODE(ADC_REG_InitStruct->ContinuousMode));
+  assert_param(IS_LL_ADC_REG_DMA_TRANSFER(ADC_REG_InitStruct->DMATransfer));
+  
+  /* ADC group regular continuous mode and discontinuous mode                 */
+  /* can not be enabled simultenaeously                                       */
+  assert_param((ADC_REG_InitStruct->ContinuousMode == LL_ADC_REG_CONV_SINGLE)
+               || (ADC_REG_InitStruct->SequencerDiscont == LL_ADC_REG_SEQ_DISCONT_DISABLE));
+  
+  /* Note: Hardware constraint (refer to description of this function):       */
+  /*       ADC instance must be disabled.                                     */
+  if(LL_ADC_IsEnabled(ADCx) == 0UL)
+  {
+    /* Configuration of ADC hierarchical scope:                               */
+    /*  - ADC group regular                                                   */
+    /*    - Set ADC group regular trigger source                              */
+    /*    - Set ADC group regular sequencer length                            */
+    /*    - Set ADC group regular sequencer discontinuous mode                */
+    /*    - Set ADC group regular continuous mode                             */
+    /*    - Set ADC group regular conversion data transfer: no transfer or    */
+    /*      transfer by DMA, and DMA requests mode                            */
+    /* Note: On this STM32 series, ADC trigger edge is set when starting      */
+    /*       ADC conversion.                                                  */
+    /*       Refer to function @ref LL_ADC_REG_StartConversionExtTrig().      */
+    if(ADC_REG_InitStruct->SequencerLength != LL_ADC_REG_SEQ_SCAN_DISABLE)
+    {
+      MODIFY_REG(ADCx->CR1,
+                   ADC_CR1_DISCEN
+                 | ADC_CR1_DISCNUM
+                ,
+                   ADC_REG_InitStruct->SequencerDiscont
+                );
+    }
+    else
+    {
+      MODIFY_REG(ADCx->CR1,
+                   ADC_CR1_DISCEN
+                 | ADC_CR1_DISCNUM
+                ,
+                   LL_ADC_REG_SEQ_DISCONT_DISABLE
+                );
+    }
+    
+    MODIFY_REG(ADCx->CR2,
+                 ADC_CR2_EXTSEL
+               | ADC_CR2_EXTEN
+               | ADC_CR2_CONT
+               | ADC_CR2_DMA
+               | ADC_CR2_DDS
+              ,
+                (ADC_REG_InitStruct->TriggerSource & ADC_CR2_EXTSEL)
+               | ADC_REG_InitStruct->ContinuousMode
+               | ADC_REG_InitStruct->DMATransfer
+              );
+
+    /* Set ADC group regular sequencer length and scan direction */
+    /* Note: Hardware constraint (refer to description of this function):     */
+    /* Note: If ADC instance feature scan mode is disabled                    */
+    /*       (refer to  ADC instance initialization structure                 */
+    /*       parameter @ref SequencersScanMode                                */
+    /*       or function @ref LL_ADC_SetSequencersScanMode() ),               */
+    /*       this parameter is discarded.                                     */
+    LL_ADC_REG_SetSequencerLength(ADCx, ADC_REG_InitStruct->SequencerLength);
+  }
+  else
+  {
+    /* Initialization error: ADC instance is not disabled. */
+    status = ERROR;
+  }
+  return status;
+}
+
+/**
+  * @brief  Set each @ref LL_ADC_REG_InitTypeDef field to default value.
+  * @param  ADC_REG_InitStruct Pointer to a @ref LL_ADC_REG_InitTypeDef structure
+  *                            whose fields will be set to default values.
+  * @retval None
+  */
+void LL_ADC_REG_StructInit(LL_ADC_REG_InitTypeDef *ADC_REG_InitStruct)
+{
+  /* Set ADC_REG_InitStruct fields to default values */
+  /* Set fields of ADC group regular */
+  /* Note: On this STM32 series, ADC trigger edge is set when starting        */
+  /*       ADC conversion.                                                    */
+  /*       Refer to function @ref LL_ADC_REG_StartConversionExtTrig().        */
+  ADC_REG_InitStruct->TriggerSource    = LL_ADC_REG_TRIG_SOFTWARE;
+  ADC_REG_InitStruct->SequencerLength  = LL_ADC_REG_SEQ_SCAN_DISABLE;
+  ADC_REG_InitStruct->SequencerDiscont = LL_ADC_REG_SEQ_DISCONT_DISABLE;
+  ADC_REG_InitStruct->ContinuousMode   = LL_ADC_REG_CONV_SINGLE;
+  ADC_REG_InitStruct->DMATransfer      = LL_ADC_REG_DMA_TRANSFER_NONE;
+}
+
+/**
+  * @brief  Initialize some features of ADC group injected.
+  * @note   These parameters have an impact on ADC scope: ADC group injected.
+  *         Refer to corresponding unitary functions into
+  *         @ref ADC_LL_EF_Configuration_ADC_Group_Regular
+  *         (functions with prefix "INJ").
+  * @note   The setting of these parameters by function @ref LL_ADC_Init()
+  *         is conditioned to ADC state:
+  *         ADC instance must be disabled.
+  *         This condition is applied to all ADC features, for efficiency
+  *         and compatibility over all STM32 families. However, the different
+  *         features can be set under different ADC state conditions
+  *         (setting possible with ADC enabled without conversion on going,
+  *         ADC enabled with conversion on going, ...)
+  *         Each feature can be updated afterwards with a unitary function
+  *         and potentially with ADC in a different state than disabled,
+  *         refer to description of each function for setting
+  *         conditioned to ADC state.
+  * @note   After using this function, other features must be configured
+  *         using LL unitary functions.
+  *         The minimum configuration remaining to be done is:
+  *          - Set ADC group injected sequencer:
+  *            map channel on the selected sequencer rank.
+  *            Refer to function @ref LL_ADC_INJ_SetSequencerRanks().
+  *          - Set ADC channel sampling time
+  *            Refer to function LL_ADC_SetChannelSamplingTime();
+  * @param  ADCx ADC instance
+  * @param  ADC_INJ_InitStruct Pointer to a @ref LL_ADC_INJ_InitTypeDef structure
+  * @retval An ErrorStatus enumeration value:
+  *          - SUCCESS: ADC registers are initialized
+  *          - ERROR: ADC registers are not initialized
+  */
+ErrorStatus LL_ADC_INJ_Init(ADC_TypeDef *ADCx, LL_ADC_INJ_InitTypeDef *ADC_INJ_InitStruct)
+{
+  ErrorStatus status = SUCCESS;
+  
+  /* Check the parameters */
+  assert_param(IS_ADC_ALL_INSTANCE(ADCx));
+  assert_param(IS_LL_ADC_INJ_TRIG_SOURCE(ADC_INJ_InitStruct->TriggerSource));
+  assert_param(IS_LL_ADC_INJ_SEQ_SCAN_LENGTH(ADC_INJ_InitStruct->SequencerLength));
+  if(ADC_INJ_InitStruct->SequencerLength != LL_ADC_INJ_SEQ_SCAN_DISABLE)
+  {
+    assert_param(IS_LL_ADC_INJ_SEQ_SCAN_DISCONT_MODE(ADC_INJ_InitStruct->SequencerDiscont));
+  }
+  assert_param(IS_LL_ADC_INJ_TRIG_AUTO(ADC_INJ_InitStruct->TrigAuto));
+  
+  /* Note: Hardware constraint (refer to description of this function):       */
+  /*       ADC instance must be disabled.                                     */
+  if(LL_ADC_IsEnabled(ADCx) == 0UL)
+  {
+    /* Configuration of ADC hierarchical scope:                               */
+    /*  - ADC group injected                                                  */
+    /*    - Set ADC group injected trigger source                             */
+    /*    - Set ADC group injected sequencer length                           */
+    /*    - Set ADC group injected sequencer discontinuous mode               */
+    /*    - Set ADC group injected conversion trigger: independent or         */
+    /*      from ADC group regular                                            */
+    /* Note: On this STM32 series, ADC trigger edge is set when starting      */
+    /*       ADC conversion.                                                  */
+    /*       Refer to function @ref LL_ADC_INJ_StartConversionExtTrig().      */
+    if(ADC_INJ_InitStruct->SequencerLength != LL_ADC_REG_SEQ_SCAN_DISABLE)
+    {
+      MODIFY_REG(ADCx->CR1,
+                   ADC_CR1_JDISCEN
+                 | ADC_CR1_JAUTO
+                ,
+                   ADC_INJ_InitStruct->SequencerDiscont
+                 | ADC_INJ_InitStruct->TrigAuto
+                );
+    }
+    else
+    {
+      MODIFY_REG(ADCx->CR1,
+                   ADC_CR1_JDISCEN
+                 | ADC_CR1_JAUTO
+                ,
+                   LL_ADC_REG_SEQ_DISCONT_DISABLE
+                 | ADC_INJ_InitStruct->TrigAuto
+                );
+    }
+    
+    MODIFY_REG(ADCx->CR2,
+                 ADC_CR2_JEXTSEL
+               | ADC_CR2_JEXTEN
+              ,
+                (ADC_INJ_InitStruct->TriggerSource & ADC_CR2_JEXTSEL)
+              );
+    
+    /* Note: Hardware constraint (refer to description of this function):     */
+    /* Note: If ADC instance feature scan mode is disabled                    */
+    /*       (refer to  ADC instance initialization structure                 */
+    /*       parameter @ref SequencersScanMode                                */
+    /*       or function @ref LL_ADC_SetSequencersScanMode() ),               */
+    /*       this parameter is discarded.                                     */
+    LL_ADC_INJ_SetSequencerLength(ADCx, ADC_INJ_InitStruct->SequencerLength);
+  }
+  else
+  {
+    /* Initialization error: ADC instance is not disabled. */
+    status = ERROR;
+  }
+  return status;
+}
+
+/**
+  * @brief  Set each @ref LL_ADC_INJ_InitTypeDef field to default value.
+  * @param  ADC_INJ_InitStruct Pointer to a @ref LL_ADC_INJ_InitTypeDef structure
+  *                            whose fields will be set to default values.
+  * @retval None
+  */
+void LL_ADC_INJ_StructInit(LL_ADC_INJ_InitTypeDef *ADC_INJ_InitStruct)
+{
+  /* Set ADC_INJ_InitStruct fields to default values */
+  /* Set fields of ADC group injected */
+  ADC_INJ_InitStruct->TriggerSource    = LL_ADC_INJ_TRIG_SOFTWARE;
+  ADC_INJ_InitStruct->SequencerLength  = LL_ADC_INJ_SEQ_SCAN_DISABLE;
+  ADC_INJ_InitStruct->SequencerDiscont = LL_ADC_INJ_SEQ_DISCONT_DISABLE;
+  ADC_INJ_InitStruct->TrigAuto         = LL_ADC_INJ_TRIG_INDEPENDENT;
+}
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
+/**
+  * @}
+  */
+
+#endif /* ADC1 || ADC2 || ADC3 */
+
+/**
+  * @}
+  */
+
+#endif /* USE_FULL_LL_DRIVER */
+
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
+
+/**
+  ******************************************************************************
+  * @file    stm32f4xx_hal_tim_ex.c
+  * @author  MCD Application Team
+  * @brief   TIM HAL module driver.
+  *          This file provides firmware functions to manage the following
+  *          functionalities of the Timer Extended peripheral:
+  *           + Time Hall Sensor Interface Initialization
+  *           + Time Hall Sensor Interface Start
+  *           + Time Complementary signal break and dead time configuration
+  *           + Time Master and Slave synchronization configuration
+  *           + Timer remapping capabilities configuration
+  @verbatim
+  ==============================================================================
+                      ##### TIMER Extended features #####
+  ==============================================================================
+  [..]
+    The Timer Extended features include:
+    (#) Complementary outputs with programmable dead-time for :
+        (++) Output Compare
+        (++) PWM generation (Edge and Center-aligned Mode)
+        (++) One-pulse mode output
+    (#) Synchronization circuit to control the timer with external signals and to
+        interconnect several timers together.
+    (#) Break input to put the timer output signals in reset state or in a known state.
+    (#) Supports incremental (quadrature) encoder and hall-sensor circuitry for
+        positioning purposes
+
+            ##### How to use this driver #####
+  ==============================================================================
+    [..]
+     (#) Initialize the TIM low level resources by implementing the following functions
+         depending on the selected feature:
+           (++) Hall Sensor output : HAL_TIMEx_HallSensor_MspInit()
+
+     (#) Initialize the TIM low level resources :
+        (##) Enable the TIM interface clock using __HAL_RCC_TIMx_CLK_ENABLE();
+        (##) TIM pins configuration
+            (+++) Enable the clock for the TIM GPIOs using the following function:
+              __HAL_RCC_GPIOx_CLK_ENABLE();
+            (+++) Configure these TIM pins in Alternate function mode using HAL_GPIO_Init();
+
+     (#) The external Clock can be configured, if needed (the default clock is the
+         internal clock from the APBx), using the following function:
+         HAL_TIM_ConfigClockSource, the clock configuration should be done before
+         any start function.
+
+     (#) Configure the TIM in the desired functioning mode using one of the
+         initialization function of this driver:
+          (++) HAL_TIMEx_HallSensor_Init() and HAL_TIMEx_ConfigCommutEvent(): to use the
+               Timer Hall Sensor Interface and the commutation event with the corresponding
+               Interrupt and DMA request if needed (Note that One Timer is used to interface
+               with the Hall sensor Interface and another Timer should be used to use
+               the commutation event).
+
+     (#) Activate the TIM peripheral using one of the start functions:
+           (++) Complementary Output Compare : HAL_TIMEx_OCN_Start(), HAL_TIMEx_OCN_Start_DMA(),
+                HAL_TIMEx_OCN_Start_IT()
+           (++) Complementary PWM generation : HAL_TIMEx_PWMN_Start(), HAL_TIMEx_PWMN_Start_DMA(),
+                HAL_TIMEx_PWMN_Start_IT()
+           (++) Complementary One-pulse mode output : HAL_TIMEx_OnePulseN_Start(), HAL_TIMEx_OnePulseN_Start_IT()
+           (++) Hall Sensor output : HAL_TIMEx_HallSensor_Start(), HAL_TIMEx_HallSensor_Start_DMA(),
+                HAL_TIMEx_HallSensor_Start_IT().
+
+  @endverbatim
+  ******************************************************************************
+  * @attention
+  *
+  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
+  * All rights reserved.</center></h2>
+  *
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
+  *
+  ******************************************************************************
+  */
+
+/* Includes ------------------------------------------------------------------*/
+#include "stm32f4xx_hal.h"
+
+/** @addtogroup STM32F4xx_HAL_Driver
+  * @{
+  */
+
+/** @defgroup TIMEx TIMEx
+  * @brief TIM Extended HAL module driver
+  * @{
+  */
+
+#ifdef HAL_TIM_MODULE_ENABLED
+
+/* Private typedef -----------------------------------------------------------*/
+/* Private define ------------------------------------------------------------*/
+/* Private macros ------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+/* Private function prototypes -----------------------------------------------*/
+static void TIM_DMADelayPulseNCplt(DMA_HandleTypeDef *hdma);
+static void TIM_DMAErrorCCxN(DMA_HandleTypeDef *hdma);
+static void TIM_CCxNChannelCmd(TIM_TypeDef *TIMx, uint32_t Channel, uint32_t ChannelNState);
+
+/* Exported functions --------------------------------------------------------*/
+/** @defgroup TIMEx_Exported_Functions TIM Extended Exported Functions
+  * @{
+  */
+
+/** @defgroup TIMEx_Exported_Functions_Group1 Extended Timer Hall Sensor functions
+  * @brief    Timer Hall Sensor functions
+  *
+@verbatim
+  ==============================================================================
+                      ##### Timer Hall Sensor functions #####
+  ==============================================================================
+  [..]
+    This section provides functions allowing to:
+    (+) Initialize and configure TIM HAL Sensor.
+    (+) De-initialize TIM HAL Sensor.
+    (+) Start the Hall Sensor Interface.
+    (+) Stop the Hall Sensor Interface.
+    (+) Start the Hall Sensor Interface and enable interrupts.
+    (+) Stop the Hall Sensor Interface and disable interrupts.
+    (+) Start the Hall Sensor Interface and enable DMA transfers.
+    (+) Stop the Hall Sensor Interface and disable DMA transfers.
+
+@endverbatim
+  * @{
+  */
+/**
+  * @brief  Initializes the TIM Hall Sensor Interface and initialize the associated handle.
+  * @note   When the timer instance is initialized in Hall Sensor Interface mode,
+  *         timer channels 1 and channel 2 are reserved and cannot be used for
+  *         other purpose.
+  * @param  htim TIM Hall Sensor Interface handle
+  * @param  sConfig TIM Hall Sensor configuration structure
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_TIMEx_HallSensor_Init(TIM_HandleTypeDef *htim, TIM_HallSensor_InitTypeDef *sConfig)
+{
+  TIM_OC_InitTypeDef OC_Config;
+
+  /* Check the TIM handle allocation */
+  if (htim == NULL)
+  {
+    return HAL_ERROR;
+  }
+
+  /* Check the parameters */
+  assert_param(IS_TIM_HALL_SENSOR_INTERFACE_INSTANCE(htim->Instance));
+  assert_param(IS_TIM_COUNTER_MODE(htim->Init.CounterMode));
+  assert_param(IS_TIM_CLOCKDIVISION_DIV(htim->Init.ClockDivision));
+  assert_param(IS_TIM_AUTORELOAD_PRELOAD(htim->Init.AutoReloadPreload));
+  assert_param(IS_TIM_IC_POLARITY(sConfig->IC1Polarity));
+  assert_param(IS_TIM_IC_PRESCALER(sConfig->IC1Prescaler));
+  assert_param(IS_TIM_IC_FILTER(sConfig->IC1Filter));
+
+  if (htim->State == HAL_TIM_STATE_RESET)
+  {
+    /* Allocate lock resource and initialize it */
+    htim->Lock = HAL_UNLOCKED;
+
+#if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
+    /* Reset interrupt callbacks to legacy week callbacks */
+    TIM_ResetCallback(htim);
+
+    if (htim->HallSensor_MspInitCallback == NULL)
+    {
+      htim->HallSensor_MspInitCallback = HAL_TIMEx_HallSensor_MspInit;
+    }
+    /* Init the low level hardware : GPIO, CLOCK, NVIC */
+    htim->HallSensor_MspInitCallback(htim);
+#else
+    /* Init the low level hardware : GPIO, CLOCK, NVIC and DMA */
+    HAL_TIMEx_HallSensor_MspInit(htim);
+#endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
+  }
+
+  /* Set the TIM state */
+  htim->State = HAL_TIM_STATE_BUSY;
+
+  /* Configure the Time base in the Encoder Mode */
+  TIM_Base_SetConfig(htim->Instance, &htim->Init);
+
+  /* Configure the Channel 1 as Input Channel to interface with the three Outputs of the  Hall sensor */
+  TIM_TI1_SetConfig(htim->Instance, sConfig->IC1Polarity, TIM_ICSELECTION_TRC, sConfig->IC1Filter);
+
+  /* Reset the IC1PSC Bits */
+  htim->Instance->CCMR1 &= ~TIM_CCMR1_IC1PSC;
+  /* Set the IC1PSC value */
+  htim->Instance->CCMR1 |= sConfig->IC1Prescaler;
+
+  /* Enable the Hall sensor interface (XOR function of the three inputs) */
+  htim->Instance->CR2 |= TIM_CR2_TI1S;
+
+  /* Select the TIM_TS_TI1F_ED signal as Input trigger for the TIM */
+  htim->Instance->SMCR &= ~TIM_SMCR_TS;
+  htim->Instance->SMCR |= TIM_TS_TI1F_ED;
+
+  /* Use the TIM_TS_TI1F_ED signal to reset the TIM counter each edge detection */
+  htim->Instance->SMCR &= ~TIM_SMCR_SMS;
+  htim->Instance->SMCR |= TIM_SLAVEMODE_RESET;
+
+  /* Program channel 2 in PWM 2 mode with the desired Commutation_Delay*/
+  OC_Config.OCFastMode = TIM_OCFAST_DISABLE;
+  OC_Config.OCIdleState = TIM_OCIDLESTATE_RESET;
+  OC_Config.OCMode = TIM_OCMODE_PWM2;
+  OC_Config.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+  OC_Config.OCNPolarity = TIM_OCNPOLARITY_HIGH;
+  OC_Config.OCPolarity = TIM_OCPOLARITY_HIGH;
+  OC_Config.Pulse = sConfig->Commutation_Delay;
+
+  TIM_OC2_SetConfig(htim->Instance, &OC_Config);
+
+  /* Select OC2REF as trigger output on TRGO: write the MMS bits in the TIMx_CR2
+    register to 101 */
+  htim->Instance->CR2 &= ~TIM_CR2_MMS;
+  htim->Instance->CR2 |= TIM_TRGO_OC2REF;
+
+  /* Initialize the DMA burst operation state */
+  htim->DMABurstState = HAL_DMA_BURST_STATE_READY;
+
+  /* Initialize the TIM channels state */
+  TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_READY);
+  TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_READY);
+  TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_READY);
+  TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_READY);
+
+  /* Initialize the TIM state*/
+  htim->State = HAL_TIM_STATE_READY;
+
+  return HAL_OK;
+}
+
+/**
+  * @brief  DeInitializes the TIM Hall Sensor interface
+  * @param  htim TIM Hall Sensor Interface handle
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_TIMEx_HallSensor_DeInit(TIM_HandleTypeDef *htim)
+{
+  /* Check the parameters */
+  assert_param(IS_TIM_INSTANCE(htim->Instance));
+
+  htim->State = HAL_TIM_STATE_BUSY;
+
+  /* Disable the TIM Peripheral Clock */
+  __HAL_TIM_DISABLE(htim);
+
+#if (USE_HAL_TIM_REGISTER_CALLBACKS == 1)
+  if (htim->HallSensor_MspDeInitCallback == NULL)
+  {
+    htim->HallSensor_MspDeInitCallback = HAL_TIMEx_HallSensor_MspDeInit;
+  }
+  /* DeInit the low level hardware */
+  htim->HallSensor_MspDeInitCallback(htim);
+#else
+  /* DeInit the low level hardware: GPIO, CLOCK, NVIC */
+  HAL_TIMEx_HallSensor_MspDeInit(htim);
+#endif /* USE_HAL_TIM_REGISTER_CALLBACKS */
+
+  /* Change the DMA burst operation state */
+  htim->DMABurstState = HAL_DMA_BURST_STATE_RESET;
+
+  /* Change the TIM channels state */
+  TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_RESET);
+  TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_RESET);
+  TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_RESET);
+  TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_RESET);
+
+  /* Change TIM state */
+  htim->State = HAL_TIM_STATE_RESET;
+
+  /* Release Lock */
+  __HAL_UNLOCK(htim);
+
+  return HAL_OK;
+}
+
+/**
+  * @brief  Initializes the TIM Hall Sensor MSP.
+  * @param  htim TIM Hall Sensor Interface handle
+  * @retval None
+  */
+__weak void HAL_TIMEx_HallSensor_MspInit(TIM_HandleTypeDef *htim)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_TIMEx_HallSensor_MspInit could be implemented in the user file
+   */
+}
+
+/**
+  * @brief  DeInitializes TIM Hall Sensor MSP.
+  * @param  htim TIM Hall Sensor Interface handle
+  * @retval None
+  */
+__weak void HAL_TIMEx_HallSensor_MspDeInit(TIM_HandleTypeDef *htim)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(htim);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_TIMEx_HallSensor_MspDeInit could be implemented in the user file
+   */
+}
+
+/**
+  * @brief  Starts the TIM Hall Sensor Interface.
+  * @param  htim TIM Hall Sensor Interface handle
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_TIMEx_HallSensor_Start(TIM_HandleTypeDef *htim)
+{
+  uint32_t tmpsmcr;
+  HAL_TIM_ChannelStateTypeDef channel_1_state = TIM_CHANNEL_STATE_GET(htim, TIM_CHANNEL_1);
+  HAL_TIM_ChannelStateTypeDef channel_2_state = TIM_CHANNEL_STATE_GET(htim, TIM_CHANNEL_2);
+  HAL_TIM_ChannelStateTypeDef complementary_channel_1_state = TIM_CHANNEL_N_STATE_GET(htim, TIM_CHANNEL_1);
+  HAL_TIM_ChannelStateTypeDef complementary_channel_2_state = TIM_CHANNEL_N_STATE_GET(htim, TIM_CHANNEL_2);
+
+  /* Check the parameters */
+  assert_param(IS_TIM_HALL_SENSOR_INTERFACE_INSTANCE(htim->Instance));
+
+  /* Check the TIM channels state */
+  if ((channel_1_state != HAL_TIM_CHANNEL_STATE_READY)
+      || (channel_2_state != HAL_TIM_CHANNEL_STATE_READY)
+      || (complementary_channel_1_state != HAL_TIM_CHANNEL_STATE_READY)
+      || (complementary_channel_2_state != HAL_TIM_CHANNEL_STATE_READY))
+  {
+    return HAL_ERROR;
+  }
+
+  /* Set the TIM channels state */
+  TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_BUSY);
+  TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_BUSY);
+  TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_BUSY);
+  TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_BUSY);
+
+  /* Enable the Input Capture channel 1
+  (in the Hall Sensor Interface the three possible channels that can be used are TIM_CHANNEL_1,
+  TIM_CHANNEL_2 and TIM_CHANNEL_3) */
+  TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_1, TIM_CCx_ENABLE);
+
+  /* Enable the Peripheral, except in trigger mode where enable is automatically done with trigger */
+  if (IS_TIM_SLAVE_INSTANCE(htim->Instance))
+  {
+    tmpsmcr = htim->Instance->SMCR & TIM_SMCR_SMS;
+    if (!IS_TIM_SLAVEMODE_TRIGGER_ENABLED(tmpsmcr))
+    {
+      __HAL_TIM_ENABLE(htim);
+    }
+  }
+  else
+  {
+    __HAL_TIM_ENABLE(htim);
+  }
+
+  /* Return function status */
+  return HAL_OK;
+}
+
+/**
+  * @brief  Stops the TIM Hall sensor Interface.
+  * @param  htim TIM Hall Sensor Interface handle
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_TIMEx_HallSensor_Stop(TIM_HandleTypeDef *htim)
+{
+  /* Check the parameters */
+  assert_param(IS_TIM_HALL_SENSOR_INTERFACE_INSTANCE(htim->Instance));
+
+  /* Disable the Input Capture channels 1, 2 and 3
+  (in the Hall Sensor Interface the three possible channels that can be used are TIM_CHANNEL_1,
+  TIM_CHANNEL_2 and TIM_CHANNEL_3) */
+  TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_1, TIM_CCx_DISABLE);
+
+  /* Disable the Peripheral */
+  __HAL_TIM_DISABLE(htim);
+
+  /* Set the TIM channels state */
+  TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_READY);
+  TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_READY);
+  TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_READY);
+  TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_READY);
+
+  /* Return function status */
+  return HAL_OK;
+}
+
+/**
+  * @brief  Starts the TIM Hall Sensor Interface in interrupt mode.
+  * @param  htim TIM Hall Sensor Interface handle
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_TIMEx_HallSensor_Start_IT(TIM_HandleTypeDef *htim)
+{
+  uint32_t tmpsmcr;
+  HAL_TIM_ChannelStateTypeDef channel_1_state = TIM_CHANNEL_STATE_GET(htim, TIM_CHANNEL_1);
+  HAL_TIM_ChannelStateTypeDef channel_2_state = TIM_CHANNEL_STATE_GET(htim, TIM_CHANNEL_2);
+  HAL_TIM_ChannelStateTypeDef complementary_channel_1_state = TIM_CHANNEL_N_STATE_GET(htim, TIM_CHANNEL_1);
+  HAL_TIM_ChannelStateTypeDef complementary_channel_2_state = TIM_CHANNEL_N_STATE_GET(htim, TIM_CHANNEL_2);
+
+  /* Check the parameters */
+  assert_param(IS_TIM_HALL_SENSOR_INTERFACE_INSTANCE(htim->Instance));
+
+  /* Check the TIM channels state */
+  if ((channel_1_state != HAL_TIM_CHANNEL_STATE_READY)
+      || (channel_2_state != HAL_TIM_CHANNEL_STATE_READY)
+      || (complementary_channel_1_state != HAL_TIM_CHANNEL_STATE_READY)
+      || (complementary_channel_2_state != HAL_TIM_CHANNEL_STATE_READY))
+  {
+    return HAL_ERROR;
+  }
+
+  /* Set the TIM channels state */
+  TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_BUSY);
+  TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_BUSY);
+  TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_BUSY);
+  TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_BUSY);
+
+  /* Enable the capture compare Interrupts 1 event */
+  __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC1);
+
+  /* Enable the Input Capture channel 1
+  (in the Hall Sensor Interface the three possible channels that can be used are TIM_CHANNEL_1,
+  TIM_CHANNEL_2 and TIM_CHANNEL_3) */
+  TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_1, TIM_CCx_ENABLE);
+
+  /* Enable the Peripheral, except in trigger mode where enable is automatically done with trigger */
+  if (IS_TIM_SLAVE_INSTANCE(htim->Instance))
+  {
+    tmpsmcr = htim->Instance->SMCR & TIM_SMCR_SMS;
+    if (!IS_TIM_SLAVEMODE_TRIGGER_ENABLED(tmpsmcr))
+    {
+      __HAL_TIM_ENABLE(htim);
+    }
+  }
+  else
+  {
+    __HAL_TIM_ENABLE(htim);
+  }
+
+  /* Return function status */
+  return HAL_OK;
+}
+
+/**
+  * @brief  Stops the TIM Hall Sensor Interface in interrupt mode.
+  * @param  htim TIM Hall Sensor Interface handle
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_TIMEx_HallSensor_Stop_IT(TIM_HandleTypeDef *htim)
+{
+  /* Check the parameters */
+  assert_param(IS_TIM_HALL_SENSOR_INTERFACE_INSTANCE(htim->Instance));
+
+  /* Disable the Input Capture channel 1
+  (in the Hall Sensor Interface the three possible channels that can be used are TIM_CHANNEL_1,
+  TIM_CHANNEL_2 and TIM_CHANNEL_3) */
+  TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_1, TIM_CCx_DISABLE);
+
+  /* Disable the capture compare Interrupts event */
+  __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC1);
+
+  /* Disable the Peripheral */
+  __HAL_TIM_DISABLE(htim);
+
+  /* Set the TIM channels state */
+  TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_READY);
+  TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_READY);
+  TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_READY);
+  TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_READY);
+
+  /* Return function status */
+  return HAL_OK;
+}
+
+/**
+  * @brief  Starts the TIM Hall Sensor Interface in DMA mode.
+  * @param  htim TIM Hall Sensor Interface handle
+  * @param  pData The destination Buffer address.
+  * @param  Length The length of data to be transferred from TIM peripheral to memory.
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_TIMEx_HallSensor_Start_DMA(TIM_HandleTypeDef *htim, uint32_t *pData, uint16_t Length)
+{
+  uint32_t tmpsmcr;
+  HAL_TIM_ChannelStateTypeDef channel_1_state = TIM_CHANNEL_STATE_GET(htim, TIM_CHANNEL_1);
+  HAL_TIM_ChannelStateTypeDef complementary_channel_1_state = TIM_CHANNEL_N_STATE_GET(htim, TIM_CHANNEL_1);
+
+  /* Check the parameters */
+  assert_param(IS_TIM_HALL_SENSOR_INTERFACE_INSTANCE(htim->Instance));
+
+  /* Set the TIM channel state */
+  if ((channel_1_state == HAL_TIM_CHANNEL_STATE_BUSY)
+      || (complementary_channel_1_state == HAL_TIM_CHANNEL_STATE_BUSY))
+  {
+    return HAL_BUSY;
+  }
+  else if ((channel_1_state == HAL_TIM_CHANNEL_STATE_READY)
+           && (complementary_channel_1_state == HAL_TIM_CHANNEL_STATE_READY))
+  {
+    if ((pData == NULL) && (Length > 0U))
+    {
+      return HAL_ERROR;
+    }
+    else
+    {
+      TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_BUSY);
+      TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_BUSY);
+    }
+  }
+  else
+  {
+    return HAL_ERROR;
+  }
+
+  /* Enable the Input Capture channel 1
+  (in the Hall Sensor Interface the three possible channels that can be used are TIM_CHANNEL_1,
+  TIM_CHANNEL_2 and TIM_CHANNEL_3) */
+  TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_1, TIM_CCx_ENABLE);
+
+  /* Set the DMA Input Capture 1 Callbacks */
+  htim->hdma[TIM_DMA_ID_CC1]->XferCpltCallback = TIM_DMACaptureCplt;
+  htim->hdma[TIM_DMA_ID_CC1]->XferHalfCpltCallback = TIM_DMACaptureHalfCplt;
+  /* Set the DMA error callback */
+  htim->hdma[TIM_DMA_ID_CC1]->XferErrorCallback = TIM_DMAError ;
+
+  /* Enable the DMA stream for Capture 1*/
+  if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC1], (uint32_t)&htim->Instance->CCR1, (uint32_t)pData, Length) != HAL_OK)
+  {
+    /* Return error status */
+    return HAL_ERROR;
+  }
+  /* Enable the capture compare 1 Interrupt */
+  __HAL_TIM_ENABLE_DMA(htim, TIM_DMA_CC1);
+
+  /* Enable the Peripheral, except in trigger mode where enable is automatically done with trigger */
+  if (IS_TIM_SLAVE_INSTANCE(htim->Instance))
+  {
+    tmpsmcr = htim->Instance->SMCR & TIM_SMCR_SMS;
+    if (!IS_TIM_SLAVEMODE_TRIGGER_ENABLED(tmpsmcr))
+    {
+      __HAL_TIM_ENABLE(htim);
+    }
+  }
+  else
+  {
+    __HAL_TIM_ENABLE(htim);
+  }
+
+  /* Return function status */
+  return HAL_OK;
+}
+
+/**
+  * @brief  Stops the TIM Hall Sensor Interface in DMA mode.
+  * @param  htim TIM Hall Sensor Interface handle
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_TIMEx_HallSensor_Stop_DMA(TIM_HandleTypeDef *htim)
+{
+  /* Check the parameters */
+  assert_param(IS_TIM_HALL_SENSOR_INTERFACE_INSTANCE(htim->Instance));
+
+  /* Disable the Input Capture channel 1
+  (in the Hall Sensor Interface the three possible channels that can be used are TIM_CHANNEL_1,
+  TIM_CHANNEL_2 and TIM_CHANNEL_3) */
+  TIM_CCxChannelCmd(htim->Instance, TIM_CHANNEL_1, TIM_CCx_DISABLE);
+
+
+  /* Disable the capture compare Interrupts 1 event */
+  __HAL_TIM_DISABLE_DMA(htim, TIM_DMA_CC1);
+
+  (void)HAL_DMA_Abort_IT(htim->hdma[TIM_DMA_ID_CC1]);
+
+  /* Disable the Peripheral */
+  __HAL_TIM_DISABLE(htim);
+
+  /* Set the TIM channel state */
+  TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_READY);
+  TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_READY);
+
+  /* Return function status */
+  return HAL_OK;
+}
+
+/**
+  * @}
+  */
+
+/** @defgroup TIMEx_Exported_Functions_Group2 Extended Timer Complementary Output Compare functions
+  *  @brief   Timer Complementary Output Compare functions
+  *
+@verbatim
+  ==============================================================================
+              ##### Timer Complementary Output Compare functions #####
+  ==============================================================================
+  [..]
+    This section provides functions allowing to:
+    (+) Start the Complementary Output Compare/PWM.
+    (+) Stop the Complementary Output Compare/PWM.
+    (+) Start the Complementary Output Compare/PWM and enable interrupts.
+    (+) Stop the Complementary Output Compare/PWM and disable interrupts.
+    (+) Start the Complementary Output Compare/PWM and enable DMA transfers.
+    (+) Stop the Complementary Output Compare/PWM and disable DMA transfers.
+
+@endverbatim
+  * @{
+  */
+
+/**
+  * @brief  Starts the TIM Output Compare signal generation on the complementary
+  *         output.
+  * @param  htim TIM Output Compare handle
+  * @param  Channel TIM Channel to be enabled
+  *          This parameter can be one of the following values:
+  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
+  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
+  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_TIMEx_OCN_Start(TIM_HandleTypeDef *htim, uint32_t Channel)
+{
+  uint32_t tmpsmcr;
+
+  /* Check the parameters */
+  assert_param(IS_TIM_CCXN_INSTANCE(htim->Instance, Channel));
+
+  /* Check the TIM complementary channel state */
+  if (TIM_CHANNEL_N_STATE_GET(htim, Channel) != HAL_TIM_CHANNEL_STATE_READY)
+  {
+    return HAL_ERROR;
+  }
+
+  /* Set the TIM complementary channel state */
+  TIM_CHANNEL_N_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_BUSY);
+
+  /* Enable the Capture compare channel N */
+  TIM_CCxNChannelCmd(htim->Instance, Channel, TIM_CCxN_ENABLE);
+
+  /* Enable the Main Output */
+  __HAL_TIM_MOE_ENABLE(htim);
+
+  /* Enable the Peripheral, except in trigger mode where enable is automatically done with trigger */
+  if (IS_TIM_SLAVE_INSTANCE(htim->Instance))
+  {
+    tmpsmcr = htim->Instance->SMCR & TIM_SMCR_SMS;
+    if (!IS_TIM_SLAVEMODE_TRIGGER_ENABLED(tmpsmcr))
+    {
+      __HAL_TIM_ENABLE(htim);
+    }
+  }
+  else
+  {
+    __HAL_TIM_ENABLE(htim);
+  }
+
+  /* Return function status */
+  return HAL_OK;
+}
+
+/**
+  * @brief  Stops the TIM Output Compare signal generation on the complementary
+  *         output.
+  * @param  htim TIM handle
+  * @param  Channel TIM Channel to be disabled
+  *          This parameter can be one of the following values:
+  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
+  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
+  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_TIMEx_OCN_Stop(TIM_HandleTypeDef *htim, uint32_t Channel)
+{
+  /* Check the parameters */
+  assert_param(IS_TIM_CCXN_INSTANCE(htim->Instance, Channel));
+
+  /* Disable the Capture compare channel N */
+  TIM_CCxNChannelCmd(htim->Instance, Channel, TIM_CCxN_DISABLE);
+
+  /* Disable the Main Output */
+  __HAL_TIM_MOE_DISABLE(htim);
+
+  /* Disable the Peripheral */
+  __HAL_TIM_DISABLE(htim);
+
+  /* Set the TIM complementary channel state */
+  TIM_CHANNEL_N_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_READY);
+
+  /* Return function status */
+  return HAL_OK;
+}
+
+/**
+  * @brief  Starts the TIM Output Compare signal generation in interrupt mode
+  *         on the complementary output.
+  * @param  htim TIM OC handle
+  * @param  Channel TIM Channel to be enabled
+  *          This parameter can be one of the following values:
+  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
+  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
+  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_TIMEx_OCN_Start_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
+{
+  HAL_StatusTypeDef status = HAL_OK;
+  uint32_t tmpsmcr;
+
+  /* Check the parameters */
+  assert_param(IS_TIM_CCXN_INSTANCE(htim->Instance, Channel));
+
+  /* Check the TIM complementary channel state */
+  if (TIM_CHANNEL_N_STATE_GET(htim, Channel) != HAL_TIM_CHANNEL_STATE_READY)
+  {
+    return HAL_ERROR;
+  }
+
+  /* Set the TIM complementary channel state */
+  TIM_CHANNEL_N_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_BUSY);
+
+  switch (Channel)
+  {
+    case TIM_CHANNEL_1:
+    {
+      /* Enable the TIM Output Compare interrupt */
+      __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC1);
+      break;
+    }
+
+    case TIM_CHANNEL_2:
+    {
+      /* Enable the TIM Output Compare interrupt */
+      __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC2);
+      break;
+    }
+
+    case TIM_CHANNEL_3:
+    {
+      /* Enable the TIM Output Compare interrupt */
+      __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC3);
+      break;
+    }
+
+
+    default:
+      status = HAL_ERROR;
+      break;
+  }
+
+  if (status == HAL_OK)
+  {
+    /* Enable the TIM Break interrupt */
+    __HAL_TIM_ENABLE_IT(htim, TIM_IT_BREAK);
+
+    /* Enable the Capture compare channel N */
+    TIM_CCxNChannelCmd(htim->Instance, Channel, TIM_CCxN_ENABLE);
+
+    /* Enable the Main Output */
+    __HAL_TIM_MOE_ENABLE(htim);
+
+    /* Enable the Peripheral, except in trigger mode where enable is automatically done with trigger */
+    if (IS_TIM_SLAVE_INSTANCE(htim->Instance))
+    {
+      tmpsmcr = htim->Instance->SMCR & TIM_SMCR_SMS;
+      if (!IS_TIM_SLAVEMODE_TRIGGER_ENABLED(tmpsmcr))
+      {
+        __HAL_TIM_ENABLE(htim);
+      }
+    }
+    else
+    {
+      __HAL_TIM_ENABLE(htim);
+    }
+  }
+
+  /* Return function status */
+  return status;
+}
+
+/**
+  * @brief  Stops the TIM Output Compare signal generation in interrupt mode
+  *         on the complementary output.
+  * @param  htim TIM Output Compare handle
+  * @param  Channel TIM Channel to be disabled
+  *          This parameter can be one of the following values:
+  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
+  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
+  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_TIMEx_OCN_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
+{
+  HAL_StatusTypeDef status = HAL_OK;
+  uint32_t tmpccer;
+
+  /* Check the parameters */
+  assert_param(IS_TIM_CCXN_INSTANCE(htim->Instance, Channel));
+
+  switch (Channel)
+  {
+    case TIM_CHANNEL_1:
+    {
+      /* Disable the TIM Output Compare interrupt */
+      __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC1);
+      break;
+    }
+
+    case TIM_CHANNEL_2:
+    {
+      /* Disable the TIM Output Compare interrupt */
+      __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC2);
+      break;
+    }
+
+    case TIM_CHANNEL_3:
+    {
+      /* Disable the TIM Output Compare interrupt */
+      __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC3);
+      break;
+    }
+
+    default:
+      status = HAL_ERROR;
+      break;
+  }
+
+  if (status == HAL_OK)
+  {
+    /* Disable the Capture compare channel N */
+    TIM_CCxNChannelCmd(htim->Instance, Channel, TIM_CCxN_DISABLE);
+
+    /* Disable the TIM Break interrupt (only if no more channel is active) */
+    tmpccer = htim->Instance->CCER;
+    if ((tmpccer & (TIM_CCER_CC1NE | TIM_CCER_CC2NE | TIM_CCER_CC3NE)) == (uint32_t)RESET)
+    {
+      __HAL_TIM_DISABLE_IT(htim, TIM_IT_BREAK);
+    }
+
+    /* Disable the Main Output */
+    __HAL_TIM_MOE_DISABLE(htim);
+
+    /* Disable the Peripheral */
+    __HAL_TIM_DISABLE(htim);
+
+    /* Set the TIM complementary channel state */
+    TIM_CHANNEL_N_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_READY);
+  }
+
+  /* Return function status */
+  return status;
+}
+
+/**
+  * @brief  Starts the TIM Output Compare signal generation in DMA mode
+  *         on the complementary output.
+  * @param  htim TIM Output Compare handle
+  * @param  Channel TIM Channel to be enabled
+  *          This parameter can be one of the following values:
+  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
+  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
+  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
+  * @param  pData The source Buffer address.
+  * @param  Length The length of data to be transferred from memory to TIM peripheral
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_TIMEx_OCN_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel, uint32_t *pData, uint16_t Length)
+{
+  HAL_StatusTypeDef status = HAL_OK;
+  uint32_t tmpsmcr;
+
+  /* Check the parameters */
+  assert_param(IS_TIM_CCXN_INSTANCE(htim->Instance, Channel));
+
+  /* Set the TIM complementary channel state */
+  if (TIM_CHANNEL_N_STATE_GET(htim, Channel) == HAL_TIM_CHANNEL_STATE_BUSY)
+  {
+    return HAL_BUSY;
+  }
+  else if (TIM_CHANNEL_N_STATE_GET(htim, Channel) == HAL_TIM_CHANNEL_STATE_READY)
+  {
+    if ((pData == NULL) && (Length > 0U))
+    {
+      return HAL_ERROR;
+    }
+    else
+    {
+      TIM_CHANNEL_N_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_BUSY);
+    }
+  }
+  else
+  {
+    return HAL_ERROR;
+  }
+
+  switch (Channel)
+  {
+    case TIM_CHANNEL_1:
+    {
+      /* Set the DMA compare callbacks */
+      htim->hdma[TIM_DMA_ID_CC1]->XferCpltCallback = TIM_DMADelayPulseNCplt;
+      htim->hdma[TIM_DMA_ID_CC1]->XferHalfCpltCallback = TIM_DMADelayPulseHalfCplt;
+
+      /* Set the DMA error callback */
+      htim->hdma[TIM_DMA_ID_CC1]->XferErrorCallback = TIM_DMAErrorCCxN ;
+
+      /* Enable the DMA stream */
+      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC1], (uint32_t)pData, (uint32_t)&htim->Instance->CCR1,
+                           Length) != HAL_OK)
+      {
+        /* Return error status */
+        return HAL_ERROR;
+      }
+      /* Enable the TIM Output Compare DMA request */
+      __HAL_TIM_ENABLE_DMA(htim, TIM_DMA_CC1);
+      break;
+    }
+
+    case TIM_CHANNEL_2:
+    {
+      /* Set the DMA compare callbacks */
+      htim->hdma[TIM_DMA_ID_CC2]->XferCpltCallback = TIM_DMADelayPulseNCplt;
+      htim->hdma[TIM_DMA_ID_CC2]->XferHalfCpltCallback = TIM_DMADelayPulseHalfCplt;
+
+      /* Set the DMA error callback */
+      htim->hdma[TIM_DMA_ID_CC2]->XferErrorCallback = TIM_DMAErrorCCxN ;
+
+      /* Enable the DMA stream */
+      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC2], (uint32_t)pData, (uint32_t)&htim->Instance->CCR2,
+                           Length) != HAL_OK)
+      {
+        /* Return error status */
+        return HAL_ERROR;
+      }
+      /* Enable the TIM Output Compare DMA request */
+      __HAL_TIM_ENABLE_DMA(htim, TIM_DMA_CC2);
+      break;
+    }
+
+    case TIM_CHANNEL_3:
+    {
+      /* Set the DMA compare callbacks */
+      htim->hdma[TIM_DMA_ID_CC3]->XferCpltCallback = TIM_DMADelayPulseNCplt;
+      htim->hdma[TIM_DMA_ID_CC3]->XferHalfCpltCallback = TIM_DMADelayPulseHalfCplt;
+
+      /* Set the DMA error callback */
+      htim->hdma[TIM_DMA_ID_CC3]->XferErrorCallback = TIM_DMAErrorCCxN ;
+
+      /* Enable the DMA stream */
+      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC3], (uint32_t)pData, (uint32_t)&htim->Instance->CCR3,
+                           Length) != HAL_OK)
+      {
+        /* Return error status */
+        return HAL_ERROR;
+      }
+      /* Enable the TIM Output Compare DMA request */
+      __HAL_TIM_ENABLE_DMA(htim, TIM_DMA_CC3);
+      break;
+    }
+
+    default:
+      status = HAL_ERROR;
+      break;
+  }
+
+  if (status == HAL_OK)
+  {
+    /* Enable the Capture compare channel N */
+    TIM_CCxNChannelCmd(htim->Instance, Channel, TIM_CCxN_ENABLE);
+
+    /* Enable the Main Output */
+    __HAL_TIM_MOE_ENABLE(htim);
+
+    /* Enable the Peripheral, except in trigger mode where enable is automatically done with trigger */
+    if (IS_TIM_SLAVE_INSTANCE(htim->Instance))
+    {
+      tmpsmcr = htim->Instance->SMCR & TIM_SMCR_SMS;
+      if (!IS_TIM_SLAVEMODE_TRIGGER_ENABLED(tmpsmcr))
+      {
+        __HAL_TIM_ENABLE(htim);
+      }
+    }
+    else
+    {
+      __HAL_TIM_ENABLE(htim);
+    }
+  }
+
+  /* Return function status */
+  return status;
+}
+
+/**
+  * @brief  Stops the TIM Output Compare signal generation in DMA mode
+  *         on the complementary output.
+  * @param  htim TIM Output Compare handle
+  * @param  Channel TIM Channel to be disabled
+  *          This parameter can be one of the following values:
+  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
+  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
+  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_TIMEx_OCN_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel)
+{
+  HAL_StatusTypeDef status = HAL_OK;
+
+  /* Check the parameters */
+  assert_param(IS_TIM_CCXN_INSTANCE(htim->Instance, Channel));
+
+  switch (Channel)
+  {
+    case TIM_CHANNEL_1:
+    {
+      /* Disable the TIM Output Compare DMA request */
+      __HAL_TIM_DISABLE_DMA(htim, TIM_DMA_CC1);
+      (void)HAL_DMA_Abort_IT(htim->hdma[TIM_DMA_ID_CC1]);
+      break;
+    }
+
+    case TIM_CHANNEL_2:
+    {
+      /* Disable the TIM Output Compare DMA request */
+      __HAL_TIM_DISABLE_DMA(htim, TIM_DMA_CC2);
+      (void)HAL_DMA_Abort_IT(htim->hdma[TIM_DMA_ID_CC2]);
+      break;
+    }
+
+    case TIM_CHANNEL_3:
+    {
+      /* Disable the TIM Output Compare DMA request */
+      __HAL_TIM_DISABLE_DMA(htim, TIM_DMA_CC3);
+      (void)HAL_DMA_Abort_IT(htim->hdma[TIM_DMA_ID_CC3]);
+      break;
+    }
+
+    default:
+      status = HAL_ERROR;
+      break;
+  }
+
+  if (status == HAL_OK)
+  {
+    /* Disable the Capture compare channel N */
+    TIM_CCxNChannelCmd(htim->Instance, Channel, TIM_CCxN_DISABLE);
+
+    /* Disable the Main Output */
+    __HAL_TIM_MOE_DISABLE(htim);
+
+    /* Disable the Peripheral */
+    __HAL_TIM_DISABLE(htim);
+
+    /* Set the TIM complementary channel state */
+    TIM_CHANNEL_N_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_READY);
+  }
+
+  /* Return function status */
+  return status;
+}
+
+/**
+  * @}
+  */
+
+/** @defgroup TIMEx_Exported_Functions_Group3 Extended Timer Complementary PWM functions
+  * @brief    Timer Complementary PWM functions
+  *
+@verbatim
+  ==============================================================================
+                 ##### Timer Complementary PWM functions #####
+  ==============================================================================
+  [..]
+    This section provides functions allowing to:
+    (+) Start the Complementary PWM.
+    (+) Stop the Complementary PWM.
+    (+) Start the Complementary PWM and enable interrupts.
+    (+) Stop the Complementary PWM and disable interrupts.
+    (+) Start the Complementary PWM and enable DMA transfers.
+    (+) Stop the Complementary PWM and disable DMA transfers.
+    (+) Start the Complementary Input Capture measurement.
+    (+) Stop the Complementary Input Capture.
+    (+) Start the Complementary Input Capture and enable interrupts.
+    (+) Stop the Complementary Input Capture and disable interrupts.
+    (+) Start the Complementary Input Capture and enable DMA transfers.
+    (+) Stop the Complementary Input Capture and disable DMA transfers.
+    (+) Start the Complementary One Pulse generation.
+    (+) Stop the Complementary One Pulse.
+    (+) Start the Complementary One Pulse and enable interrupts.
+    (+) Stop the Complementary One Pulse and disable interrupts.
+
+@endverbatim
+  * @{
+  */
+
+/**
+  * @brief  Starts the PWM signal generation on the complementary output.
+  * @param  htim TIM handle
+  * @param  Channel TIM Channel to be enabled
+  *          This parameter can be one of the following values:
+  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
+  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
+  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_TIMEx_PWMN_Start(TIM_HandleTypeDef *htim, uint32_t Channel)
+{
+  uint32_t tmpsmcr;
+
+  /* Check the parameters */
+  assert_param(IS_TIM_CCXN_INSTANCE(htim->Instance, Channel));
+
+  /* Check the TIM complementary channel state */
+  if (TIM_CHANNEL_N_STATE_GET(htim, Channel) != HAL_TIM_CHANNEL_STATE_READY)
+  {
+    return HAL_ERROR;
+  }
+
+  /* Set the TIM complementary channel state */
+  TIM_CHANNEL_N_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_BUSY);
+
+  /* Enable the complementary PWM output  */
+  TIM_CCxNChannelCmd(htim->Instance, Channel, TIM_CCxN_ENABLE);
+
+  /* Enable the Main Output */
+  __HAL_TIM_MOE_ENABLE(htim);
+
+  /* Enable the Peripheral, except in trigger mode where enable is automatically done with trigger */
+  if (IS_TIM_SLAVE_INSTANCE(htim->Instance))
+  {
+    tmpsmcr = htim->Instance->SMCR & TIM_SMCR_SMS;
+    if (!IS_TIM_SLAVEMODE_TRIGGER_ENABLED(tmpsmcr))
+    {
+      __HAL_TIM_ENABLE(htim);
+    }
+  }
+  else
+  {
+    __HAL_TIM_ENABLE(htim);
+  }
+
+  /* Return function status */
+  return HAL_OK;
+}
+
+/**
+  * @brief  Stops the PWM signal generation on the complementary output.
+  * @param  htim TIM handle
+  * @param  Channel TIM Channel to be disabled
+  *          This parameter can be one of the following values:
+  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
+  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
+  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_TIMEx_PWMN_Stop(TIM_HandleTypeDef *htim, uint32_t Channel)
+{
+  /* Check the parameters */
+  assert_param(IS_TIM_CCXN_INSTANCE(htim->Instance, Channel));
+
+  /* Disable the complementary PWM output  */
+  TIM_CCxNChannelCmd(htim->Instance, Channel, TIM_CCxN_DISABLE);
+
+  /* Disable the Main Output */
+  __HAL_TIM_MOE_DISABLE(htim);
+
+  /* Disable the Peripheral */
+  __HAL_TIM_DISABLE(htim);
+
+  /* Set the TIM complementary channel state */
+  TIM_CHANNEL_N_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_READY);
+
+  /* Return function status */
+  return HAL_OK;
+}
+
+/**
+  * @brief  Starts the PWM signal generation in interrupt mode on the
+  *         complementary output.
+  * @param  htim TIM handle
+  * @param  Channel TIM Channel to be disabled
+  *          This parameter can be one of the following values:
+  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
+  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
+  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_TIMEx_PWMN_Start_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
+{
+  HAL_StatusTypeDef status = HAL_OK;
+  uint32_t tmpsmcr;
+
+  /* Check the parameters */
+  assert_param(IS_TIM_CCXN_INSTANCE(htim->Instance, Channel));
+
+  /* Check the TIM complementary channel state */
+  if (TIM_CHANNEL_N_STATE_GET(htim, Channel) != HAL_TIM_CHANNEL_STATE_READY)
+  {
+    return HAL_ERROR;
+  }
+
+  /* Set the TIM complementary channel state */
+  TIM_CHANNEL_N_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_BUSY);
+
+  switch (Channel)
+  {
+    case TIM_CHANNEL_1:
+    {
+      /* Enable the TIM Capture/Compare 1 interrupt */
+      __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC1);
+      break;
+    }
+
+    case TIM_CHANNEL_2:
+    {
+      /* Enable the TIM Capture/Compare 2 interrupt */
+      __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC2);
+      break;
+    }
+
+    case TIM_CHANNEL_3:
+    {
+      /* Enable the TIM Capture/Compare 3 interrupt */
+      __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC3);
+      break;
+    }
+
+    default:
+      status = HAL_ERROR;
+      break;
+  }
+
+  if (status == HAL_OK)
+  {
+    /* Enable the TIM Break interrupt */
+    __HAL_TIM_ENABLE_IT(htim, TIM_IT_BREAK);
+
+    /* Enable the complementary PWM output  */
+    TIM_CCxNChannelCmd(htim->Instance, Channel, TIM_CCxN_ENABLE);
+
+    /* Enable the Main Output */
+    __HAL_TIM_MOE_ENABLE(htim);
+
+    /* Enable the Peripheral, except in trigger mode where enable is automatically done with trigger */
+    if (IS_TIM_SLAVE_INSTANCE(htim->Instance))
+    {
+      tmpsmcr = htim->Instance->SMCR & TIM_SMCR_SMS;
+      if (!IS_TIM_SLAVEMODE_TRIGGER_ENABLED(tmpsmcr))
+      {
+        __HAL_TIM_ENABLE(htim);
+      }
+    }
+    else
+    {
+      __HAL_TIM_ENABLE(htim);
+    }
+  }
+
+  /* Return function status */
+  return status;
+}
+
+/**
+  * @brief  Stops the PWM signal generation in interrupt mode on the
+  *         complementary output.
+  * @param  htim TIM handle
+  * @param  Channel TIM Channel to be disabled
+  *          This parameter can be one of the following values:
+  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
+  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
+  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_TIMEx_PWMN_Stop_IT(TIM_HandleTypeDef *htim, uint32_t Channel)
+{
+  HAL_StatusTypeDef status = HAL_OK;
+  uint32_t tmpccer;
+
+  /* Check the parameters */
+  assert_param(IS_TIM_CCXN_INSTANCE(htim->Instance, Channel));
+
+  switch (Channel)
+  {
+    case TIM_CHANNEL_1:
+    {
+      /* Disable the TIM Capture/Compare 1 interrupt */
+      __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC1);
+      break;
+    }
+
+    case TIM_CHANNEL_2:
+    {
+      /* Disable the TIM Capture/Compare 2 interrupt */
+      __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC2);
+      break;
+    }
+
+    case TIM_CHANNEL_3:
+    {
+      /* Disable the TIM Capture/Compare 3 interrupt */
+      __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC3);
+      break;
+    }
+
+    default:
+      status = HAL_ERROR;
+      break;
+  }
+
+  if (status == HAL_OK)
+  {
+    /* Disable the complementary PWM output  */
+    TIM_CCxNChannelCmd(htim->Instance, Channel, TIM_CCxN_DISABLE);
+
+    /* Disable the TIM Break interrupt (only if no more channel is active) */
+    tmpccer = htim->Instance->CCER;
+    if ((tmpccer & (TIM_CCER_CC1NE | TIM_CCER_CC2NE | TIM_CCER_CC3NE)) == (uint32_t)RESET)
+    {
+      __HAL_TIM_DISABLE_IT(htim, TIM_IT_BREAK);
+    }
+
+    /* Disable the Main Output */
+    __HAL_TIM_MOE_DISABLE(htim);
+
+    /* Disable the Peripheral */
+    __HAL_TIM_DISABLE(htim);
+
+    /* Set the TIM complementary channel state */
+    TIM_CHANNEL_N_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_READY);
+  }
+
+  /* Return function status */
+  return status;
+}
+
+/**
+  * @brief  Starts the TIM PWM signal generation in DMA mode on the
+  *         complementary output
+  * @param  htim TIM handle
+  * @param  Channel TIM Channel to be enabled
+  *          This parameter can be one of the following values:
+  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
+  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
+  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
+  * @param  pData The source Buffer address.
+  * @param  Length The length of data to be transferred from memory to TIM peripheral
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_TIMEx_PWMN_Start_DMA(TIM_HandleTypeDef *htim, uint32_t Channel, uint32_t *pData, uint16_t Length)
+{
+  HAL_StatusTypeDef status = HAL_OK;
+  uint32_t tmpsmcr;
+
+  /* Check the parameters */
+  assert_param(IS_TIM_CCXN_INSTANCE(htim->Instance, Channel));
+
+  /* Set the TIM complementary channel state */
+  if (TIM_CHANNEL_N_STATE_GET(htim, Channel) == HAL_TIM_CHANNEL_STATE_BUSY)
+  {
+    return HAL_BUSY;
+  }
+  else if (TIM_CHANNEL_N_STATE_GET(htim, Channel) == HAL_TIM_CHANNEL_STATE_READY)
+  {
+    if ((pData == NULL) && (Length > 0U))
+    {
+      return HAL_ERROR;
+    }
+    else
+    {
+      TIM_CHANNEL_N_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_BUSY);
+    }
+  }
+  else
+  {
+    return HAL_ERROR;
+  }
+
+  switch (Channel)
+  {
+    case TIM_CHANNEL_1:
+    {
+      /* Set the DMA compare callbacks */
+      htim->hdma[TIM_DMA_ID_CC1]->XferCpltCallback = TIM_DMADelayPulseNCplt;
+      htim->hdma[TIM_DMA_ID_CC1]->XferHalfCpltCallback = TIM_DMADelayPulseHalfCplt;
+
+      /* Set the DMA error callback */
+      htim->hdma[TIM_DMA_ID_CC1]->XferErrorCallback = TIM_DMAErrorCCxN ;
+
+      /* Enable the DMA stream */
+      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC1], (uint32_t)pData, (uint32_t)&htim->Instance->CCR1,
+                           Length) != HAL_OK)
+      {
+        /* Return error status */
+        return HAL_ERROR;
+      }
+      /* Enable the TIM Capture/Compare 1 DMA request */
+      __HAL_TIM_ENABLE_DMA(htim, TIM_DMA_CC1);
+      break;
+    }
+
+    case TIM_CHANNEL_2:
+    {
+      /* Set the DMA compare callbacks */
+      htim->hdma[TIM_DMA_ID_CC2]->XferCpltCallback = TIM_DMADelayPulseNCplt;
+      htim->hdma[TIM_DMA_ID_CC2]->XferHalfCpltCallback = TIM_DMADelayPulseHalfCplt;
+
+      /* Set the DMA error callback */
+      htim->hdma[TIM_DMA_ID_CC2]->XferErrorCallback = TIM_DMAErrorCCxN ;
+
+      /* Enable the DMA stream */
+      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC2], (uint32_t)pData, (uint32_t)&htim->Instance->CCR2,
+                           Length) != HAL_OK)
+      {
+        /* Return error status */
+        return HAL_ERROR;
+      }
+      /* Enable the TIM Capture/Compare 2 DMA request */
+      __HAL_TIM_ENABLE_DMA(htim, TIM_DMA_CC2);
+      break;
+    }
+
+    case TIM_CHANNEL_3:
+    {
+      /* Set the DMA compare callbacks */
+      htim->hdma[TIM_DMA_ID_CC3]->XferCpltCallback = TIM_DMADelayPulseNCplt;
+      htim->hdma[TIM_DMA_ID_CC3]->XferHalfCpltCallback = TIM_DMADelayPulseHalfCplt;
+
+      /* Set the DMA error callback */
+      htim->hdma[TIM_DMA_ID_CC3]->XferErrorCallback = TIM_DMAErrorCCxN ;
+
+      /* Enable the DMA stream */
+      if (HAL_DMA_Start_IT(htim->hdma[TIM_DMA_ID_CC3], (uint32_t)pData, (uint32_t)&htim->Instance->CCR3,
+                           Length) != HAL_OK)
+      {
+        /* Return error status */
+        return HAL_ERROR;
+      }
+      /* Enable the TIM Capture/Compare 3 DMA request */
+      __HAL_TIM_ENABLE_DMA(htim, TIM_DMA_CC3);
+      break;
+    }
+
+    default:
+      status = HAL_ERROR;
+      break;
+  }
+
+  if (status == HAL_OK)
+  {
+    /* Enable the complementary PWM output  */
+    TIM_CCxNChannelCmd(htim->Instance, Channel, TIM_CCxN_ENABLE);
+
+    /* Enable the Main Output */
+    __HAL_TIM_MOE_ENABLE(htim);
+
+    /* Enable the Peripheral, except in trigger mode where enable is automatically done with trigger */
+    if (IS_TIM_SLAVE_INSTANCE(htim->Instance))
+    {
+      tmpsmcr = htim->Instance->SMCR & TIM_SMCR_SMS;
+      if (!IS_TIM_SLAVEMODE_TRIGGER_ENABLED(tmpsmcr))
+      {
+        __HAL_TIM_ENABLE(htim);
+      }
+    }
+    else
+    {
+      __HAL_TIM_ENABLE(htim);
+    }
+  }
+
+  /* Return function status */
+  return status;
+}
+
+/**
+  * @brief  Stops the TIM PWM signal generation in DMA mode on the complementary
+  *         output
+  * @param  htim TIM handle
+  * @param  Channel TIM Channel to be disabled
+  *          This parameter can be one of the following values:
+  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
+  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
+  *            @arg TIM_CHANNEL_3: TIM Channel 3 selected
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_TIMEx_PWMN_Stop_DMA(TIM_HandleTypeDef *htim, uint32_t Channel)
+{
+  HAL_StatusTypeDef status = HAL_OK;
+
+  /* Check the parameters */
+  assert_param(IS_TIM_CCXN_INSTANCE(htim->Instance, Channel));
+
+  switch (Channel)
+  {
+    case TIM_CHANNEL_1:
+    {
+      /* Disable the TIM Capture/Compare 1 DMA request */
+      __HAL_TIM_DISABLE_DMA(htim, TIM_DMA_CC1);
+      (void)HAL_DMA_Abort_IT(htim->hdma[TIM_DMA_ID_CC1]);
+      break;
+    }
+
+    case TIM_CHANNEL_2:
+    {
+      /* Disable the TIM Capture/Compare 2 DMA request */
+      __HAL_TIM_DISABLE_DMA(htim, TIM_DMA_CC2);
+      (void)HAL_DMA_Abort_IT(htim->hdma[TIM_DMA_ID_CC2]);
+      break;
+    }
+
+    case TIM_CHANNEL_3:
+    {
+      /* Disable the TIM Capture/Compare 3 DMA request */
+      __HAL_TIM_DISABLE_DMA(htim, TIM_DMA_CC3);
+      (void)HAL_DMA_Abort_IT(htim->hdma[TIM_DMA_ID_CC3]);
+      break;
+    }
+
+    default:
+      status = HAL_ERROR;
+      break;
+  }
+
+  if (status == HAL_OK)
+  {
+    /* Disable the complementary PWM output */
+    TIM_CCxNChannelCmd(htim->Instance, Channel, TIM_CCxN_DISABLE);
+
+    /* Disable the Main Output */
+    __HAL_TIM_MOE_DISABLE(htim);
+
+    /* Disable the Peripheral */
+    __HAL_TIM_DISABLE(htim);
+
+    /* Set the TIM complementary channel state */
+    TIM_CHANNEL_N_STATE_SET(htim, Channel, HAL_TIM_CHANNEL_STATE_READY);
+  }
+
+  /* Return function status */
+  return status;
+}
+
+/**
+  * @}
+  */
+
+/** @defgroup TIMEx_Exported_Functions_Group4 Extended Timer Complementary One Pulse functions
+  * @brief    Timer Complementary One Pulse functions
+  *
+@verbatim
+  ==============================================================================
+                ##### Timer Complementary One Pulse functions #####
+  ==============================================================================
+  [..]
+    This section provides functions allowing to:
+    (+) Start the Complementary One Pulse generation.
+    (+) Stop the Complementary One Pulse.
+    (+) Start the Complementary One Pulse and enable interrupts.
+    (+) Stop the Complementary One Pulse and disable interrupts.
+
+@endverbatim
+  * @{
+  */
+
+/**
+  * @brief  Starts the TIM One Pulse signal generation on the complementary
+  *         output.
+  * @note OutputChannel must match the pulse output channel chosen when calling
+  *       @ref HAL_TIM_OnePulse_ConfigChannel().
+  * @param  htim TIM One Pulse handle
+  * @param  OutputChannel pulse output channel to enable
+  *          This parameter can be one of the following values:
+  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
+  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_TIMEx_OnePulseN_Start(TIM_HandleTypeDef *htim, uint32_t OutputChannel)
+{
+  uint32_t input_channel = (OutputChannel == TIM_CHANNEL_1) ? TIM_CHANNEL_2 : TIM_CHANNEL_1;
+  HAL_TIM_ChannelStateTypeDef channel_1_state = TIM_CHANNEL_STATE_GET(htim, TIM_CHANNEL_1);
+  HAL_TIM_ChannelStateTypeDef channel_2_state = TIM_CHANNEL_STATE_GET(htim, TIM_CHANNEL_2);
+  HAL_TIM_ChannelStateTypeDef complementary_channel_1_state = TIM_CHANNEL_N_STATE_GET(htim, TIM_CHANNEL_1);
+  HAL_TIM_ChannelStateTypeDef complementary_channel_2_state = TIM_CHANNEL_N_STATE_GET(htim, TIM_CHANNEL_2);
+
+  /* Check the parameters */
+  assert_param(IS_TIM_CCXN_INSTANCE(htim->Instance, OutputChannel));
+
+  /* Check the TIM channels state */
+  if ((channel_1_state != HAL_TIM_CHANNEL_STATE_READY)
+      || (channel_2_state != HAL_TIM_CHANNEL_STATE_READY)
+      || (complementary_channel_1_state != HAL_TIM_CHANNEL_STATE_READY)
+      || (complementary_channel_2_state != HAL_TIM_CHANNEL_STATE_READY))
+  {
+    return HAL_ERROR;
+  }
+
+  /* Set the TIM channels state */
+  TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_BUSY);
+  TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_BUSY);
+  TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_BUSY);
+  TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_BUSY);
+
+  /* Enable the complementary One Pulse output channel and the Input Capture channel */
+  TIM_CCxNChannelCmd(htim->Instance, OutputChannel, TIM_CCxN_ENABLE);
+  TIM_CCxChannelCmd(htim->Instance, input_channel, TIM_CCx_ENABLE);
+
+  /* Enable the Main Output */
+  __HAL_TIM_MOE_ENABLE(htim);
+
+  /* Return function status */
+  return HAL_OK;
+}
+
+/**
+  * @brief  Stops the TIM One Pulse signal generation on the complementary
+  *         output.
+  * @note OutputChannel must match the pulse output channel chosen when calling
+  *       @ref HAL_TIM_OnePulse_ConfigChannel().
+  * @param  htim TIM One Pulse handle
+  * @param  OutputChannel pulse output channel to disable
+  *          This parameter can be one of the following values:
+  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
+  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_TIMEx_OnePulseN_Stop(TIM_HandleTypeDef *htim, uint32_t OutputChannel)
+{
+  uint32_t input_channel = (OutputChannel == TIM_CHANNEL_1) ? TIM_CHANNEL_2 : TIM_CHANNEL_1;
+
+  /* Check the parameters */
+  assert_param(IS_TIM_CCXN_INSTANCE(htim->Instance, OutputChannel));
+
+  /* Disable the complementary One Pulse output channel and the Input Capture channel */
+  TIM_CCxNChannelCmd(htim->Instance, OutputChannel, TIM_CCxN_DISABLE);
+  TIM_CCxChannelCmd(htim->Instance, input_channel, TIM_CCx_DISABLE);
+
+  /* Disable the Main Output */
+  __HAL_TIM_MOE_DISABLE(htim);
+
+  /* Disable the Peripheral */
+  __HAL_TIM_DISABLE(htim);
+
+  /* Set the TIM  channels state */
+  TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_READY);
+  TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_READY);
+  TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_READY);
+  TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_READY);
+
+  /* Return function status */
+  return HAL_OK;
+}
+
+/**
+  * @brief  Starts the TIM One Pulse signal generation in interrupt mode on the
+  *         complementary channel.
+  * @note OutputChannel must match the pulse output channel chosen when calling
+  *       @ref HAL_TIM_OnePulse_ConfigChannel().
+  * @param  htim TIM One Pulse handle
+  * @param  OutputChannel pulse output channel to enable
+  *          This parameter can be one of the following values:
+  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
+  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_TIMEx_OnePulseN_Start_IT(TIM_HandleTypeDef *htim, uint32_t OutputChannel)
+{
+  uint32_t input_channel = (OutputChannel == TIM_CHANNEL_1) ? TIM_CHANNEL_2 : TIM_CHANNEL_1;
+  HAL_TIM_ChannelStateTypeDef channel_1_state = TIM_CHANNEL_STATE_GET(htim, TIM_CHANNEL_1);
+  HAL_TIM_ChannelStateTypeDef channel_2_state = TIM_CHANNEL_STATE_GET(htim, TIM_CHANNEL_2);
+  HAL_TIM_ChannelStateTypeDef complementary_channel_1_state = TIM_CHANNEL_N_STATE_GET(htim, TIM_CHANNEL_1);
+  HAL_TIM_ChannelStateTypeDef complementary_channel_2_state = TIM_CHANNEL_N_STATE_GET(htim, TIM_CHANNEL_2);
+
+  /* Check the parameters */
+  assert_param(IS_TIM_CCXN_INSTANCE(htim->Instance, OutputChannel));
+
+  /* Check the TIM channels state */
+  if ((channel_1_state != HAL_TIM_CHANNEL_STATE_READY)
+      || (channel_2_state != HAL_TIM_CHANNEL_STATE_READY)
+      || (complementary_channel_1_state != HAL_TIM_CHANNEL_STATE_READY)
+      || (complementary_channel_2_state != HAL_TIM_CHANNEL_STATE_READY))
+  {
+    return HAL_ERROR;
+  }
+
+  /* Set the TIM channels state */
+  TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_BUSY);
+  TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_BUSY);
+  TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_BUSY);
+  TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_BUSY);
+
+  /* Enable the TIM Capture/Compare 1 interrupt */
+  __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC1);
+
+  /* Enable the TIM Capture/Compare 2 interrupt */
+  __HAL_TIM_ENABLE_IT(htim, TIM_IT_CC2);
+
+  /* Enable the complementary One Pulse output channel and the Input Capture channel */
+  TIM_CCxNChannelCmd(htim->Instance, OutputChannel, TIM_CCxN_ENABLE);
+  TIM_CCxChannelCmd(htim->Instance, input_channel, TIM_CCx_ENABLE);
+
+  /* Enable the Main Output */
+  __HAL_TIM_MOE_ENABLE(htim);
+
+  /* Return function status */
+  return HAL_OK;
+}
+
+/**
+  * @brief  Stops the TIM One Pulse signal generation in interrupt mode on the
+  *         complementary channel.
+  * @note OutputChannel must match the pulse output channel chosen when calling
+  *       @ref HAL_TIM_OnePulse_ConfigChannel().
+  * @param  htim TIM One Pulse handle
+  * @param  OutputChannel pulse output channel to disable
+  *          This parameter can be one of the following values:
+  *            @arg TIM_CHANNEL_1: TIM Channel 1 selected
+  *            @arg TIM_CHANNEL_2: TIM Channel 2 selected
+  * @retval HAL status
+  */
+HAL_StatusTypeDef HAL_TIMEx_OnePulseN_Stop_IT(TIM_HandleTypeDef *htim, uint32_t OutputChannel)
+{
+  uint32_t input_channel = (OutputChannel == TIM_CHANNEL_1) ? TIM_CHANNEL_2 : TIM_CHANNEL_1;
+
+  /* Check the parameters */
+  assert_param(IS_TIM_CCXN_INSTANCE(htim->Instance, OutputChannel));
+
+  /* Disable the TIM Capture/Compare 1 interrupt */
+  __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC1);
+
+  /* Disable the TIM Capture/Compare 2 interrupt */
+  __HAL_TIM_DISABLE_IT(htim, TIM_IT_CC2);
+
+  /* Disable the complementary One Pulse output channel and the Input Capture channel */
+  TIM_CCxNChannelCmd(htim->Instance, OutputChannel, TIM_CCxN_DISABLE);
+  TIM_CCxChannelCmd(htim->Instance, input_channel, TIM_CCx_DISABLE);
+
+  /* Disable the Main Output */
+  __HAL_TIM_MOE_DISABLE(htim);
+
+  /* Disable the Peripheral */
+  __HAL_TIM_DISABLE(htim);
+
+  /* Set the TIM  channels state */
+  TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_READY);
+  TIM_CHANNEL_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_READY);
+  TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_1, HAL_TIM_CHANNEL_STATE_READY);
+  TIM_CHANNEL_N_STATE_SET(htim, TIM_CHANNEL_2, HAL_TIM_CHANNEL_STATE_READY);
+
+  /* Return function status */
+  return HAL_OK;
+}
