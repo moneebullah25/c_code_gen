@@ -1,4 +1,6 @@
 _proc/
+code_completion_model
+fine_tuned_code_completion_model
 
 *.bak
 .gitattributes

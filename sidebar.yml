@@ -9,3 +9,4 @@ website:
       - 04_transformers.ipynb
       - 05_nano_gpt.ipynb
       - 06_uml_diagrams.ipynb
+      - 07_huggingface.ipynb
