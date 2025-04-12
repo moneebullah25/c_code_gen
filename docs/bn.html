@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.4.549">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -23,7 +23,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -80,7 +80,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -89,6 +95,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
@@ -99,49 +106,43 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link rel="stylesheet" href="styles.css">
 <meta property="og:title" content="c_code_gen - Batch Normalization">
 <meta property="og:description" content="Applying Activations, Gradients, and Batch Normalization">
-<meta property="og:image" content="https://moneebullah25.github.io/c_code_gen/02_bn_files/figure-html/cell-13-output-2.png">
-<meta property="og:site-name" content="c_code_gen">
-<meta property="og:image:height" content="372">
-<meta property="og:image:width" content="1218">
+<meta property="og:site_name" content="c_code_gen">
 <meta name="twitter:title" content="c_code_gen - Batch Normalization">
 <meta name="twitter:description" content="Applying Activations, Gradients, and Batch Normalization">
-<meta name="twitter:image" content="https://moneebullah25.github.io/c_code_gen/02_bn_files/figure-html/cell-13-output-2.png">
-<meta name="twitter:image-height" content="372">
-<meta name="twitter:image-width" content="1218">
-<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:card" content="summary">
 </head>
 
 <body class="nav-sidebar floating nav-fixed">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
     <span class="navbar-title">c_code_gen</span>
     </a>
   </div>
-        <div class="quarto-navbar-tools ms-auto">
+        <div class="quarto-navbar-tools">
 </div>
           <div id="quarto-search" class="" title="Search"></div>
       </div> <!-- /container-fluid -->
     </nav>
   <nav class="quarto-secondary-nav">
     <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./bn.html">Batch Normalization</a></li></ol></nav>
-      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-      </a>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./bn.html">Batch Normalization</a></li></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
     </div>
   </nav>
 </header>
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation floating overflow-auto">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="sidebar-menu-container"> 
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
@@ -201,7 +202,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </ul>
     </div>
 </nav>
-<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
@@ -233,7 +234,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#update-data-raito-over-time" id="toc-update-data-raito-over-time" class="nav-link" data-scroll-target="#update-data-raito-over-time">7.4- update: data raito over time</a></li>
   </ul></li>
   </ul>
-<div class="toc-actions"><div><i class="bi bi-github"></i></div><div class="action-links"><p><a href="https://github.com/moneebullah25/c_code_gen/issues/new" class="toc-action">Report an issue</a></p></div></div></nav>
+<div class="toc-actions"><ul><li><a href="https://github.com/moneebullah25/c_code_gen/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -258,10 +259,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </div>
   
 
+
 </header>
 
+
 <!-- WARNING: THIS FILE WAS AUTOGENERATED! DO NOT EDIT! -->
-<div class="cell">
+<div id="cell-2" class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn.functional <span class="im">as</span> F</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
@@ -269,7 +272,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <section id="starter-code-from-previous-mlp-part" class="level1">
 <h1>1- Starter Code (from previous MLP part)</h1>
-<div class="cell">
+<div id="cell-4" class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>words <span class="op">=</span> <span class="bu">open</span>(<span class="st">"names.txt"</span>, <span class="st">"r"</span>).read().splitlines()</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(words[:<span class="dv">8</span>])</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="bu">len</span>(words))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -278,7 +281,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 32033</code></pre>
 </div>
 </div>
-<div class="cell">
+<div id="cell-5" class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>chars <span class="op">=</span> <span class="bu">sorted</span>(<span class="bu">list</span>(<span class="bu">set</span>(<span class="st">""</span>.join(words))))</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>stoi <span class="op">=</span> {s: i <span class="op">+</span> <span class="dv">1</span> <span class="cf">for</span> i, s <span class="kw">in</span> <span class="bu">enumerate</span>(chars)}</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>stoi[<span class="st">"."</span>] <span class="op">=</span> <span class="dv">0</span></span>
@@ -292,7 +295,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 27</code></pre>
 </div>
 </div>
-<div class="cell">
+<div id="cell-6" class="cell">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>block_size <span class="op">=</span> <span class="dv">3</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> build_dataset(words):  </span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  X, Y <span class="op">=</span> [], []</span>
@@ -324,7 +327,7 @@ torch.Size([22655, 3]) torch.Size([22655])
 torch.Size([22866, 3]) torch.Size([22866])</code></pre>
 </div>
 </div>
-<div class="cell">
+<div id="cell-7" class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>n_embd <span class="op">=</span> <span class="dv">10</span> </span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>n_hidden <span class="op">=</span> <span class="dv">200</span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -345,7 +348,7 @@ torch.Size([22866, 3]) torch.Size([22866])</code></pre>
 <pre><code>11897</code></pre>
 </div>
 </div>
-<div class="cell">
+<div id="cell-8" class="cell">
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>max_steps <span class="op">=</span> <span class="dv">200000</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>batch_size <span class="op">=</span> <span class="dv">32</span></span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>lossi <span class="op">=</span> []</span>
@@ -386,7 +389,7 @@ torch.Size([22866, 3]) torch.Size([22866])</code></pre>
 <pre><code>0 / 200000: 27.881732940673828</code></pre>
 </div>
 </div>
-<div class="cell">
+<div id="cell-9" class="cell">
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="at">@torch.no_grad</span>()</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> split_loss(split):</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    x,y <span class="op">=</span> {</span>
@@ -411,7 +414,7 @@ torch.Size([22866, 3]) torch.Size([22866])</code></pre>
 dev loss: 25.140993118286133</code></pre>
 </div>
 </div>
-<div class="cell">
+<div id="cell-10" class="cell">
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sampling from the model</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>g <span class="op">=</span> torch.Generator().manual_seed(<span class="dv">2147483647</span> <span class="op">+</span> <span class="dv">10</span>)</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -463,7 +466,7 @@ rrnhvvyhcyryhcyysovyycoewiekkoovwixtyxfvwovsmcjrkcoyhshojyhguyozvwuhjryhcyysewgm
 <section id="fixing-the-initialization" class="level1">
 <h1>2- Fixing the Initialization</h1>
 <p>we expect similar probability for each character = 1 / 27</p>
-<div class="cell">
+<div id="cell-12" class="cell">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>expected_loss <span class="op">=</span> <span class="op">-</span> torch.tensor(<span class="dv">1</span> <span class="op">/</span> <span class="dv">27</span>).log()</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(expected_loss)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -486,7 +489,7 @@ rrnhvvyhcyryhcyysovyycoewiekkoovwixtyxfvwovsmcjrkcoyhshojyhguyozvwuhjryhcyysewgm
 <span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> out</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>In the _backward() function that gradient is calculated by subtracting the square of the output of tanh from 1 and then multiplying it with the global gradient in the case <code>out.grad</code> in line <code>self.grad += (1 - t**2) * out.grad</code>. So if <code>h</code> tensor is getting extreme values like 1 or -1 the output will definately be <code>0 * out.grad</code> will will become 0 hence no loss will be propagated through the network and neural network can’t learn.</p>
-<div class="cell">
+<div id="cell-14" class="cell">
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>n_embd <span class="op">=</span> <span class="dv">10</span> </span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>n_hidden <span class="op">=</span> <span class="dv">200</span></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -529,7 +532,7 @@ rrnhvvyhcyryhcyysovyycoewiekkoovwixtyxfvwovsmcjrkcoyhshojyhguyozvwuhjryhcyysewgm
 <span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>h_grad <span class="op">=</span> tanh_backward_pass(hpreact, global_gradient)</span>
 <span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>W1_grad <span class="op">=</span> embcat.T <span class="op">@</span> h_grad</span>
 <span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>b1_grad <span class="op">=</span> torch.<span class="bu">sum</span>(h_grad, axis<span class="op">=</span><span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell">
+<div id="cell-16" class="cell">
 <div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>ix <span class="op">=</span> torch.randint(<span class="dv">0</span>, <span class="bu">len</span>(Xtr), (batch_size,), generator<span class="op">=</span>g)</span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="co"># batch </span></span>
@@ -554,7 +557,7 @@ rrnhvvyhcyryhcyysovyycoewiekkoovwixtyxfvwovsmcjrkcoyhshojyhguyozvwuhjryhcyysewgm
 <p><code>h</code> has many values = 1 or -1, so the gradient is 0</p>
 <section id="explaining-the-problem" class="level2">
 <h2 class="anchored" data-anchor-id="explaining-the-problem">3.1 - Explaining The Problem</h2>
-<div class="cell">
+<div id="cell-19" class="cell">
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize <span class="op">=</span> (<span class="dv">15</span>, <span class="dv">4</span>))</span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -570,19 +573,27 @@ rrnhvvyhcyryhcyysovyycoewiekkoovwixtyxfvwovsmcjrkcoyhshojyhguyozvwuhjryhcyysewgm
 <pre><code>Text(0.5, 1.0, 'tanh')</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="02_bn_files/figure-html/cell-13-output-2.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="02_bn_files/figure-html/cell-13-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>comment: There’re many <code>values = 1 or -1</code> in tanh because pre-activations with extreme values</p>
 <p>➡️ changing the input doesn’t change the outputvalue much</p>
 <p>➡️ the derivative of tanh is <code>1 - tanh^2</code></p>
 <p>➡️ the gradient is 0 for <code>all values = 1 or -1</code></p>
-<div class="cell">
+<div id="cell-21" class="cell">
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize <span class="op">=</span> (<span class="dv">20</span>, <span class="dv">10</span>))</span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>plt.imshow(h.<span class="bu">abs</span>() <span class="op">&gt;</span> <span class="fl">0.99</span>, cmap <span class="op">=</span> <span class="st">"gray"</span>, interpolation<span class="op">=</span><span class="st">'nearest'</span>)</span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"h &gt; 0.99: white is True, black is False"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="02_bn_files/figure-html/cell-14-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="02_bn_files/figure-html/cell-14-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>comment: if a column is completely white, it’s a dead neuron</p>
@@ -595,7 +606,7 @@ rrnhvvyhcyryhcyysovyycoewiekkoovwixtyxfvwovsmcjrkcoyhshojyhguyozvwuhjryhcyysewgm
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>b1 <span class="op">=</span> torch.zeros(hidden_size)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Applying proper weight initialization techniques can significantly contribute to the alleviation of dead neurons and facilitate more effective training in neural networks.</p>
 <p>Multiplying weights with small number calculated using <code>math.sqrt(2 / input_size)</code> is more systematic approach and it’s the recommended way but for the moment we can multiply weights with small value to mitigate this issue</p>
-<div class="cell">
+<div id="cell-24" class="cell">
 <div class="sourceCode cell-code" id="cb32"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>n_embd <span class="op">=</span> <span class="dv">10</span> </span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>n_hidden <span class="op">=</span> <span class="dv">200</span></span>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -618,7 +629,7 @@ rrnhvvyhcyryhcyysovyycoewiekkoovwixtyxfvwovsmcjrkcoyhshojyhguyozvwuhjryhcyysewgm
 </div>
 </div>
 <p>Now using the above solution we are making sure that we are not wasting the first few cycles of our training to squash down our weights to the point where our neural network actually starts learning, instead we somehow get the idea what our initial loss will look like before training and initialize the weights of the neural network accordingly.</p>
-<div class="cell">
+<div id="cell-26" class="cell">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>ix <span class="op">=</span> torch.randint(<span class="dv">0</span>, <span class="bu">len</span>(Xtr), (batch_size,), generator<span class="op">=</span>g)</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="co"># batch </span></span>
@@ -637,7 +648,7 @@ rrnhvvyhcyryhcyysovyycoewiekkoovwixtyxfvwovsmcjrkcoyhshojyhguyozvwuhjryhcyysewgm
 <pre><code>initial loss = 3.3134593963623047</code></pre>
 </div>
 </div>
-<div class="cell">
+<div id="cell-27" class="cell">
 <div class="sourceCode cell-code" id="cb36"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">3</span>, figsize <span class="op">=</span> (<span class="dv">15</span>, <span class="dv">4</span>))</span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -653,16 +664,24 @@ rrnhvvyhcyryhcyysovyycoewiekkoovwixtyxfvwovsmcjrkcoyhshojyhguyozvwuhjryhcyysewgm
 <pre><code>Text(0.5, 1.0, 'tanh')</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="02_bn_files/figure-html/cell-17-output-2.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="02_bn_files/figure-html/cell-17-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>As we can see that most of our neurons in the neural network are active</p>
-<div class="cell">
+<div id="cell-29" class="cell">
 <div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize <span class="op">=</span> (<span class="dv">20</span>, <span class="dv">10</span>))</span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>plt.imshow(h.<span class="bu">abs</span>() <span class="op">&gt;</span> <span class="fl">0.99</span>, cmap <span class="op">=</span> <span class="st">"gray"</span>, interpolation<span class="op">=</span><span class="st">'nearest'</span>)</span>
 <span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"h &gt; 0.99: white is True, black is False"</span>)<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-display">
-<p><img src="02_bn_files/figure-html/cell-18-output-1.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="02_bn_files/figure-html/cell-18-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 </section>
@@ -685,7 +704,7 @@ rrnhvvyhcyryhcyysovyycoewiekkoovwixtyxfvwovsmcjrkcoyhshojyhguyozvwuhjryhcyysewgm
 <div class="sourceCode" id="cb42"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>y_scaled <span class="op">=</span> x <span class="op">@</span> w_scaled</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>This calculates the pre-activation using the scaled weights.</p>
 <p>By scaling the weights using Kaiming Initialization, the code aims to ensure that the pre-activation values remain within a reasonable range, preventing issues related to vanishing/exploding gradients and promoting stable training of the neural network. However due to modern innovations like Residual Networks, Normalization (Layer, Batch, Group), and Optimizers (Adam, RMSprop).</p>
-<div class="cell">
+<div id="cell-32" class="cell">
 <div class="sourceCode cell-code" id="cb43"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1000 training examples, 10 features</span></span>
 <span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.randn(<span class="dv">1000</span>,<span class="dv">10</span>)</span>
 <span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -724,7 +743,11 @@ y mean = -0.005, std = 3.042
 y scaled mean = -0.002, std = 0.962</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="02_bn_files/figure-html/cell-19-output-2.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="02_bn_files/figure-html/cell-19-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 </section>
@@ -751,7 +774,7 @@ y scaled mean = -0.002, std = 0.962</code></pre>
 <p>This approach allows the neural network to learn the optimal scaling and shifting for its weights during the training process, adapting to the data distribution more flexibly. It strikes a balance between normalization and adaptability, enhancing the network’s ability to converge efficiently while avoiding the potential drawbacks of constant normalization.</p>
 <section id="explaination" class="level2">
 <h2 class="anchored" data-anchor-id="explaination">5.1- Explaination</h2>
-<div class="cell">
+<div id="cell-36" class="cell">
 <div class="sourceCode cell-code" id="cb48"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># MLP revisited</span></span>
 <span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>n_embd <span class="op">=</span> <span class="dv">10</span> <span class="co"># the dimensionality of the character embedding vectors</span></span>
 <span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>n_hidden <span class="op">=</span> <span class="dv">200</span> <span class="co"># the number of neurons in the hidden layer of the MLP</span></span>
@@ -775,7 +798,7 @@ y scaled mean = -0.002, std = 0.962</code></pre>
 <pre><code>12097</code></pre>
 </div>
 </div>
-<div class="cell">
+<div id="cell-37" class="cell">
 <div class="sourceCode cell-code" id="cb50"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>max_steps <span class="op">=</span> <span class="dv">200000</span></span>
 <span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>batch_size <span class="op">=</span> <span class="dv">32</span></span>
 <span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>lossi <span class="op">=</span> []</span>
@@ -828,7 +851,7 @@ y scaled mean = -0.002, std = 0.962</code></pre>
 <h2 class="anchored" data-anchor-id="sampling">5.2- Sampling</h2>
 <p>How to forward a single example to the model and get a prediction, even the model uses the mean ans std of the batch to normalize the input</p>
 <p>We need a step after training, and find the mean and std of the whole training set</p>
-<div class="cell">
+<div id="cell-39" class="cell">
 <div class="sourceCode cell-code" id="cb52"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Calibrate the batch norm statistics</span></span>
 <span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad():</span>
 <span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>    emb <span class="op">=</span> C[Xtr]</span>
@@ -838,7 +861,7 @@ y scaled mean = -0.002, std = 0.962</code></pre>
 <span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a>    bnmean <span class="op">=</span> hpreact.mean(dim<span class="op">=</span><span class="dv">0</span>, keepdim<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a>    bnstd <span class="op">=</span> hpreact.std(dim<span class="op">=</span><span class="dv">0</span>, keepdim<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell">
+<div id="cell-40" class="cell">
 <div class="sourceCode cell-code" id="cb53"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="at">@torch.no_grad</span>()</span>
 <span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> split_loss(split):</span>
 <span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>    x,y <span class="op">=</span> {</span>
@@ -884,7 +907,7 @@ dev loss: 3.2617669105529785</code></pre>
 <span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>    hpreact <span class="op">=</span> (hpreact <span class="op">-</span> bnmean_running) <span class="op">/</span> (bnstd_running <span class="op">+</span> <span class="fl">1e-6</span>)</span>
 <span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>    hpreact <span class="op">=</span> hpreact <span class="op">*</span> bngain <span class="op">+</span> bnbias</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>And another thing to notice with the running mean and running standard deviation approach is that now we don’t need to calculate the <code>b1</code>, because it wouldn’t have effect on <code>bnmeani</code> and <code>bnstdi</code> when calculating the <code>hpreact</code> in the training loop.</p>
-<div class="cell">
+<div id="cell-43" class="cell">
 <div class="sourceCode cell-code" id="cb58"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="co"># MLP revisited</span></span>
 <span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>n_embd <span class="op">=</span> <span class="dv">10</span> <span class="co"># the dimensionality of the character embedding vectors</span></span>
 <span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>n_hidden <span class="op">=</span> <span class="dv">200</span> <span class="co"># the number of neurons in the hidden layer of the MLP</span></span>
@@ -910,7 +933,7 @@ dev loss: 3.2617669105529785</code></pre>
 <pre><code>12097</code></pre>
 </div>
 </div>
-<div class="cell">
+<div id="cell-44" class="cell">
 <div class="sourceCode cell-code" id="cb60"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="co"># same optimization as last time</span></span>
 <span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>max_steps <span class="op">=</span> <span class="dv">200000</span></span>
 <span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>batch_size <span class="op">=</span> <span class="dv">32</span></span>
@@ -960,7 +983,7 @@ dev loss: 3.2617669105529785</code></pre>
 <pre><code>      0/ 200000: 3.3239</code></pre>
 </div>
 </div>
-<div class="cell">
+<div id="cell-45" class="cell">
 <div class="sourceCode cell-code" id="cb62"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="at">@torch.no_grad</span>()</span>
 <span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> split_loss(split):</span>
 <span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a>    x,y <span class="op">=</span> {</span>
@@ -996,7 +1019,7 @@ dev loss: 3.269122362136841</code></pre>
 </section>
 <section id="pytorch-ifying-the-model" class="level1">
 <h1>6- PyTorch-ifying the model</h1>
-<div class="cell">
+<div id="cell-47" class="cell">
 <div class="sourceCode cell-code" id="cb64"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="co"># visualization parameters (play with these)</span></span>
 <span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>gain <span class="op">=</span> <span class="fl">0.2</span></span>
 <span id="cb64-3"><a href="#cb64-3" aria-hidden="true" tabindex="-1"></a>last_layer_confidence <span class="op">=</span> <span class="fl">0.1</span></span>
@@ -1004,7 +1027,7 @@ dev loss: 3.269122362136841</code></pre>
 <span id="cb64-5"><a href="#cb64-5" aria-hidden="true" tabindex="-1"></a>using_batch_norm <span class="op">=</span> <span class="va">True</span></span>
 <span id="cb64-6"><a href="#cb64-6" aria-hidden="true" tabindex="-1"></a>div_by_fan_in <span class="op">=</span> <span class="va">True</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div class="cell">
+<div id="cell-48" class="cell">
 <div class="sourceCode cell-code" id="cb65"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Linear:</span>
 <span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, fan_in, fan_out, bias <span class="op">=</span> <span class="va">True</span>):</span>
 <span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.weight <span class="op">=</span> torch.randn((fan_in, fan_out), generator <span class="op">=</span> g)</span>
@@ -1116,7 +1139,7 @@ dev loss: 3.269122362136841</code></pre>
 <pre><code>47024</code></pre>
 </div>
 </div>
-<div class="cell">
+<div id="cell-49" class="cell">
 <div class="sourceCode cell-code" id="cb67"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="co"># same optimization as last time</span></span>
 <span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>max_steps <span class="op">=</span> <span class="dv">200000</span></span>
 <span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a>batch_size <span class="op">=</span> <span class="dv">32</span></span>
@@ -1168,7 +1191,7 @@ dev loss: 3.269122362136841</code></pre>
 <h1>7- Visualizations</h1>
 <section id="forward-pass-activations-stats" class="level2">
 <h2 class="anchored" data-anchor-id="forward-pass-activations-stats">7.1- Forward Pass Activations stats</h2>
-<div class="cell">
+<div id="cell-52" class="cell">
 <div class="sourceCode cell-code" id="cb69"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">20</span>, <span class="dv">4</span>))</span>
 <span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>legends <span class="op">=</span> []</span>
 <span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, layer <span class="kw">in</span> <span class="bu">enumerate</span>(layers[:<span class="op">-</span><span class="dv">1</span>]):</span>
@@ -1192,13 +1215,17 @@ layer 11 mean 0.00 std 0.66 saturated 1.22%
 layer 14 mean -0.00 std 0.66 saturated 0.72%</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="02_bn_files/figure-html/cell-30-output-2.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="02_bn_files/figure-html/cell-30-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 </section>
 <section id="backward-pass-gradient-statistics" class="level2">
 <h2 class="anchored" data-anchor-id="backward-pass-gradient-statistics">7.2- Backward pass Gradient Statistics</h2>
-<div class="cell">
+<div id="cell-54" class="cell">
 <div class="sourceCode cell-code" id="cb71"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">20</span>, <span class="dv">4</span>))</span>
 <span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>legends <span class="op">=</span> []</span>
 <span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, layer <span class="kw">in</span> <span class="bu">enumerate</span>(layers[:<span class="op">-</span><span class="dv">1</span>]):</span>
@@ -1222,14 +1249,18 @@ layer 11 mean 0.00000 std 0.00094 saturated 0.00000000%
 layer 14 mean -0.00000 std 0.00105 saturated 0.00000000%</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="02_bn_files/figure-html/cell-31-output-2.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="02_bn_files/figure-html/cell-31-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>comment: Gradients are not vanishing or exploding</p>
 </section>
 <section id="parameter-activation-and-gradient-statistics" class="level2">
 <h2 class="anchored" data-anchor-id="parameter-activation-and-gradient-statistics">7.3- Parameter Activation and Gradient Statistics</h2>
-<div class="cell">
+<div id="cell-57" class="cell">
 <div class="sourceCode cell-code" id="cb73"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">20</span>, <span class="dv">4</span>))</span>
 <span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>legends <span class="op">=</span> []</span>
 <span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -1257,13 +1288,17 @@ weight shape (100, 27) | mean 0.00002 | std 0.01235 | grad:data ratio 2.86e-01</
 <pre><code>Text(0.5, 1.0, 'Weights Gradient distribution')</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="02_bn_files/figure-html/cell-32-output-3.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="02_bn_files/figure-html/cell-32-output-3.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 </section>
 <section id="update-data-raito-over-time" class="level2">
 <h2 class="anchored" data-anchor-id="update-data-raito-over-time">7.4- update: data raito over time</h2>
-<div class="cell">
+<div id="cell-59" class="cell">
 <div class="sourceCode cell-code" id="cb76"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">20</span>, <span class="dv">4</span>))</span>
 <span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>legends <span class="op">=</span> []</span>
 <span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, p <span class="kw">in</span> <span class="bu">enumerate</span>(parameters):</span>
@@ -1281,7 +1316,11 @@ weight shape (100, 27) | mean 0.00002 | std 0.01235 | grad:data ratio 2.86e-01</
 <pre><code>Text(0.5, 1.0, 'Update to Data ratio')</code></pre>
 </div>
 <div class="cell-output cell-output-display">
-<p><img src="02_bn_files/figure-html/cell-33-output-2.png" class="img-fluid"></p>
+<div>
+<figure class="figure">
+<p><img src="02_bn_files/figure-html/cell-33-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
 </div>
 </div>
 <p>Conclusion: Batchnorm makes the model more robust</p>
@@ -1374,10 +1413,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
-  function tippyHover(el, contentFn) {
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -1387,8 +1425,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -1401,6 +1448,125 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
       return note.innerHTML;
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -1444,6 +1610,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -1469,6 +1636,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -1532,4 +1725,5 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 
 
 
-</body></html>
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/moneebullah25/c_code_gen/issues/new" class="toc-action"><i class="bi bi-github"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
