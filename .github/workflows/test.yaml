@@ -1,6 +1,10 @@
 name: CI
 on:  [workflow_dispatch, pull_request, push]
 
+env:
+  # nbdev 2.4 breaks with execnb>=0.2 and fastcore>=2
+  PIP_CONSTRAINT: ${{ github.workspace }}/constraints.txt
+
 jobs:
   test:
     runs-on: ubuntu-latest
